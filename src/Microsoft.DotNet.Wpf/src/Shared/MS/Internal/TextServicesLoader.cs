@@ -347,7 +347,7 @@ namespace MS.Internal
         // Writes are not thread safe, but we don't mind the neglible perf hit
         // of potentially writing it twice.
         private static InstallState s_servicesInstalled = InstallState.Unknown;
-        private static object s_servicesInstalledLock = new object();
+        private static readonly object s_servicesInstalledLock = new object();
 
         #endregion Private Fields
     }

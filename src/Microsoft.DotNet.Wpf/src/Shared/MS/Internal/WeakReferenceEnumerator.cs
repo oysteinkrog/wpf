@@ -2,82 +2,67 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Collections.ObjectModel;
 
-#nullable enable
-
-namespace MS.Internal;
-
-/// <summary>
-/// This allows callers to "foreach" through a WeakReferenceList.
-/// Each weak reference is checked for liveness and "current"
-/// actually returns a strong reference to the current element.
-/// </summary>
-/// <remarks>
-/// <para>
-/// Due to the way enumerators function, this enumerator often
-/// holds a cached strong reference to the "Current" element.
-/// This should not be a problem unless the caller stops enumerating
-/// before the end of the list AND holds the enumerator alive forever.
-/// </para>
-/// Explicitly calling Dispose, this removes the strong reference.
-/// </remarks>
-internal struct WeakReferenceListEnumerator<T> : IEnumerator<T> where T : class
+namespace MS.Internal
 {
-    private readonly ReadOnlyCollection<WeakReference<T>> _backingList;
-
-    private T? _strongReference;
-    private int _index;
-
-    internal WeakReferenceListEnumerator(ReadOnlyCollection<WeakReference<T>> backingList)
+    /// <summary>
+    ///    This allows callers to "foreach" through a WeakReferenceList.
+    ///    Each weakreference is checked for liveness and "current"
+    ///    actually returns a strong reference to the current element.
+    /// </summary>
+    /// <remarks>
+    ///    Due to the way enumerators function, this enumerator often
+    ///    holds a cached strong reference to the "Current" element.
+    ///    This should not be a problem unless the caller stops enumerating
+    ///    before the end of the list AND holds the enumerator alive forever.
+    /// </remarks>
+    internal struct WeakReferenceListEnumerator : IEnumerator
     {
-        _index = 0;
-        _backingList = backingList;
-        _strongReference = null;
-    }
-
-    readonly T IEnumerator<T>.Current
-    {
-        get => Current;
-    }
-
-    readonly object IEnumerator.Current
-    {
-        get => Current;
-    }
-
-    public readonly T Current
-    {
-        get => _strongReference ?? throw new InvalidOperationException(SR.Enumerator_VerifyContext);
-    }
-
-    public bool MoveNext()
-    {
-        T? element = null;
-
-        while (_index < _backingList.Count)
+        public WeakReferenceListEnumerator( ArrayList List)
         {
-            WeakReference<T> weakRef = _backingList[_index++];
-
-            if (weakRef.TryGetTarget(out element))
-                break;
+            _i = 0;
+            _List = List;
+            _StrongReference = null;
         }
 
-        _strongReference = element;
+        object IEnumerator.Current
+        {  get{ return Current; } }
+        
+        public object Current
+        {
+            get
+            {
+                if( null == _StrongReference )
+                {
+                    throw new System.InvalidOperationException(SR.Enumerator_VerifyContext);
+                }
+                return _StrongReference;
+            }
+        }
 
-        return element is not null;
-    }
+        public bool MoveNext()
+        {
+            object obj=null;
+            while( _i < _List.Count )
+            {
+                WeakReference weakRef = (WeakReference) _List[ _i++ ];
+                obj = weakRef.Target;
+                if(null != obj)
+                    break;
+            }
+            _StrongReference = obj;
+            return (null != obj);
+        }
 
-    public void Reset()
-    {
-        _index = 0;
-        _strongReference = null;
-    }
+        public void Reset()
+        {
+            _i = 0;
+            _StrongReference = null;
+        }
 
-    public void Dispose()
-    {
-        // Clean up the instance to avoid holding strong references to elements
-        _strongReference = null;
+        private int _i;
+        private readonly ArrayList _List;
+        private object _StrongReference;
     }
 }
 

@@ -360,10 +360,6 @@ namespace System.Windows.Media
             IsDynamicProperty =
                   RegisterProperty("IsDynamic",
                                    typeof(bool),
-<<<<<<< HEAD
-                                   typeof(GuidelineSet),
-                                   false,
-=======
                                    typeofThis,
                                    BooleanBoxes.FalseBox,
 >>>>>>> origin/pr/10711

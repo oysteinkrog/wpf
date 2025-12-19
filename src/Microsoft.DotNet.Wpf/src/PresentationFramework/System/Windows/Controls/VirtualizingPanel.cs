@@ -5,10 +5,6 @@
 using MS.Internal;
 using System.Collections.Specialized;
 using System.Windows.Media;
-<<<<<<< HEAD
-using System.Windows.Controls.Primitives;   // IItemContainerGenerator
-using MS.Internal.KnownBoxes;
-=======
 using System.Windows.Controls.Primitives; // IItemContainerGenerator
 >>>>>>> origin/pr/10711
 

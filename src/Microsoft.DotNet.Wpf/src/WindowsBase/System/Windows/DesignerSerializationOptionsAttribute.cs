@@ -44,7 +44,7 @@ namespace System.Windows.Markup
 
         #region Data
 
-        private DesignerSerializationOptions _designerSerializationOptions;
+        private readonly DesignerSerializationOptions _designerSerializationOptions;
 
         #endregion Data
     }

@@ -307,10 +307,6 @@ namespace System.Windows.Media
             SnapsToDevicePixelsProperty =
                   RegisterProperty("SnapsToDevicePixels",
                                    typeof(bool),
-<<<<<<< HEAD
-                                   typeof(BitmapCache),
-                                   false,
-=======
                                    typeofThis,
                                    BooleanBoxes.FalseBox,
 >>>>>>> origin/pr/10711
@@ -321,10 +317,6 @@ namespace System.Windows.Media
             EnableClearTypeProperty =
                   RegisterProperty("EnableClearType",
                                    typeof(bool),
-<<<<<<< HEAD
-                                   typeof(BitmapCache),
-                                   false,
-=======
                                    typeofThis,
                                    BooleanBoxes.FalseBox,
 >>>>>>> origin/pr/10711

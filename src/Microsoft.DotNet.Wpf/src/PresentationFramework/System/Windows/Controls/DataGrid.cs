@@ -37,21 +37,6 @@ namespace System.Windows.Controls
             DefaultStyleKeyProperty.OverrideMetadata(typeof(DataGrid), new FrameworkPropertyMetadata(typeof(DataGrid)));
             FrameworkElementFactory dataGridRowPresenterFactory = new FrameworkElementFactory(typeof(DataGridRowsPresenter));
             dataGridRowPresenterFactory.SetValue(FrameworkElement.NameProperty, ItemsPanelPartName);
-<<<<<<< HEAD
-            ItemsPanelProperty.OverrideMetadata(typeof(DataGrid), new FrameworkPropertyMetadata(new ItemsPanelTemplate(dataGridRowPresenterFactory)));
-            VirtualizingPanel.IsVirtualizingProperty.OverrideMetadata(typeof(DataGrid), new FrameworkPropertyMetadata(true, null, new CoerceValueCallback(OnCoerceIsVirtualizingProperty)));
-            VirtualizingPanel.VirtualizationModeProperty.OverrideMetadata(typeof(DataGrid), new FrameworkPropertyMetadata(VirtualizationMode.Recycling));
-            ItemContainerStyleProperty.OverrideMetadata(typeof(DataGrid), new FrameworkPropertyMetadata(null, new CoerceValueCallback(OnCoerceItemContainerStyle)));
-            ItemContainerStyleSelectorProperty.OverrideMetadata(typeof(DataGrid), new FrameworkPropertyMetadata(null, new CoerceValueCallback(OnCoerceItemContainerStyleSelector)));
-            ItemsSourceProperty.OverrideMetadata(typeof(DataGrid), new FrameworkPropertyMetadata((PropertyChangedCallback)null, OnCoerceItemsSourceProperty));
-            AlternationCountProperty.OverrideMetadata(typeof(DataGrid), new FrameworkPropertyMetadata(0, null, new CoerceValueCallback(OnCoerceAlternationCount)));
-            IsEnabledProperty.OverrideMetadata(typeof(DataGrid), new FrameworkPropertyMetadata(new PropertyChangedCallback(OnIsEnabledChanged)));
-            IsKeyboardFocusWithinPropertyKey.OverrideMetadata(typeof(DataGrid), new FrameworkPropertyMetadata(new PropertyChangedCallback(OnIsKeyboardFocusWithinChanged)));
-            IsSynchronizedWithCurrentItemProperty.OverrideMetadata(typeof(DataGrid), new FrameworkPropertyMetadata(null, new CoerceValueCallback(OnCoerceIsSynchronizedWithCurrentItem)));
-            IsTabStopProperty.OverrideMetadata(typeof(DataGrid), new FrameworkPropertyMetadata(false));
-            KeyboardNavigation.DirectionalNavigationProperty.OverrideMetadata(typeof(DataGrid), new FrameworkPropertyMetadata(KeyboardNavigationMode.Contained));
-            KeyboardNavigation.ControlTabNavigationProperty.OverrideMetadata(typeof(DataGrid), new FrameworkPropertyMetadata(KeyboardNavigationMode.Once));
-=======
             ItemsPanelProperty.OverrideMetadata(ownerType, new FrameworkPropertyMetadata(new ItemsPanelTemplate(dataGridRowPresenterFactory)));
             VirtualizingPanel.IsVirtualizingProperty.OverrideMetadata(ownerType, new FrameworkPropertyMetadata(BooleanBoxes.TrueBox, null, new CoerceValueCallback(OnCoerceIsVirtualizingProperty)));
             VirtualizingPanel.VirtualizationModeProperty.OverrideMetadata(ownerType, new FrameworkPropertyMetadata(VirtualizationMode.Recycling));

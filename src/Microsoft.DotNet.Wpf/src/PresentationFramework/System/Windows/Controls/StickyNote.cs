@@ -94,10 +94,6 @@ namespace System.Windows.Controls
             DefaultStyleKeyProperty.OverrideMetadata(typeof(StickyNoteControl), new FrameworkPropertyMetadata(
                 new ComponentResourceKey(typeof(PresentationUIStyleResources), "StickyNoteControlStyleKey")));
 
-<<<<<<< HEAD
-            KeyboardNavigation.TabNavigationProperty.OverrideMetadata(typeof(StickyNoteControl), new FrameworkPropertyMetadata(KeyboardNavigationMode.Local));
-            Control.IsTabStopProperty.OverrideMetadata(typeof(StickyNoteControl), new FrameworkPropertyMetadata(false));
-=======
             KeyboardNavigation.TabNavigationProperty.OverrideMetadata(owner, new FrameworkPropertyMetadata(KeyboardNavigationMode.Local));
             Control.IsTabStopProperty.OverrideMetadata(owner, new FrameworkPropertyMetadata(BooleanBoxes.FalseBox));
 >>>>>>> origin/pr/10711

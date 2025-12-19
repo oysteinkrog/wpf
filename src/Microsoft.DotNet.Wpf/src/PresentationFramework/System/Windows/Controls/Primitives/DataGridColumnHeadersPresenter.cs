@@ -27,10 +27,6 @@ namespace System.Windows.Controls.Primitives
 
         static DataGridColumnHeadersPresenter()
         {
-<<<<<<< HEAD
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(DataGridColumnHeadersPresenter), new FrameworkPropertyMetadata(typeof(DataGridColumnHeadersPresenter)));
-            FocusableProperty.OverrideMetadata(typeof(DataGridColumnHeadersPresenter), new FrameworkPropertyMetadata(false));
-=======
             Type ownerType = typeof(DataGridColumnHeadersPresenter);
 
             DefaultStyleKeyProperty.OverrideMetadata(ownerType, new FrameworkPropertyMetadata(ownerType));
@@ -41,10 +37,6 @@ namespace System.Windows.Controls.Primitives
             ItemsPanelProperty.OverrideMetadata(typeof(DataGridColumnHeadersPresenter), new FrameworkPropertyMetadata(new ItemsPanelTemplate(factory)));
 
             VirtualizingPanel.IsVirtualizingProperty.OverrideMetadata(
-<<<<<<< HEAD
-                typeof(DataGridColumnHeadersPresenter),
-                new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnIsVirtualizingPropertyChanged), new CoerceValueCallback(OnCoerceIsVirtualizingProperty)));
-=======
                 ownerType,
                 new FrameworkPropertyMetadata(BooleanBoxes.FalseBox, new PropertyChangedCallback(OnIsVirtualizingPropertyChanged), new CoerceValueCallback(OnCoerceIsVirtualizingProperty)));
 >>>>>>> origin/pr/10711

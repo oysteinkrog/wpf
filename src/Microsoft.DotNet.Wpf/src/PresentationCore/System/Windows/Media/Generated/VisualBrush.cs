@@ -409,10 +409,6 @@ namespace System.Windows.Media
             AutoLayoutContentProperty =
                   RegisterProperty("AutoLayoutContent",
                                    typeof(bool),
-<<<<<<< HEAD
-                                   typeof(VisualBrush),
-                                   true,
-=======
                                    typeofThis,
                                    BooleanBoxes.TrueBox,
 >>>>>>> origin/pr/10711

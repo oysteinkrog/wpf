@@ -276,10 +276,6 @@ namespace System.Windows.Media
             IsLargeArcProperty =
                   RegisterProperty("IsLargeArc",
                                    typeof(bool),
-<<<<<<< HEAD
-                                   typeof(ArcSegment),
-                                   false,
-=======
                                    typeofThis,
                                    BooleanBoxes.FalseBox,
 >>>>>>> origin/pr/10711

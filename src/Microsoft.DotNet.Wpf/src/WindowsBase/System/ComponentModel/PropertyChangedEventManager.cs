@@ -315,13 +315,14 @@ namespace System.ComponentModel
         {
             get
             {
-                PropertyChangedEventManager manager = (PropertyChangedEventManager)GetCurrentManager(typeof(PropertyChangedEventManager));
+                Type managerType = typeof(PropertyChangedEventManager);
+                PropertyChangedEventManager manager = (PropertyChangedEventManager)GetCurrentManager(managerType);
 
                 // at first use, create and register a new manager
                 if (manager == null)
                 {
                     manager = new PropertyChangedEventManager();
-                    SetCurrentManager(typeof(PropertyChangedEventManager), manager);
+                    SetCurrentManager(managerType, manager);
                 }
 
                 return manager;
@@ -588,7 +589,10 @@ namespace System.ComponentModel
                     if (_proposedAllListenersList == list)
                     {
                         HybridDictionary dict = (HybridDictionary)this[sender];
-                        dict?[AllListenersKey] = list;
+                        if (dict != null)
+                        {
+                            dict[AllListenersKey] = list;
+                        }
 
                         _proposedAllListenersList = null;
                     }
@@ -608,8 +612,8 @@ namespace System.ComponentModel
         #endregion Private Methods
 
         private ListenerList _proposedAllListenersList;
-        private List<String> _toRemove = new List<String>();
-        private const string AllListenersKey = "<All Listeners>"; // not a legal property name
+        private readonly List<String> _toRemove = new List<String>();
+        private static readonly string AllListenersKey = "<All Listeners>"; // not a legal property name
     }
 }
 

@@ -8,9 +8,6 @@
 // Please see MilCodeGen.html for more information.
 //
 
-<<<<<<< HEAD
-using System.Windows.Media;
-=======
 using MS.Internal;
 using MS.Internal.Collections;
 using MS.Utility;

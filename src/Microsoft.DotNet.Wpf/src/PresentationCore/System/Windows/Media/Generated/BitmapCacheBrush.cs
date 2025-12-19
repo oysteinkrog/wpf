@@ -523,10 +523,6 @@ namespace System.Windows.Media
             AutoLayoutContentProperty =
                   RegisterProperty("AutoLayoutContent",
                                    typeof(bool),
-<<<<<<< HEAD
-                                   typeof(BitmapCacheBrush),
-                                   true,
-=======
                                    typeofThis,
                                    BooleanBoxes.TrueBox,
 >>>>>>> origin/pr/10711
@@ -546,10 +542,6 @@ namespace System.Windows.Media
             AutoWrapTargetProperty =
                   RegisterProperty("AutoWrapTarget",
                                    typeof(bool),
-<<<<<<< HEAD
-                                   typeof(BitmapCacheBrush),
-                                   false,
-=======
                                    typeofThis,
                                    BooleanBoxes.FalseBox,
 >>>>>>> origin/pr/10711

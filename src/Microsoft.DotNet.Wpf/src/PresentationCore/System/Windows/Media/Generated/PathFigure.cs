@@ -256,10 +256,6 @@ namespace System.Windows.Media
             IsFilledProperty =
                   RegisterProperty("IsFilled",
                                    typeof(bool),
-<<<<<<< HEAD
-                                   typeof(PathFigure),
-                                   true,
-=======
                                    typeofThis,
                                    BooleanBoxes.TrueBox,
 >>>>>>> origin/pr/10711
@@ -279,10 +275,6 @@ namespace System.Windows.Media
             IsClosedProperty =
                   RegisterProperty("IsClosed",
                                    typeof(bool),
-<<<<<<< HEAD
-                                   typeof(PathFigure),
-                                   false,
-=======
                                    typeofThis,
                                    BooleanBoxes.FalseBox,
 >>>>>>> origin/pr/10711
