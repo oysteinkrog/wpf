@@ -7,23 +7,18 @@
 *
 \***************************************************************************/
 
-using System.Security;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
-using System.Windows;
-
-#if !PBTCOMPILER
-using MS.Win32;
-using System.IO.Packaging;
-#endif
 
 #if PRESENTATION_CORE
 using MS.Internal.AppModel;
+using System.Security;
+using MS.Win32;
 #endif
 
-#if REACHFRAMEWORK
-using MS.Internal.Utility;
+#if PRESENTATIONFRAMEWORK_ONLY
+using System.Windows;
 #endif
 
 // The SecurityHelper class differs between assemblies and could not actually be
@@ -37,10 +32,6 @@ using MS.Internal.PresentationCore;
 namespace MS.Internal // Promote the one from PresentationCore as the default to use.
 #elif PRESENTATIONFRAMEWORK
 namespace MS.Internal.PresentationFramework
-#elif PBTCOMPILER
-namespace MS.Internal.PresentationBuildTasks
-#elif REACHFRAMEWORK
-namespace MS.Internal.ReachFramework
 #elif DRT
 namespace MS.Internal.Drt
 #else
@@ -114,37 +105,6 @@ namespace MS.Internal.Drt
         }
 #endif
 
-#if WINDOWS_BASE || PRESENTATION_CORE || PRESENTATIONFRAMEWORK
-        internal static Exception GetExceptionForHR(int hr)
-        {
-            return Marshal.GetExceptionForHR(hr, new IntPtr(-1));
-        }
-#endif
-
-#if WINDOWS_BASE || PRESENTATION_CORE
-        internal static void ThrowExceptionForHR(int hr)
-        {
-            Marshal.ThrowExceptionForHR(hr, new IntPtr(-1));
-        }
-        
-        internal static int GetHRForException(Exception exception)
-        {
-            ArgumentNullException.ThrowIfNull(exception);
-
-            // GetHRForException fills a per thread IErrorInfo object with data from the exception
-            // The exception may contain security sensitive data like full file paths that we do not
-            // want to leak into an IErrorInfo
-            int hr = Marshal.GetHRForException(exception);
-
-            // Call GetHRForException a second time with a security safe exception object
-            // to make sure the per thread IErrorInfo is cleared of security sensitive data
-            Marshal.GetHRForException(new Exception());
-
-            return hr;
-        }
-
-#endif
-
 #if PRESENTATIONFRAMEWORK
 
         /// <summary>
@@ -195,14 +155,14 @@ namespace MS.Internal.Drt
 #if WINDOWS_BASE
         ///
         /// Read and return a registry value.
-       internal static object ReadRegistryValue( RegistryKey baseRegistryKey, string keyName, string valueName )
-       {
+        internal static object ReadRegistryValue(RegistryKey baseRegistryKey, string keyName, string valueName)
+        {
             object value = null;
 
             RegistryKey key = baseRegistryKey.OpenSubKey(keyName);
             if (key != null)
             {
-                using( key )
+                using (key)
                 {
                     value = key.GetValue(valueName);
                 }
@@ -211,6 +171,5 @@ namespace MS.Internal.Drt
             return value;
         }
 #endif // WINDOWS_BASE
+    }
 }
-}
-
