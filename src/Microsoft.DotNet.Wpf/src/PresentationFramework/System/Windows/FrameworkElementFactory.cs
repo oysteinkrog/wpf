@@ -416,13 +416,11 @@ namespace System.Windows
             if( existingIndex >= 0 )
             {
                 // Overwrite existing value for dp
-                lock (_synchronized)
+                lock (_propertyValuesLock)
                 {
-                    PropertyValue propertyValue = PropertyValues[existingIndex];
+                    ref PropertyValue propertyValue = ref PropertyValues.GetEntryAtRef(existingIndex);
                     propertyValue.ValueType = valueType;
                     propertyValue.ValueInternal = value;
-                    // Put back modified struct
-                    PropertyValues[existingIndex] = propertyValue;
                 }
             }
             else
@@ -436,7 +434,7 @@ namespace System.Windows
                     ValueInternal = value
                 };
 
-                lock (_synchronized)
+                lock (_propertyValuesLock)
                 {
                     PropertyValues.Add(propertyValue);
                 }
@@ -510,7 +508,7 @@ namespace System.Windows
             // Scan for record
             for (int i = 0; i < PropertyValues.Count; i++)
             {
-                var propertyValue = PropertyValues[i];
+                PropertyValue propertyValue = PropertyValues[i];
                 if (propertyValue.ValueType == PropertyValueType.Set &&
                     propertyValue.Property == dp)
                 {
@@ -574,19 +572,16 @@ namespace System.Windows
             }
 
 
-            lock (_synchronized)
+            lock (_propertyValuesLock)
             {
                 // Set delayed ChildID for all property triggers
                 for (int i = 0; i < PropertyValues.Count; i++)
                 {
-                    PropertyValue propertyValue = PropertyValues[i];
+                    ref PropertyValue propertyValue = ref PropertyValues.GetEntryAtRef(i);
                     propertyValue.ChildName = _childName;
 
                     // Freeze the FEF property value
                     StyleHelper.SealIfSealable(propertyValue.ValueInternal);
-
-                    // Put back modified struct
-                    PropertyValues[i] = propertyValue;
                 }
             }
 
@@ -804,7 +799,7 @@ namespace System.Windows
 
                     for (int i = 0; i < PropertyValues.Count; i++)
                     {
-                        var propertyValue = PropertyValues[i];
+                        PropertyValue propertyValue = PropertyValues[i];
                         if (propertyValue.ValueType == PropertyValueType.Set)
                         {
                             // Get the value out of the table.
@@ -1238,7 +1233,7 @@ namespace System.Windows
         {
             for (int i = 0; i < PropertyValues.Count; i++)
             {
-                var propertyValue = PropertyValues[i];
+                PropertyValue propertyValue = PropertyValues[i];
                 if (propertyValue.Property == dp &&
                     (propertyValue.ValueType == PropertyValueType.Set ||
                      propertyValue.ValueType == PropertyValueType.Resource ||
@@ -1255,7 +1250,10 @@ namespace System.Windows
         private bool _sealed;
 
         // Synchronized (write locks, lock-free reads): Covered by FrameworkElementFactory instance lock
-        /* property */ internal FrugalStructList<System.Windows.PropertyValue> PropertyValues = new FrugalStructList<System.Windows.PropertyValue>();
+        internal FrugalStructList<PropertyValue> PropertyValues = new();
+
+        // Instance-based synchronization for write locks to PropertyValues
+        private readonly Lock _propertyValuesLock = new();
 
         // Store all the event handlers for this FEF
         // NOTE: We cannot use UnCommonField<T> because that uses property engine
@@ -1281,9 +1279,6 @@ namespace System.Windows
         private FrameworkElementFactory _firstChild;
         private FrameworkElementFactory _lastChild;
         private FrameworkElementFactory _nextSibling;
-
-        // Instance-based synchronization
-        private readonly object _synchronized = new object();
     }
 }
 
