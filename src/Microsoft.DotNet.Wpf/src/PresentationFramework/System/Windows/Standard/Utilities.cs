@@ -193,27 +193,6 @@ namespace Standard
                 NativeMethods.DeleteObject(p);
             }
         }
-    
-        public static void SafeDestroyWindow(ref IntPtr hwnd)
-        {
-            IntPtr p = hwnd;
-            hwnd = IntPtr.Zero;
-            if (NativeMethods.IsWindow(p))
-            {
-                NativeMethods.DestroyWindow(p);
-            }
-        }
-        
-        public static void SafeRelease<T>(ref T comObject) where T : class
-        {
-            T t = comObject;
-            comObject = default(T);
-            if (null != t)
-            {
-                Assert.IsTrue(Marshal.IsComObject(t));
-                Marshal.ReleaseComObject(t);
-            }
-        }
 
         public static void AddDependencyPropertyChangeListener(object component, DependencyProperty property, EventHandler listener)
         {
