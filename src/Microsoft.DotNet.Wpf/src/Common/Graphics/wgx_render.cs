@@ -711,14 +711,8 @@ namespace MS.Internal
 
         // TRUE if the effect supports multi-resolution
 
-        [MarshalAs(UnmanagedType.Bool)] private bool fSupportMultiResolution;
-};
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct HWND
-    {
-        public int hwnd;
-    }
+        [MarshalAs(UnmanagedType.Bool)] bool fSupportMultiResolution;
+    };
 
     [StructLayout(LayoutKind.Sequential)]
     internal struct MILAVInstruction

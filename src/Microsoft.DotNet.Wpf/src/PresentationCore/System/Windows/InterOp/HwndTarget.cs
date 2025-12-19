@@ -2533,19 +2533,7 @@ namespace System.Windows.Interop
                     // (HwndWrapper keeps a WeakReference to the hook)
 
                     _notificationHook = new HwndWrapperHook(NotificationFilterMessage);
-                    HwndWrapperHook[] wrapperHooks = { _notificationHook };
-
-                    _notificationHwnd = new HwndWrapper(
-                                                0,
-                                                0,
-                                                0,
-                                                0,
-                                                0,
-                                                0,
-                                                0,
-                                                "",
-                                                IntPtr.Zero,
-                                                wrapperHooks);
+                    _notificationHwnd = new HwndWrapper(0, 0, 0, 0, 0, 0, 0, string.Empty, IntPtr.Zero, _notificationHook);
 
                     Guid monitorGuid = NativeMethods.GUID_MONITOR_POWER_ON;
                     unsafe

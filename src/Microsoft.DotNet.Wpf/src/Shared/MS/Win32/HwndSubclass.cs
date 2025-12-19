@@ -2,9 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.InteropServices;
-using MS.Internal.Interop;
 using System.Windows.Threading;
+using MS.Internal.Interop;
 using System.Threading;
+using System;
+
+using SR = MS.Internal.WindowsBase.SR;
 
 namespace MS.Win32
 {
@@ -29,7 +32,6 @@ namespace MS.Win32
     ///     is not thread safe and will be operated on by the thread that owns
     ///     the window.
     /// </summary>
-    /// <remarks> Not available to partial trust callers</remarks>
     internal class HwndSubclass : IDisposable
     {
         static HwndSubclass()
