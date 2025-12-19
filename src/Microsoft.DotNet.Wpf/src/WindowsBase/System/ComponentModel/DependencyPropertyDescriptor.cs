@@ -24,13 +24,13 @@ namespace System.ComponentModel
         #region Constructors
 
         /// <summary>
-        ///     Creates a new dependency property descriptor.  A note on perf:  We don't 
+        ///     Creates a new dependency property descriptor.  A note on perf:  We don't
         ///     pass the property descriptor down as the default member descriptor here.  Doing
         ///     so gets the attributes off of the property descriptor, which can be costly if they
         ///     haven't been accessed yet.  Instead, we wait until someone needs to access our
         ///     Attributes property and demand create the attributes at that time.
         /// </summary>
-        private DependencyPropertyDescriptor(PropertyDescriptor property, string name, Type componentType, DependencyProperty dp, bool isAttached) : base(name, null) 
+        private DependencyPropertyDescriptor(PropertyDescriptor property, string name, Type componentType, DependencyProperty dp, bool isAttached) : base(name, null)
         {
             Debug.Assert(property != null || !isAttached, "Demand-load of property descriptor is only supported for direct properties");
 
@@ -43,7 +43,7 @@ namespace System.ComponentModel
 
         #endregion Constructors
 
-        
+
         //------------------------------------------------------
         //
         //  Public Methods
@@ -55,7 +55,7 @@ namespace System.ComponentModel
         /// <summary>
         ///     Static method that returns a DependencyPropertyDescriptor from a PropertyDescriptor.
         /// </summary>
-        public static DependencyPropertyDescriptor FromProperty(PropertyDescriptor property) 
+        public static DependencyPropertyDescriptor FromProperty(PropertyDescriptor property)
         {
             ArgumentNullException.ThrowIfNull(property);
 
@@ -67,7 +67,7 @@ namespace System.ComponentModel
                 found = _cache.TryGetValue(property, out dpd);
             }
 
-            if (found) 
+            if (found)
             {
                 return dpd;
             }
@@ -95,7 +95,7 @@ namespace System.ComponentModel
                 }
             }
 
-            if (dp != null) 
+            if (dp != null)
             {
                 dpd = new DependencyPropertyDescriptor(property, property.Name, property.ComponentType, dp, isAttached);
 
@@ -143,7 +143,7 @@ namespace System.ComponentModel
 
                 if (dpd == null)
                 {
-                    // Create a new DPD based on the type information we have.  It 
+                    // Create a new DPD based on the type information we have.  It
                     // will fill in the property descriptor by calling TypeDescriptor
                     // when needed.
 
@@ -199,7 +199,7 @@ namespace System.ComponentModel
             DependencyPropertyDescriptor dpd = null;
             DependencyPropertyKind dpKind = DependencyObjectProvider.GetDependencyPropertyKind(dependencyProperty, targetType);
 
-            if (dpKind.IsDirect) 
+            if (dpKind.IsDirect)
             {
                 // For direct properties we don't want to get the property descriptor
                 // yet because it is very expensive.  Delay it until needed.
@@ -209,9 +209,9 @@ namespace System.ComponentModel
                     _cache.TryGetValue(dependencyProperty, out dpd);
                 }
 
-                if (dpd == null) 
+                if (dpd == null)
                 {
-                    // Create a new DPD based on the type information we have.  It 
+                    // Create a new DPD based on the type information we have.  It
                     // will fill in the property descriptor by calling TypeDescriptor
                     // when needed.
 
@@ -223,13 +223,13 @@ namespace System.ComponentModel
                     }
                 }
             }
-            else if (!dpKind.IsInternal) 
+            else if (!dpKind.IsInternal)
             {
                 // If it isn't a direct property, we treat it as attached unless it is internal.
                 // We should never release internal properties to the user
 
                 PropertyDescriptor prop = DependencyObjectProvider.GetAttachedPropertyDescriptor(dependencyProperty, targetType);
-                if (prop != null) 
+                if (prop != null)
                 {
                     dpd = FromProperty(prop);
                 }
@@ -240,7 +240,7 @@ namespace System.ComponentModel
 
         /// <summary>
         ///     Static method that returns a DependencyPropertyDescriptor for a given property name.
-        ///     The name may refer to a direct or attached property.  OwnerType is the type of 
+        ///     The name may refer to a direct or attached property.  OwnerType is the type of
         ///     object that owns the property definition.  TargetType is the type of object you wish
         ///     to set the property for.  For direct properties, they are the same type.  For attached
         ///     properties they usually differ.
@@ -252,7 +252,7 @@ namespace System.ComponentModel
             ArgumentNullException.ThrowIfNull(targetType);
 
             DependencyProperty dp = DependencyProperty.FromName(name, ownerType);
-            if (dp != null) 
+            if (dp != null)
             {
                 return FromProperty(dp, targetType);
             }
@@ -262,7 +262,7 @@ namespace System.ComponentModel
 
         /// <summary>
         ///     Static method that returns a DependencyPropertyDescriptor for a given property name.
-        ///     The name may refer to a direct or attached property.  OwnerType is the type of 
+        ///     The name may refer to a direct or attached property.  OwnerType is the type of
         ///     object that owns the property definition.  TargetType is the type of object you wish
         ///     to set the property for.  For direct properties, they are the same type.  For attached
         ///     properties they usually differ.
@@ -300,7 +300,7 @@ namespace System.ComponentModel
         /// <summary>
         ///     Object.Equals override
         /// </summary>
-        public override bool Equals(object obj) 
+        public override bool Equals(object obj)
         {
             if (obj is DependencyPropertyDescriptor dp && dp._dp == _dp && dp._componentType == _componentType)
             {
@@ -313,7 +313,7 @@ namespace System.ComponentModel
         /// <summary>
         ///     Object.GetHashCode override
         /// </summary>
-        public override int GetHashCode() 
+        public override int GetHashCode()
         {
             return _dp.GetHashCode() ^ _componentType.GetHashCode();
         }
@@ -321,7 +321,7 @@ namespace System.ComponentModel
         /// <summary>
         ///     Object.ToString override
         /// </summary>
-        public override string ToString() 
+        public override string ToString()
         {
             return Name;
         }
@@ -359,7 +359,7 @@ namespace System.ComponentModel
         ///     value of this property needs to be persisted.
         /// </summary>
         public override bool ShouldSerializeValue(object component) { return Property.ShouldSerializeValue(component); }
-        
+
         /// <summary>
         ///     Allows interested objects to be notified when this property changes.
         /// </summary>
@@ -369,12 +369,12 @@ namespace System.ComponentModel
         ///     Allows interested objects to be notified when this property changes.
         /// </summary>
         public override void RemoveValueChanged(object component, EventHandler handler) { Property.RemoveValueChanged(component, handler); }
-        
+
         /// <summary>
-        ///    Retrieves the properties 
+        ///    Retrieves the properties
         /// </summary>
         public override PropertyDescriptorCollection GetChildProperties(object instance, Attribute[] filter) { return Property.GetChildProperties(instance, filter); }
-        
+
         /// <summary>
         ///     Gets an editor of the specified type.
         /// </summary>
@@ -390,12 +390,12 @@ namespace System.ComponentModel
         //------------------------------------------------------
 
         #region Public Properties
-        
+
         /// <summary>
         ///     Returns the raw dependency property, or null if the property
         ///     this wraps is not a dependency property.
         /// </summary>
-        public DependencyProperty DependencyProperty 
+        public DependencyProperty DependencyProperty
         {
             get { return _dp; }
         }
@@ -403,15 +403,15 @@ namespace System.ComponentModel
         /// <summary>
         ///     True if the dependency property is being attached to the target type.
         /// </summary>
-        public bool IsAttached 
+        public bool IsAttached
         {
             get { return _isAttached; }
         }
-        
+
         /// <summary>
-        ///     The property metadata for the dependency property.  This can be null if there is 
-        ///     no metadata or if there is no dependency property.  Values contained in property 
-        ///     metadata that have matching concepts in CLR attributes are re-exposed as attributes 
+        ///     The property metadata for the dependency property.  This can be null if there is
+        ///     no metadata or if there is no dependency property.  Values contained in property
+        ///     metadata that have matching concepts in CLR attributes are re-exposed as attributes
         ///     in the property descriptor's Attributes collection.
         /// </summary>
         public PropertyMetadata Metadata
@@ -490,7 +490,7 @@ namespace System.ComponentModel
                 }
             }
         }
-        
+
 
         /// <summary>
         ///     Gets a value indicating whether the member is browsable as specified in the
@@ -513,9 +513,9 @@ namespace System.ComponentModel
         public override bool SupportsChangeEvents { get { return Property.SupportsChangeEvents; } }
 
         /// <summary>
-        /// This is the callback designers use to participate in the computation of property 
-        /// values at design time. Eg. Even if the author sets Visibility to Hidden, the designer 
-        /// wants to coerce the value to Visible at design time so that the element doesn't 
+        /// This is the callback designers use to participate in the computation of property
+        /// values at design time. Eg. Even if the author sets Visibility to Hidden, the designer
+        /// wants to coerce the value to Visible at design time so that the element doesn't
         /// disappear from the design surface.
         /// </summary>
         public CoerceValueCallback DesignerCoerceValueCallback
@@ -523,9 +523,9 @@ namespace System.ComponentModel
             get { return DependencyProperty.DesignerCoerceValueCallback; }
             set { DependencyProperty.DesignerCoerceValueCallback = value; }
         }
-        
+
         #endregion Public Properties
-        
+
 
         //------------------------------------------------------
         //
@@ -534,14 +534,14 @@ namespace System.ComponentModel
         //------------------------------------------------------
 
         #region Internal Methods
-        
+
         /// <summary>
         ///     This method is called when we should clear our cached state.  The cache
         ///     may become invalid if someone adds additional type description providers.
         /// </summary>
         internal static void ClearCache()
         {
-            lock (_cache) 
+            lock (_cache)
             {
                 _cache.Clear();
             }
@@ -556,17 +556,17 @@ namespace System.ComponentModel
         //------------------------------------------------------
 
         #region Private Properties
-        
+
         // Return the property descriptor we're wrapping.  We may have to get
         // this on demand if it wasn't passed into our constructor
         private PropertyDescriptor Property
         {
             get
             {
-                if (_property == null) 
+                if (_property == null)
                 {
                     _property = TypeDescriptor.GetProperties(_componentType)[Name];
-                    if (_property == null) 
+                    if (_property == null)
                     {
                         // This should not normally happen.  If it does, it means
                         // that someone has messed around with metadata and has
@@ -593,7 +593,7 @@ namespace System.ComponentModel
         //------------------------------------------------------
 
         #region Private Fields
-        
+
         private PropertyDescriptor _property;
         private readonly Type _componentType;
         private readonly DependencyProperty _dp;
@@ -601,7 +601,7 @@ namespace System.ComponentModel
         private readonly PropertyMetadata _metadata;
 
         // Synchronized by "_cache"
-        private static readonly Dictionary<object, DependencyPropertyDescriptor> _cache = 
+        private static readonly Dictionary<object, DependencyPropertyDescriptor> _cache =
             new Dictionary<object, DependencyPropertyDescriptor>(
                 ReferenceEqualityComparer.Instance
             );

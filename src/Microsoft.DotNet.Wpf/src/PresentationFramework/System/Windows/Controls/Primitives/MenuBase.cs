@@ -606,7 +606,7 @@ namespace System.Windows.Controls.Primitives
                 // non-WPF HWNDs, or even child HWNDs of other WPF top-level
                 // windows to retain focus when menus are dismissed.
                 IntPtr hwndWithFocus = MS.Win32.UnsafeNativeMethods.GetFocus();
-                HwndSource hwndSourceWithFocus = hwndWithFocus != IntPtr.Zero ? HwndSource.CriticalFromHwnd(hwndWithFocus) : null;
+                HwndSource hwndSourceWithFocus = hwndWithFocus != IntPtr.Zero ? HwndSource.FromHwnd(hwndWithFocus) : null;
                 if(hwndSourceWithFocus != null)
                 {
                     // We restore focus by setting focus to the parent's focus
@@ -883,11 +883,14 @@ namespace System.Windows.Controls.Primitives
 
         private void PushMenuMode(bool isAcquireFocusMenuMode)
         {
-            Debug.Assert(_pushedMenuMode == null);
-            _pushedMenuMode = PresentationSource.CriticalFromVisual(this);
-            Debug.Assert(_pushedMenuMode != null);
+            Debug.Assert(_pushedMenuMode is null);
+
+            _pushedMenuMode = PresentationSource.FromVisual(this);
+
+            Debug.Assert(_pushedMenuMode is not null);
+
             IsAcquireFocusMenuMode = isAcquireFocusMenuMode;
-            InputManager.UnsecureCurrent.PushMenuMode(_pushedMenuMode);
+            InputManager.Current.PushMenuMode(_pushedMenuMode);
         }
 
         // **** Note:  This method is called via private reflection from RibbonMenuButton.
@@ -899,7 +902,7 @@ namespace System.Windows.Controls.Primitives
             PresentationSource pushedMenuMode = _pushedMenuMode;
             _pushedMenuMode = null;
             IsAcquireFocusMenuMode = false;
-            InputManager.UnsecureCurrent.PopMenuMode(pushedMenuMode);
+            InputManager.Current.PopMenuMode(pushedMenuMode);
         }
 
         // **** Note:  This property is read via private reflection from RibbonMenuButton.

@@ -406,7 +406,7 @@ namespace System.Windows.Input
         ///     Returns the element that has captured the mouse.
         /// </summary>
         public static IInputElement Captured
-        { 
+        {
             get
             {
                 return Mouse.PrimaryDevice.Captured;
@@ -417,7 +417,7 @@ namespace System.Windows.Input
         ///     Returns the element that has captured the mouse.
         /// </summary>
         internal static CaptureMode CapturedMode
-        { 
+        {
             get
             {
                 return Mouse.PrimaryDevice.CapturedMode;
@@ -491,7 +491,7 @@ namespace System.Windows.Input
 
             set
             {
-                // forwarding to the MouseDevice, will be validated there.	
+                // forwarding to the MouseDevice, will be validated there.
                 Mouse.PrimaryDevice.OverrideCursor = value;
             }
         }
@@ -510,7 +510,7 @@ namespace System.Windows.Input
         ///     The state of the left button.
         /// </summary>
         public static MouseButtonState LeftButton
-        { 
+        {
             get
             {
                 return Mouse.PrimaryDevice.LeftButton;
@@ -521,7 +521,7 @@ namespace System.Windows.Input
         ///     The state of the right button.
         /// </summary>
         public static MouseButtonState RightButton
-        { 
+        {
             get
             {
                 return Mouse.PrimaryDevice.RightButton;
@@ -532,7 +532,7 @@ namespace System.Windows.Input
         ///     The state of the middle button.
         /// </summary>
         public static MouseButtonState MiddleButton
-        { 
+        {
             get
             {
                 return Mouse.PrimaryDevice.MiddleButton;
@@ -543,7 +543,7 @@ namespace System.Windows.Input
         ///     The state of the first extended button.
         /// </summary>
         public static MouseButtonState XButton1
-        { 
+        {
             get
             {
                 return Mouse.PrimaryDevice.XButton1;
@@ -554,7 +554,7 @@ namespace System.Windows.Input
         ///     The state of the second extended button.
         /// </summary>
         public static MouseButtonState XButton2
-        { 
+        {
             get
             {
                 return Mouse.PrimaryDevice.XButton2;
@@ -566,7 +566,7 @@ namespace System.Windows.Input
         ///     a particular element.
         /// </summary>
         public static Point GetPosition(IInputElement relativeTo)
-        { 
+        {
             return Mouse.PrimaryDevice.GetPosition(relativeTo);
         }
 
@@ -574,7 +574,7 @@ namespace System.Windows.Input
         ///     Forces the mouse to resynchronize.
         /// </summary>
         public static void Synchronize()
-        { 
+        {
             Mouse.PrimaryDevice.Synchronize();
         }
 
@@ -603,19 +603,13 @@ namespace System.Windows.Input
         ///     is reached.
         /// </remarks>
         public const int MouseWheelDeltaForOneLine = 120;
-        
+
         /// <summary>
         ///     The primary mouse device.
         /// </summary>
         public static MouseDevice PrimaryDevice
         {
-            get
-            {
-                MouseDevice mouseDevice;
-                //there is a link demand on the Current property
-                mouseDevice =  InputManager.UnsecureCurrent.PrimaryMouseDevice;
-                return mouseDevice;
-            }
+            get => InputManager.Current.PrimaryMouseDevice;
         }
     }
 }

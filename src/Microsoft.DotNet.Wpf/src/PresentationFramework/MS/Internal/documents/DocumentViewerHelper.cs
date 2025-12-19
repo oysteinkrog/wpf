@@ -1,19 +1,16 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
 
 //
 // Description: Defines various helper methods used by document viewews.
 //
 
-using System;                           // EventHandler
 using System.Windows;                   // Visibility
 using System.Windows.Controls;          // Border
 using System.Windows.Controls.Primitives;   // PlacementMode
 using System.Windows.Input;             // KeyboardNavigation
 using System.Windows.Documents;         // ITextRange
 using System.Windows.Media;             // VisualTreeHelper
-using System.Security;                  // SecurityCritical, SecurityTreatAsSafe
 using System.Globalization;             // CultureInfo
 using System.Windows.Markup;            // XmlLanguage
 using System.Windows.Interop;           // HwndSource
@@ -274,14 +271,23 @@ namespace MS.Internal.Documents
         /// <param name="findToolBar">FindToolBar instance.</param>
         internal static void ShowFindUnsuccessfulMessage(FindToolBar findToolBar)
         {
+            string messageString;
+
             // No, we did not find anything. Alert the user.
-            string messageString = findToolBar.SearchUp ? SR.DocumentViewerSearchUpCompleteLabel : SR.DocumentViewerSearchDownCompleteLabel;
-            messageString = string.Format(CultureInfo.CurrentCulture, messageString, findToolBar.SearchText);
+            messageString = findToolBar.SearchUp ?
+                        SR.DocumentViewerSearchUpCompleteLabel :
+                        SR.DocumentViewerSearchDownCompleteLabel;
+            messageString = String.Format(System.Globalization.CultureInfo.CurrentCulture, messageString, findToolBar.SearchText);
 
-            IntPtr hwnd = PresentationSource.CriticalFromVisual(findToolBar) is HwndSource hwndSource ? hwndSource.Handle : IntPtr.Zero;
+            HwndSource hwndSource = PresentationSource.FromVisual(findToolBar) as HwndSource;
+            IntPtr hwnd = (hwndSource != null) ? hwndSource.Handle : IntPtr.Zero;
 
-            MessageBox.ShowCore(hwnd, messageString, SR.DocumentViewerSearchCompleteTitle,
-                                MessageBoxButton.OK, MessageBoxImage.Asterisk, MessageBoxResult.None, MessageBoxOptions.None);
+            PresentationFramework.SecurityHelper.ShowMessageBoxHelper(
+                hwnd,
+                messageString,
+                SR.DocumentViewerSearchCompleteTitle,
+                MessageBoxButton.OK,
+                MessageBoxImage.Asterisk);
         }
 
         /// <summary>

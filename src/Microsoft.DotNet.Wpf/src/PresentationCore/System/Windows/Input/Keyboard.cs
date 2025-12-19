@@ -357,11 +357,7 @@ namespace System.Windows.Input
         /// </summary>
         public static KeyboardDevice PrimaryDevice
         {
-            get
-            {
-                KeyboardDevice keyboardDevice = InputManager.UnsecureCurrent.PrimaryKeyboardDevice;
-                return keyboardDevice;
-            }
+            get => InputManager.Current.PrimaryKeyboardDevice;
         }
 
         // Check for Valid enum, as any int can be casted to the enum.
@@ -414,7 +410,7 @@ namespace System.Windows.Input
                 }
                 else if(uie != null && uie.InternalVisualParent == null)
                 {
-                    PresentationSource presentationSource = PresentationSource.CriticalFromVisual(uie);
+                    PresentationSource presentationSource = PresentationSource.FromVisual(uie);
                     if(presentationSource != null)
                     {
                         // A UIElements that is the root of a PresentationSource is considered focusable.

@@ -1,7 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-// Description: 
+// Description:
 //    DocumentPropertiesDialog - Dialog to view the current document properties.
 using System;
 using System.Globalization;
@@ -110,10 +110,10 @@ namespace MS.Internal.Documents.Application
             SetTextProperty(_language, DocumentProperties.Current.CoreProperties.Language);
 
             // Load additional properties (file or system related)
-            SetTextProperty(_fileAccessedDate, DocumentProperties.Current.FileAccessed);  //SecurityCritical
-            SetTextProperty(_fileCreatedDate, DocumentProperties.Current.FileCreated);    //SecurityCritical
-            SetTextProperty(_fileModifiedDate, DocumentProperties.Current.FileModified);  //SecurityCritical
-            SetTextProperty(_size, FormatFileSize(DocumentProperties.Current.FileSize));  //SecurityCritical
+            SetTextProperty(_fileAccessedDate, DocumentProperties.Current.FileAccessed);
+            SetTextProperty(_fileCreatedDate, DocumentProperties.Current.FileCreated);
+            SetTextProperty(_fileModifiedDate, DocumentProperties.Current.FileModified);
+            SetTextProperty(_size, FormatFileSize(DocumentProperties.Current.FileSize));
 
             SetTextProperty(_filename, DocumentProperties.Current.Filename);
 
@@ -165,11 +165,11 @@ namespace MS.Internal.Documents.Application
         /// <summary>
         /// Formats the incoming filesize into a typical shell properties dialog
         /// format.
-        /// 
+        ///
         /// - If the filesize is less than 1024 bytes, then "filesize bytes" is returned;
         /// - If the filesize is less than 1 megabyte, then "filesize KB" is returned;
         /// - Otherwise "filesize MB" is returned.
-        /// 
+        ///
         /// Up to two decimal places of precision are returned, based on the number of digits
         /// in the result.
         /// </summary>
@@ -181,18 +181,18 @@ namespace MS.Internal.Documents.Application
             if (fileSize <= 0)
             {
                 return String.Empty;
-            }            
+            }
 
             // Determine the "short" representation for the file size.
             double size = fileSize;
             string unitString = String.Empty;
-            
+
             // Calcuate the value to display, and determine the appropriate unit (bytes, KB, MB)
             if (size >= 1024)
             {
                 size /= 1024;
 
-                if (size >= 1024) 
+                if (size >= 1024)
                 {
                     // Since the number is larger than 1 meg, select MB and compute the value
                     // relative to megabytes.
@@ -216,7 +216,7 @@ namespace MS.Internal.Documents.Application
             {
                 decimalPlaces = 1;
             }
-            
+
             // Adjust the string format to represent the appropriate number of decimal places.
             string format = String.Format(
                 CultureInfo.CurrentCulture,

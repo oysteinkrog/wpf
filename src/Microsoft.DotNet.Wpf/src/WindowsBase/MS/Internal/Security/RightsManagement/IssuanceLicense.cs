@@ -61,10 +61,10 @@ namespace MS.Internal.Security.RightsManagement
                                         RevocationPoint revocationPoint)
         {
             // according to the unmanaged RM SDK spec only the following scenarios are supported:
-            // 1. This can be called to create an issuance license from a template. 
-            //       issuanceLicense         An unsigned issuance license from 
-            //                                   a file or by passing an issuance license 
-            //                                   handle into DRMGetIssuanceLicenseTemplate 
+            // 1. This can be called to create an issuance license from a template.
+            //       issuanceLicense         An unsigned issuance license from
+            //                                   a file or by passing an issuance license
+            //                                   handle into DRMGetIssuanceLicenseTemplate
             //       boundLicenseHandle   NULL
             //
             // 2. This allows you to reuse rights information (the list follows this table).
@@ -86,7 +86,7 @@ namespace MS.Internal.Security.RightsManagement
             if ((validFrom != DateTime.MinValue) || (validUntil != DateTime.MaxValue))
             {
                 // we need to use non null values if at least one of the time boundaries isn't default
-                // DRM SDK will not enforce date time unless both timeFrom and timeUnti are set 
+                // DRM SDK will not enforce date time unless both timeFrom and timeUnti are set
                 validFromSysTime = new SystemTime((DateTime)validFrom);
                 validUntilSysTime = new SystemTime((DateTime)validUntil);
             }
@@ -97,9 +97,9 @@ namespace MS.Internal.Security.RightsManagement
                 referralInfoUriStr = referralInfoUri.ToString();
             }
 
-            // input parameter must be initialized to the invalid handle 
-            // attempt to pass in a null throws an exception from the Safe 
-            // Handle Marshalling code  
+            // input parameter must be initialized to the invalid handle
+            // attempt to pass in a null throws an exception from the Safe
+            // Handle Marshalling code
             SafeRightsManagementPubHandle ownerHandle;
 
             if (owner != null)
@@ -132,7 +132,7 @@ namespace MS.Internal.Security.RightsManagement
             Debug.Assert(rightValidityIntervalDays >= 0); // our internal code makes the guarantee that is is not negative
             if (rightValidityIntervalDays > 0)
             {
-                // If it is 0 we shouldn't override the value as it might be coming from a template 
+                // If it is 0 we shouldn't override the value as it might be coming from a template
                 SafeNativeMethods.DRMSetIntervalTime(_issuanceLicenseHandle, (uint)rightValidityIntervalDays);
             }
 
@@ -144,7 +144,7 @@ namespace MS.Internal.Security.RightsManagement
                 }
             }
 
-            // Set localized name description info 
+            // Set localized name description info
             if (localizedNameDescriptionDictionary != null)
             {
                 foreach (KeyValuePair<int, LocalizedNameDescriptionPair> nameDescriptionEntry in localizedNameDescriptionDictionary)
@@ -153,7 +153,7 @@ namespace MS.Internal.Security.RightsManagement
                 }
             }
 
-            // Set application specific data 
+            // Set application specific data
             if (applicationSpecificDataDictionary != null)
             {
                 foreach (KeyValuePair<string, string> applicationSpecificDataEntry in applicationSpecificDataDictionary)
@@ -162,7 +162,7 @@ namespace MS.Internal.Security.RightsManagement
                 }
             }
 
-            // set metadata as required 
+            // set metadata as required
             if (contentId != Guid.Empty)
             {
                 hr = SafeNativeMethods.DRMSetMetaData(
@@ -177,7 +177,7 @@ namespace MS.Internal.Security.RightsManagement
                 Errors.ThrowOnErrorCode(hr);
             }
 
-            // set revocation point if required 
+            // set revocation point if required
             if (revocationPoint != null)
             {
                 SetRevocationPoint(revocationPoint);
@@ -250,19 +250,19 @@ namespace MS.Internal.Security.RightsManagement
 
             unsignedPublishLicense.Owner = owner;
 
-            // Let's get the validity Iterval information (days) and save it in the license 
+            // Let's get the validity Iterval information (days) and save it in the license
             uint validityDays = 0;
             int hr = SafeNativeMethods.DRMGetIntervalTime(_issuanceLicenseHandle, ref validityDays);
             Errors.ThrowOnErrorCode(hr);
             checked { unsignedPublishLicense.RightValidityIntervalDays = (int)validityDays; }
 
-            // let's get the rights information 
+            // let's get the rights information
             int userIndex = 0;
-            while (true) // in this loop we are enumerating users mentioned in the license 
+            while (true) // in this loop we are enumerating users mentioned in the license
             {
                 SafeRightsManagementPubHandle userHandle = null;
 
-                // extract the user based on the index 
+                // extract the user based on the index
                 ContentUser user = GetIssuanceLicenseUser(userIndex, out userHandle);
 
                 if ((user == null) || (userHandle == null))
@@ -271,27 +271,27 @@ namespace MS.Internal.Security.RightsManagement
                 }
 
                 int rightIndex = 0;
-                while (true) // now we can enumerate rights granted to the given user  
+                while (true) // now we can enumerate rights granted to the given user
                 {
                     SafeRightsManagementPubHandle rightHandle = null;
                     DateTime validFrom;
                     DateTime validUntil;
 
-                    // extract the right based on the index and the user 
+                    // extract the right based on the index and the user
                     Nullable<ContentRight> right = GetIssuanceLicenseUserRight
                                 (userHandle, rightIndex, out rightHandle, out validFrom, out validUntil);
 
-                    // 0 right handle is an indication of the end of the list 
+                    // 0 right handle is an indication of the end of the list
                     if (rightHandle == null)
                     {
                         break;
                     }
 
-                    // right == null is an indication of a right that we didn't recognize 
-                    // we should still continue the enumeration 
+                    // right == null is an indication of a right that we didn't recognize
+                    // we should still continue the enumeration
                     if (right != null)
                     {
-                        // Add the grant for the User Right pair here 
+                        // Add the grant for the User Right pair here
                         unsignedPublishLicense.Grants.Add(
                                 new ContentGrant(user, right.Value, validFrom, validUntil));
                     }
@@ -301,13 +301,13 @@ namespace MS.Internal.Security.RightsManagement
                 userIndex++;
             }
 
-            // let's get the localized name description pairs 
+            // let's get the localized name description pairs
             int nameIndex = 0;
-            while (true) // in this loop we are enumerating nameDescription pairs mentioned in the license 
+            while (true) // in this loop we are enumerating nameDescription pairs mentioned in the license
             {
                 int localeId;
 
-                // extract the user based on the index 
+                // extract the user based on the index
                 LocalizedNameDescriptionPair nameDescription = GetLocalizedNameDescriptionPair(nameIndex,
                                     out localeId);
                 if (nameDescription == null)
@@ -315,16 +315,16 @@ namespace MS.Internal.Security.RightsManagement
                     break;
                 }
 
-                // Add the name description info to the license 
+                // Add the name description info to the license
                 unsignedPublishLicense.LocalizedNameDescriptionDictionary.Add(localeId, nameDescription);
                 nameIndex++;
             }
 
-            // let's get the application specific data 
+            // let's get the application specific data
             int appDataIndex = 0;
-            while (true) // in this loop we are enumerating nameDescription pairs mentioned in the license 
+            while (true) // in this loop we are enumerating nameDescription pairs mentioned in the license
             {
-                // extract the user based on the index 
+                // extract the user based on the index
 
                 Nullable<KeyValuePair<string, string>> appSpecificDataEntry = GetApplicationSpecificData(appDataIndex);
 
@@ -333,12 +333,12 @@ namespace MS.Internal.Security.RightsManagement
                     break;
                 }
 
-                // Add the name description info to the license 
+                // Add the name description info to the license
                 unsignedPublishLicense.ApplicationSpecificDataDictionary.Add(appSpecificDataEntry.Value.Key, appSpecificDataEntry.Value.Value);
                 appDataIndex++;
             }
 
-            // Get the revocation Point information, it is optional and can be null 
+            // Get the revocation Point information, it is optional and can be null
             unsignedPublishLicense.RevocationPoint = GetRevocationPoint();
         }
 
@@ -363,11 +363,11 @@ namespace MS.Internal.Security.RightsManagement
                     {
                         _issuanceLicenseHandle.Dispose();
 
-                        // After some investigation it was determined that ArrayList 
-                        // is a safe member ,and could be used in Finalizers 
-                        // so we do not check for disposing flag.  
-                        // It seems that Finalizers are called in nondeterministic order 
-                        // but if we have a combination of classes with Finalizers and without Finalizers 
+                        // After some investigation it was determined that ArrayList
+                        // is a safe member ,and could be used in Finalizers
+                        // so we do not check for disposing flag.
+                        // It seems that Finalizers are called in nondeterministic order
+                        // but if we have a combination of classes with Finalizers and without Finalizers
                         // referencing each other, the classes with Finalizers wil be Disposed first.
                         foreach (SafeRightsManagementPubHandle handler in _pubHandlesList)
                         {
@@ -402,7 +402,7 @@ namespace MS.Internal.Security.RightsManagement
 
         private void AddNameDescription(int localeId, LocalizedNameDescriptionPair nameDescription)
         {
-            // the managed APIs treat Locale Id as int and the unmanaged ones as uint 
+            // the managed APIs treat Locale Id as int and the unmanaged ones as uint
             // we need to convert it back and force
             uint locId;
             checked { locId = (uint)localeId; }
@@ -430,25 +430,25 @@ namespace MS.Internal.Security.RightsManagement
         {
             SafeRightsManagementPubHandle rightHandle = null;
 
-            // we only need to use date time inteval if at least one of the values isn't default to Min max 
+            // we only need to use date time inteval if at least one of the values isn't default to Min max
             // If both of the Min Max we can leave tyhem as nulls otherwise (if at least one not default)
-            // we need to set both 
+            // we need to set both
             SystemTime systemTimeValidFrom = null;
             SystemTime systemTimeValidUntil = null;
 
             if ((grant.ValidFrom != DateTime.MinValue) || (grant.ValidUntil != DateTime.MaxValue))
             {
                 // we need to use non null values if at least one of the time boundaries isn't default
-                // DRM SDK will not enforce date time unless both timeFrom and timeUnti are set 
+                // DRM SDK will not enforce date time unless both timeFrom and timeUnti are set
                 systemTimeValidFrom = new SystemTime(grant.ValidFrom);
                 systemTimeValidUntil = new SystemTime(grant.ValidUntil);
             }
 
             int hr = SafeNativeMethods.DRMCreateRight(
                 ClientSession.GetStringFromRight(grant.Right),
-                systemTimeValidFrom,    // SystemTime timeFrom, 
+                systemTimeValidFrom,    // SystemTime timeFrom,
                 systemTimeValidUntil,    // SystemTime timeUntil,
-                0,       // countExtendedInfo,    
+                0,       // countExtendedInfo,
                 null,    // string [] extendedInfoNames,
                 null,    // string [] extendedInfoValues,
                 out rightHandle);
@@ -466,19 +466,19 @@ namespace MS.Internal.Security.RightsManagement
             SafeRightsManagementPubHandle userHandle = null;
             int hr;
 
-            // We need to create Internal Authnetication type Users differently 
+            // We need to create Internal Authnetication type Users differently
             if (user.GenericEquals(ContentUser.AnyoneUser) || user.GenericEquals(ContentUser.OwnerUser))
             {
-                // Anyone user 
+                // Anyone user
                 hr = SafeNativeMethods.DRMCreateUser(
                     user.Name, // This is an optional UI Name (some applications use this and do not work well when it is missing)
-                    user.Name, // that would be string Anyone or Owner 
-                    ConvertAuthenticationTypeToString(user),   // this would be internal  
+                    user.Name, // that would be string Anyone or Owner
+                    ConvertAuthenticationTypeToString(user),   // this would be internal
                     out userHandle);
             }
             else
             {
-                // Windws Passport or WindowsPassport authentication type user 
+                // Windws Passport or WindowsPassport authentication type user
                 hr = SafeNativeMethods.DRMCreateUser(
                     user.Name,
                     null,
@@ -566,7 +566,7 @@ namespace MS.Internal.Security.RightsManagement
                                                                                 userIdType);
             Errors.ThrowOnErrorCode(hr);
 
-            // Convert String Builder values to string values 
+            // Convert String Builder values to string values
             string userNameStr = null;
             if (userName != null)
             {
@@ -585,7 +585,7 @@ namespace MS.Internal.Security.RightsManagement
                 userIdStr = userId.ToString().ToUpperInvariant();
             }
 
-            // based on the UserTypeId build appropriate instance of User class 
+            // based on the UserTypeId build appropriate instance of User class
             if (string.Equals(userIdTypeStr, AuthenticationType.Windows.ToString(), StringComparison.OrdinalIgnoreCase))
             {
                 return new ContentUser(userNameStr, AuthenticationType.Windows);
@@ -596,7 +596,7 @@ namespace MS.Internal.Security.RightsManagement
             }
             else if (string.Equals(userIdTypeStr, AuthenticationType.Internal.ToString(), StringComparison.OrdinalIgnoreCase))
             {
-                // internal anyone user 
+                // internal anyone user
                 if (ContentUser.CompareToAnyone(userIdStr))
                 {
                     return ContentUser.AnyoneUser;
@@ -621,7 +621,7 @@ namespace MS.Internal.Security.RightsManagement
             int hr = SafeNativeMethods.DRMGetUsers(
                 _issuanceLicenseHandle, (uint)index, out userHandle);
 
-            // there is a special code indication end of the enumeration 
+            // there is a special code indication end of the enumeration
             if (hr == (int)RightsManagementFailureCode.NoMoreData)
             {
                 userHandle = null;
@@ -632,7 +632,7 @@ namespace MS.Internal.Security.RightsManagement
             Errors.ThrowOnErrorCode(hr);
             Debug.Assert((userHandle != null) && (!userHandle.IsInvalid));
 
-            // preserve handle so we can destruct it later 
+            // preserve handle so we can destruct it later
             _pubHandlesList.Add(userHandle);
 
             // now we can build a ContentUser
@@ -658,7 +658,7 @@ namespace MS.Internal.Security.RightsManagement
                     ref descriptionLength,
                     description);
 
-            // there is a special code indication end of the enumeration 
+            // there is a special code indication end of the enumeration
             if (hr == (int)RightsManagementFailureCode.NoMoreData)
             {
                 localeId = 0;
@@ -688,7 +688,7 @@ namespace MS.Internal.Security.RightsManagement
                     description);
             Errors.ThrowOnErrorCode(hr);
 
-            // the managed APIs treat Locale Id as int and the unmanaged ones as uint 
+            // the managed APIs treat Locale Id as int and the unmanaged ones as uint
             // we need to convert it back and force
             checked { localeId = (int)locId; }
 
@@ -703,17 +703,17 @@ namespace MS.Internal.Security.RightsManagement
             uint nameLength = 0;
             uint valueLength = 0;
 
-            // check whether element with such index is present, 
-            // and if it is get the sizes of the name value strings 
+            // check whether element with such index is present,
+            // and if it is get the sizes of the name value strings
             int hr = SafeNativeMethods.DRMGetApplicationSpecificData(
                                                 _issuanceLicenseHandle,
-                                                (uint)index,    // safe cast as the caller responsible for keeping this postive 
+                                                (uint)index,    // safe cast as the caller responsible for keeping this postive
                                                 ref nameLength,
                                                 null,
                                                 ref valueLength,
                                                 null);
 
-            // there is a special code indicating end of the enumeration 
+            // there is a special code indicating end of the enumeration
             if (hr == (int)RightsManagementFailureCode.NoMoreData)
             {
                 return null;
@@ -724,7 +724,7 @@ namespace MS.Internal.Security.RightsManagement
 
             StringBuilder tempName = null;
             // allocate memory as necessary, it seems that Unmanaged libraries really do not like
-            // getting a non null buffer of size 0 
+            // getting a non null buffer of size 0
             if (nameLength > 0)
             {
                 tempName = new StringBuilder(checked((int)nameLength));
@@ -732,17 +732,17 @@ namespace MS.Internal.Security.RightsManagement
 
             StringBuilder tempValue = null;
             // allocate memory as necessary, it seems that Unmanaged libraries really do not like
-            // getting a non null buffer of size 0 
+            // getting a non null buffer of size 0
             if (valueLength > 0)
             {
                 tempValue = new StringBuilder(checked((int)valueLength));
             }
 
-            // The second call supposed to return the actual string values fcheck whether element with such index is present, 
-            // and if it is get the sizes of the name value strings 
+            // The second call supposed to return the actual string values fcheck whether element with such index is present,
+            // and if it is get the sizes of the name value strings
             hr = SafeNativeMethods.DRMGetApplicationSpecificData(
                                                 _issuanceLicenseHandle,
-                                                (uint)index,    // safe cast as the caller responsible for keeping this postive 
+                                                (uint)index,    // safe cast as the caller responsible for keeping this postive
                                                 ref nameLength,
                                                 tempName,
                                                 ref valueLength,
@@ -750,7 +750,7 @@ namespace MS.Internal.Security.RightsManagement
             // check for errors
             Errors.ThrowOnErrorCode(hr);
 
-            // build strings from the StringBuilder  instances 
+            // build strings from the StringBuilder  instances
             string name = tempName?.ToString();
             string value = tempValue?.ToString();
 
@@ -770,22 +770,22 @@ namespace MS.Internal.Security.RightsManagement
 
             int hr = SafeNativeMethods.DRMGetUserRights(_issuanceLicenseHandle, userHandle, (uint)index, out rightHandle);
 
-            // there is a special code indicating end of the enumeration 
+            // there is a special code indicating end of the enumeration
             if (hr == (int)RightsManagementFailureCode.NoMoreData)
             {
                 rightHandle = null;
                 validFrom = DateTime.MinValue;
                 validUntil = DateTime.MaxValue;
 
-                return null;       // intentionally we return an invalid value, to make use client 
-                // properly verify right handle 
+                return null;       // intentionally we return an invalid value, to make use client
+                // properly verify right handle
             }
 
             // check for errors
             Errors.ThrowOnErrorCode(hr);
             Debug.Assert((rightHandle != null) && (!rightHandle.IsInvalid));
 
-            // preserve handle so we can destruct it later 
+            // preserve handle so we can destruct it later
             _pubHandlesList.Add(rightHandle);
 
             // now we can build a User
@@ -820,14 +820,14 @@ namespace MS.Internal.Security.RightsManagement
             Errors.ThrowOnErrorCode(hr);
 
             // As a result of calling DRMGetIssuanceLicenseInfo twice,
-            // we are getting 2 handles. We are going to dispose the first one 
+            // we are getting 2 handles. We are going to dispose the first one
             // and preserve the second one.
             ownerHandleTemp?.Dispose();
             ownerHandleTemp = null;
 
             StringBuilder distributionPointNameTemp = null;
             // allocate memory as necessary, it seems that Unmanaged libraries really do not like
-            // getting a non null buffer of size 0 
+            // getting a non null buffer of size 0
             if (distributionPointNameLength > 0)
             {
                 distributionPointNameTemp = new StringBuilder(checked((int)distributionPointNameLength));
@@ -835,7 +835,7 @@ namespace MS.Internal.Security.RightsManagement
 
             StringBuilder distributionPointUriTemp = null;
             // allocate memory as necessary, it seems that Unmanaged libraries really do not like
-            // getting a non null buffer of size 0 
+            // getting a non null buffer of size 0
             if (distributionPointUriLength > 0)
             {
                 distributionPointUriTemp = new StringBuilder(checked((int)distributionPointUriLength));
@@ -860,7 +860,7 @@ namespace MS.Internal.Security.RightsManagement
             timeFrom = timeFromTemp.GetDateTime(DateTime.MinValue);
             timeUntil = timeUntilTemp.GetDateTime(DateTime.MaxValue);
 
-            // only if we got some data back we shall try to process it 
+            // only if we got some data back we shall try to process it
             if (distributionPointNameTemp != null)
             {
                 distributionPointName = distributionPointNameTemp.ToString();
@@ -870,7 +870,7 @@ namespace MS.Internal.Security.RightsManagement
                 distributionPointName = null;
             }
 
-            // only if we got some data back we shall try to process it 
+            // only if we got some data back we shall try to process it
             if (distributionPointUriTemp != null)
             {
                 distributionPointUri = distributionPointUriTemp.ToString();
@@ -880,7 +880,7 @@ namespace MS.Internal.Security.RightsManagement
                 distributionPointUri = null;
             }
 
-            // if we have owner let's convert it to a user and preserve 
+            // if we have owner let's convert it to a user and preserve
             // handler for further destruction
             owner = null;
             if (ownerHandleTemp != null)
@@ -903,10 +903,10 @@ namespace MS.Internal.Security.RightsManagement
                                 false, // flagDelete,
                                 revocationPoint.Id,
                                 revocationPoint.IdType,
-                                revocationPoint.Url.AbsoluteUri, // We are using Uri class as a basic validation mechanism. These URIs come from unmanaged 
-                // code libraries and go back as parameters into the unmanaged code libraries. 
-                // We use AbsoluteUri property as means of verifying that it is actually an absolute and 
-                // well formed Uri. If by any chance it happened to be a relative URI, an exception will 
+                                revocationPoint.Url.AbsoluteUri, // We are using Uri class as a basic validation mechanism. These URIs come from unmanaged
+                // code libraries and go back as parameters into the unmanaged code libraries.
+                // We use AbsoluteUri property as means of verifying that it is actually an absolute and
+                // well formed Uri. If by any chance it happened to be a relative URI, an exception will
                 // be thrown here. This will perform the necessary escaping.
                                 revocationPoint.Frequency,
                                 revocationPoint.Name,
@@ -945,7 +945,7 @@ namespace MS.Internal.Security.RightsManagement
             Errors.ThrowOnErrorCode(hr);
 
             // allocate memory as necessary, it seems that Unmanaged libraries really do not like
-            // getting a non null buffer of size 0 
+            // getting a non null buffer of size 0
             StringBuilder idTemp = null;
             if (idLength > 0)
             {
@@ -1005,13 +1005,13 @@ namespace MS.Internal.Security.RightsManagement
         }
 
         /// <summary>
-        /// Call this before accepting any API call 
+        /// Call this before accepting any API call
         /// </summary>
         private void CheckDisposed()
         {
-            //As this class is not public, and the corresponding public class (Unsigned Publish License 
-            //that uses this class is not disposable, it means, that the only probable reason for using 
-            //Disposed instance of this class is a 
+            //As this class is not public, and the corresponding public class (Unsigned Publish License
+            //that uses this class is not disposable, it means, that the only probable reason for using
+            //Disposed instance of this class is a
 
 
             Invariant.Assert((_issuanceLicenseHandle != null) &&
@@ -1034,7 +1034,7 @@ namespace MS.Internal.Security.RightsManagement
         }
 
 
-        private readonly List<SafeRightsManagementPubHandle> _pubHandlesList = new List<SafeRightsManagementPubHandle>(50); // initial capacity 
+        private readonly List<SafeRightsManagementPubHandle> _pubHandlesList = new List<SafeRightsManagementPubHandle>(50); // initial capacity
         private SafeRightsManagementPubHandle _issuanceLicenseHandle = null; // if this is null, we are disposed
 
         private const string DefaultContentType = "MS-GUID";

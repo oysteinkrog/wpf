@@ -391,7 +391,7 @@ namespace System.Windows.Xps.Serialization
 
             for (int i = 0; i < height; i += 1)
             {
-                bitmapSource.CriticalCopyPixels(rect, pixels, stride, 0);
+                bitmapSource.CopyPixelsEx(rect, pixels, stride, 0);
                 rect.Y++;
 
                 crc32.AddData(pixels);

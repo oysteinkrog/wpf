@@ -29,14 +29,14 @@ namespace System.Xaml
 
         // We don't expect a lot of contention on our dictionaries, so avoid the overhead of
         // extra lock partitioning
-        const int ConcurrencyLevel = 1;
-        const int DictionaryCapacity = 17;
+        private const int ConcurrencyLevel = 1;
+        private const int DictionaryCapacity = 17;
 
         // Immutable, initialized in constructor
         private readonly ReadOnlyCollection<Assembly> _referenceAssemblies;
 
         // take this lock when iterating new assemblies in the AppDomain/RefAssm
-        object _syncExaminingAssemblies;
+        private object _syncExaminingAssemblies;
 
         #endregion
 
@@ -59,10 +59,10 @@ namespace System.Xaml
                 List<Assembly> listOfAssemblies = new List<Assembly>(referenceAssemblies);
                 _referenceAssemblies = new ReadOnlyCollection<Assembly>(listOfAssemblies);
             }
-            _settings = (settings != null)
+            _settings = (settings is object)
                 ? new XamlSchemaContextSettings(settings)
                 : new XamlSchemaContextSettings();
-            _syncExaminingAssemblies = new Object();
+            _syncExaminingAssemblies = new object();
             InitializeAssemblyLoadHook();
         }
 

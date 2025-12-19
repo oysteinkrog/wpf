@@ -57,7 +57,7 @@ namespace System.Windows.Controls
                                     if (Mouse.CapturedMode != CaptureMode.None)
                                     {
                                         // Get the root visual
-                                        PresentationSource source = PresentationSource.CriticalFromVisual((DependencyObject)directlyOver);
+                                        PresentationSource source = PresentationSource.FromVisual((DependencyObject)directlyOver);
                                         UIElement rootAsUIElement = source != null ? source.RootVisual as UIElement : null;
                                         if (rootAsUIElement != null)
                                         {
@@ -837,7 +837,7 @@ namespace System.Windows.Controls
             if (tooltip != null && !tooltip.FromKeyboard)
             {
                 DependencyObject owner = GetOwner(tooltip);
-                PresentationSource presentationSource = (owner != null) ? PresentationSource.CriticalFromVisual(owner) : null;
+                PresentationSource presentationSource = PresentationSource.FromNullableVisual(owner);
 
                 if (presentationSource != null)
                 {
@@ -914,8 +914,8 @@ namespace System.Windows.Controls
             // if the current tooltip's owner is no longer being displayed, the safe area is no longer valid
             // so the mouse has effectively left it
             DependencyObject owner = GetOwner(CurrentToolTip);
-            PresentationSource presentationSource = (owner != null) ? PresentationSource.CriticalFromVisual(owner) : null;
-            if (presentationSource == null)
+
+            if (PresentationSource.FromNullableVisual(owner) is null)
                 return true;
 
             // if the safe area is valid, see if it still contains the mouse point
@@ -1043,22 +1043,14 @@ namespace System.Windows.Controls
                     cm.ClearValue(OwnerProperty);
 
                     UIElement uie = GetTarget(o);
-                    if (uie != null)
+                    if (PresentationSource.FromNullableVisual(uie) is not null)
                     {
-                        if (!IsPresentationSourceNull(uie))
-                        {
-                            IInputElement inputElement = (o is ContentElement || o is UIElement3D) ? (IInputElement)o : (IInputElement)uie;
-                            ContextMenuEventArgs args = new ContextMenuEventArgs(inputElement, false /*opening */);
-                            inputElement.RaiseEvent(args);
-                        }
+                        IInputElement inputElement = (o is ContentElement || o is UIElement3D) ? (IInputElement)o : (IInputElement)uie;
+                        ContextMenuEventArgs args = new ContextMenuEventArgs(inputElement, false /*opening */);
+                        inputElement.RaiseEvent(args);
                     }
                 }
             }
-        }
-
-        private static bool IsPresentationSourceNull(DependencyObject uie)
-        {
-            return PresentationSource.CriticalFromVisual(uie) == null;
         }
 
         #endregion
@@ -1581,7 +1573,7 @@ namespace System.Windows.Controls
             internal bool ContainsMousePoint()
             {
                 // get the coordinates of the current mouse point, relative to the Active source
-                PresentationSource mouseSource = Mouse.PrimaryDevice.CriticalActiveSource;
+                PresentationSource mouseSource = Mouse.PrimaryDevice.ActiveSource;
                 System.Windows.Point pt = Mouse.PrimaryDevice.NonRelativePosition;
 
                 // translate the point to our source's coordinates, if necessary

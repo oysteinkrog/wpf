@@ -24,7 +24,7 @@ namespace System.Windows.Media.Imaging
         internal WriteableBitmap()
         {
         }
-        
+
         /// <summary>
         ///     Creates a new WriteableBitmap instance initialized with the
         ///     contents of the specified BitmapSource.
@@ -39,7 +39,7 @@ namespace System.Windows.Media.Imaging
         {
             InitFromBitmapSource(source);
         }
-        
+
         /// <summary>
         ///   Initializes a new instance of the WriteableBitmap class with
         ///   the specified parameters.
@@ -352,13 +352,13 @@ namespace System.Windows.Media.Imaging
 
             WritePixelsImpl(sourceRect,
                             sourceBuffer,
-                            (uint)sourceBufferSize,
-                            sourceBufferStride, 
+                            sourceBufferSize,
+                            sourceBufferStride,
                             destinationX,
                             destinationY,
                             backwardsCompat: false);
         }
-        
+
         /// <summary>
         ///   Updates the pixels in the specified region of the bitmap.
         /// </summary>
@@ -380,11 +380,14 @@ namespace System.Windows.Media.Imaging
         {
             WritePreamble();
 
+            int elementSize;
+            int sourceBufferSize;
+            Type elementType;
             ValidateArrayAndGetInfo(sourceBuffer,
                                     backwardsCompat: false,
-                                    out _,
-                                    out uint sourceBufferSize,
-                                    out Type elementType);
+                                    out elementSize,
+                                    out sourceBufferSize,
+                                    out elementType);
 
             // We accept arrays of arbitrary value types - but not reference types.
             if (elementType == null || !elementType.IsValueType)
@@ -422,7 +425,7 @@ namespace System.Windows.Media.Imaging
         {
             WritePreamble();
 
-            ArgumentOutOfRangeException.ThrowIfZero(bufferSize);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(bufferSize);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(stride);
 
             if (sourceRect.IsEmpty || sourceRect.Width <= 0 || sourceRect.Height <= 0)
@@ -443,9 +446,9 @@ namespace System.Windows.Media.Imaging
             sourceRect.X = 0;
             sourceRect.Y = 0;
 
-            WritePixelsImpl(sourceRect, 
+            WritePixelsImpl(sourceRect,
                             buffer,
-                            (uint)bufferSize,
+                            bufferSize,
                             stride,
                             destinationX,
                             destinationY,
@@ -473,11 +476,14 @@ namespace System.Windows.Media.Imaging
                 return;
             }
 
+            int elementSize;
+            int sourceBufferSize;
+            Type elementType;
             ValidateArrayAndGetInfo(pixels,
                                     backwardsCompat: true,
-                                    out int elementSize,
-                                    out uint sourceBufferSize, 
-                                    out Type elementType);
+                                    out elementSize,
+                                    out sourceBufferSize,
+                                    out elementType);
 
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(stride);
             ArgumentOutOfRangeException.ThrowIfNegative(offset);
@@ -487,10 +493,10 @@ namespace System.Windows.Media.Imaging
             {
                 throw new ArgumentException(SR.Image_InvalidArrayForPixel);
             }
-            
+
             checked
             {
-                uint offsetInBytes = (uint)offset * (uint)elementSize;
+                int offsetInBytes = checked(offset * elementSize);
                 if (offsetInBytes >= sourceBufferSize)
                 {
                     // Backwards compat:
@@ -577,7 +583,7 @@ namespace System.Windows.Media.Imaging
                 Debug.Assert(_pBackBufferLock == null);
 
                 //
-                // By entering 'frozen' mode, we convert from being a 
+                // By entering 'frozen' mode, we convert from being a
                 // DoubleBufferedBitmap to a regular BitmapSource.
                 //
 
@@ -620,7 +626,7 @@ namespace System.Windows.Media.Imaging
                         resource.AddRefOnChannel(channel);
                     }
                 }
-                
+
                 Debug.Assert(!_isWaitingForCommit);
 
                 // We no longer need the SwDoubleBufferedBitmap
@@ -726,7 +732,7 @@ namespace System.Windows.Media.Imaging
                 {
                     internalPalette = source.Palette.InternalPalette;
                 }
-                
+
                 HRESULT.Check(MILSwDoubleBufferedBitmap.Create(
                     (uint)source.PixelWidth, // safe cast
                     (uint)source.PixelHeight, // safe cast
@@ -745,8 +751,8 @@ namespace System.Windows.Media.Imaging
                 try
                 {
                     Int32Rect rcFull = new Int32Rect(0, 0, _pixelWidth, _pixelHeight);
-                    uint bufferSize = checked((uint)_backBufferStride * (uint)source.PixelHeight);
-                    source.CriticalCopyPixels(rcFull, _backBuffer, bufferSize, _backBufferStride);
+                    int bufferSize = checked(_backBufferStride * source.PixelHeight);
+                    source.CopyPixelsImpl(rcFull, _backBuffer, bufferSize, _backBufferStride);
                     AddDirtyRect(rcFull);
                 }
                 finally
@@ -786,7 +792,7 @@ namespace System.Windows.Media.Imaging
         private void WritePixelsImpl(
             Int32Rect sourceRect,
             IntPtr    sourceBuffer,
-            uint      sourceBufferSize,
+            int       sourceBufferSize,
             int       sourceBufferStride,
             int       destinationX,
             int       destinationY,
@@ -848,7 +854,7 @@ namespace System.Windows.Media.Imaging
             {
                 uint finalRowWidthInBits = (uint)((sourceRect.X + sourceRect.Width) * _format.InternalBitsPerPixel);
                 uint finalRowWidthInBytes = ((finalRowWidthInBits + 7) / 8);
-                uint requiredBufferSize = ((uint)(sourceRect.Y + sourceRect.Height - 1) * (uint)sourceBufferStride) + finalRowWidthInBytes;
+                uint requiredBufferSize = (uint)((sourceRect.Y + sourceRect.Height - 1) * sourceBufferStride) + finalRowWidthInBytes;
                 if (sourceBufferSize < requiredBufferSize)
                 {
                     if (backwardsCompat)
@@ -879,14 +885,14 @@ namespace System.Windows.Media.Imaging
                 //
                 unsafe
                 {
-                    uint destOffset = ((uint)destinationY * (uint)_backBufferStride) + destXbyteOffset;
+                    uint destOffset = (uint)(destinationY * _backBufferStride) + destXbyteOffset;
                     byte* pDest = (byte*)_backBuffer.ToPointer();
                     pDest += destOffset;
                     uint outputBufferSize = _backBufferSize - destOffset;
 
                     byte* pSource = (byte*)sourceBuffer.ToPointer();
                     pSource += firstPixelByteOffet;
-                    uint inputBufferSize = sourceBufferSize - firstPixelByteOffet;
+                    uint inputBufferSize = (uint)sourceBufferSize - firstPixelByteOffet;
 
                     Lock();
 
@@ -929,7 +935,7 @@ namespace System.Windows.Media.Imaging
         /// </param>
         /// <param name="waitForCopy">
         ///   Should we try to wait for the copy completed event?
-        /// </param>        
+        /// </param>
         /// <returns>Returns true if the back buffer was acquired before the timeout expired.</returns>
         private bool AcquireBackBuffer(TimeSpan timeout, bool waitForCopy)
         {
@@ -943,7 +949,7 @@ namespace System.Windows.Media.Imaging
             if (_pBackBuffer == null)
             {
                 bool shouldGetBackBuffer = true;
-                
+
                 if (waitForCopy)
                 {
                     // If we have committed a copy-forward command, we need to wait
@@ -951,7 +957,7 @@ namespace System.Windows.Media.Imaging
                     // the back buffer.
                     shouldGetBackBuffer = _copyCompletedEvent.WaitOne(timeout, false);
                 }
-                
+
                 if (shouldGetBackBuffer)
                 {
                     MILSwDoubleBufferedBitmap.GetBackBuffer(
@@ -1034,11 +1040,11 @@ namespace System.Windows.Media.Imaging
         /// <param name="sourceBufferSize">
         ///     On output, will contain the size of the array.
         /// </param>
-        private static void ValidateArrayAndGetInfo(Array sourceBuffer,
-                                                    bool backwardsCompat,
-                                                    out int elementSize,
-                                                    out uint sourceBufferSize,
-                                                    out Type elementType)
+        private void ValidateArrayAndGetInfo(Array sourceBuffer,
+                                                       bool backwardsCompat,
+                                                       out int elementSize,
+                                                       out int sourceBufferSize,
+                                                       out Type elementType)
         {
             //
             // Assure that a valid pixels Array was provided.
@@ -1070,7 +1076,7 @@ namespace System.Windows.Media.Imaging
                     {
                         object exemplar = sourceBuffer.GetValue(0);
                         elementSize = Marshal.SizeOf(exemplar);
-                        sourceBufferSize = (uint)firstDimLength * (uint)elementSize;
+                        sourceBufferSize = firstDimLength * elementSize;
                         elementType = exemplar.GetType();
                     }
                 }
@@ -1098,7 +1104,7 @@ namespace System.Windows.Media.Imaging
                     {
                         object exemplar = sourceBuffer.GetValue(0, 0);
                         elementSize = Marshal.SizeOf(exemplar);
-                        sourceBufferSize = ((uint)firstDimLength * (uint)secondDimLength) * (uint)elementSize;
+                        sourceBufferSize = (firstDimLength * secondDimLength) * elementSize;
                         elementType = exemplar.GetType();
                     }
                 }
@@ -1195,7 +1201,7 @@ namespace System.Windows.Media.Imaging
                 base.UpdateBitmapSourceResource(channel, skipOnChannelCheck);
                 return;
             }
-            
+
             // We override this method because we use a different resource type
             // than our base class does.  This probably suggests that the base
             // class should not presume the resource type, but it currently
@@ -1221,7 +1227,7 @@ namespace System.Windows.Media.Imaging
                 // so we'll AddRef it here, and simply take over the reference on the other side.
                 //
                 UnsafeNativeMethods.MILUnknown.AddRef(_pDoubleBufferedBitmap);
-                
+
                 unsafe
                 {
                     channel.SendCommand(
@@ -1283,7 +1289,7 @@ namespace System.Windows.Media.Imaging
             Debug.Assert(_duceResource.IsOnChannel(channel));  // How else are we here?
 
             // We are going to pass an event in the command packet we send to
-            // the composition thread.  We need to make sure the event stays 
+            // the composition thread.  We need to make sure the event stays
             // alive in case we get collected before the composition thread
             // processes the packet.  We do this by duplicating the event
             // handle, and the composition thread will close the handle after
@@ -1308,14 +1314,14 @@ namespace System.Windows.Media.Imaging
             command.Handle = _duceResource.GetHandle(channel);
             command.CopyCompletedEvent = (UInt64) hDuplicate.ToInt64();
 
-            // Note that the batch is closed after the sendcommand because this method is called under the 
-            // context of the MediaContext.CommitChannel and the command needs to make it into the current set of changes which are 
-            // being commited to the compositor.  If the batch is not closed, it would go into the 
-            // "future" batch which would not get submitted this time around. This leads to a dead-lock situation which occurs when 
-            // the app calls Lock on the WriteableBitmap because Lock waits on _copyCompletedEvent which the compositor sets when it sees the 
-            // Present command. However, since the compositor does not get the Present command, it will not set the event and the 
+            // Note that the batch is closed after the sendcommand because this method is called under the
+            // context of the MediaContext.CommitChannel and the command needs to make it into the current set of changes which are
+            // being commited to the compositor.  If the batch is not closed, it would go into the
+            // "future" batch which would not get submitted this time around. This leads to a dead-lock situation which occurs when
+            // the app calls Lock on the WriteableBitmap because Lock waits on _copyCompletedEvent which the compositor sets when it sees the
+            // Present command. However, since the compositor does not get the Present command, it will not set the event and the
             // UI thread will wait forever on the compositor which will cause the application to stop responding.
-            // Another option is to send the command in its own batch (instead of closing the batch). This doesn't work in all cases 
+            // Another option is to send the command in its own batch (instead of closing the batch). This doesn't work in all cases
             // because the command for creating the resource handle (AddRefOnChannelCore) or the command for initializing the resource (UpdateBitmapSourceResource)
             // could be in the "future" batch thus crashing the CopyForward operation in this batch.
 
@@ -1392,7 +1398,7 @@ namespace System.Windows.Media.Imaging
         private bool _hasDirtyRects = true;
 
         // Flags whether a MediaContext.CommittingBatch handler has already been added.
-        private bool _isWaitingForCommit = false;   
+        private bool _isWaitingForCommit = false;
 
         private ManualResetEvent _copyCompletedEvent = new ManualResetEvent(true);
 

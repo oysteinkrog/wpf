@@ -2329,7 +2329,7 @@ namespace Microsoft.Windows.Controls.Ribbon
         private bool OnKeyTipEnterFocus(object sender, EventArgs e)
         {
             PresentationSource targetSource = sender as PresentationSource;
-            if (targetSource == RibbonHelper.GetPresentationSourceFromVisual(this))
+            if (targetSource == PresentationSource.FromVisual(this))
             {
                 // Focus the selected tab header if this Ribbon belongs
                 // to concerned presentation source.
@@ -2341,7 +2341,7 @@ namespace Microsoft.Windows.Controls.Ribbon
         private bool OnKeyTipExitRestoreFocus(object sender, EventArgs e)
         {
             PresentationSource targetSource = sender as PresentationSource;
-            if (targetSource == RibbonHelper.GetPresentationSourceFromVisual(this))
+            if (targetSource == PresentationSource.FromVisual(this))
             {
                 // Restore the focus if the Ribbon belongs to
                 // the concerned presentation source.

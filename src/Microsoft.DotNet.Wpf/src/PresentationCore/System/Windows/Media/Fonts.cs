@@ -2,10 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 //
-// 
+//
 // Description: The Fonts class provides font enumeration APIs.
 //              See spec at http://avalon/text/DesignDocsAndSpecs/Font%20Enumeration%20API.htm
-// 
+//
 //
 //
 
@@ -33,8 +33,7 @@ namespace System.Windows.Media
         /// <param name="location">An absolute URI of a folder containing fonts or a font file.</param>
         /// <returns>Collection of FontFamily objects from the specified folder or file.</returns>
         /// <remarks>
-        /// The specified location must be an absolute file URI or path, and the caller must have
-        /// FileIOPermission(FileIOPermissionAccess.Read) for the location. Each resulting FontFamily
+        /// The specified location must be an absolute file URI or path. Each resulting FontFamily
         /// object includes the specified location in its friendly name and has no base URI.
         /// </remarks>
         public static ICollection<FontFamily> GetFontFamilies(string location)
@@ -50,8 +49,7 @@ namespace System.Windows.Media
         /// <param name="baseUri">An absolute URI of a folder containing fonts or a resource in that folder.</param>
         /// <returns>Collection of FontFamily objects from the specified folder.</returns>
         /// <remarks>
-        /// The caller must have FileIOPermission(FileIOPermissionAccess.Read) for the folder
-        /// specified by baseUri. Each resulting FontFamily object has the specified Uri as its
+        /// Each resulting FontFamily object has the specified Uri as its
         /// BaseUri property has a friendly name of the form "./#Family Name".
         /// </remarks>
         public static ICollection<FontFamily> GetFontFamilies(Uri baseUri)
@@ -65,15 +63,14 @@ namespace System.Windows.Media
         /// <summary>
         /// Enumerates font families in the font location specified by a base URI and/or a location string.
         /// </summary>
-        /// <param name="baseUri">Base URI used to determine the font location if the location parameter is not specified 
+        /// <param name="baseUri">Base URI used to determine the font location if the location parameter is not specified
         /// or is relative, and the value of the BaseUri property of each FontFamily in the resulting collection. This
         /// parameter can be null if the location parameter specifies an absolute location.</param>
-        /// <param name="location">Optional relative or absolute URI reference. The location is used (with baseUri) to 
+        /// <param name="location">Optional relative or absolute URI reference. The location is used (with baseUri) to
         /// determine the font folder and is exposed as part of the Source property of each FontFamily in the resulting
         /// collection. If location is null or empty then "./" is implied, meaning same folder as the base URI.</param>
         /// <returns>Collection of FontFamily objects from the specified font location.</returns>
         /// <remarks>
-        /// The caller must have FileIOPermission(FileIOPermissionAccess.Read) for the specified font folder.
         /// Each resulting FontFamily object has the specified base Uri as its BaseUri property and includes the
         /// specified location as part of the friendly name specified by the Source property.
         /// </remarks>
@@ -125,8 +122,7 @@ namespace System.Windows.Media
         /// <param name="location">An absolute URI of a folder containing fonts or a font file.</param>
         /// <returns>Collection of Typeface objects from the specified folder or file.</returns>
         /// <remarks>
-        /// The specified location must be an absolute file URI or path, and the caller must have
-        /// FileIOPermission(FileIOPermissionAccess.Read) for the location. The FontFamily of each
+        /// The specified location must be an absolute file URI or path. The FontFamily of each
         /// resulting Typeface object includes the specified location in its friendly name and has
         /// no base URI.
         /// </remarks>
@@ -143,8 +139,7 @@ namespace System.Windows.Media
         /// <param name="baseUri">An absolute URI of a folder containing fonts or a resource in that folder.</param>
         /// <returns>Collection of Typeface objects from the specified folder.</returns>
         /// <remarks>
-        /// The caller must have FileIOPermission(FileIOPermissionAccess.Read) for the folder
-        /// specified by baseUri. The FontFamily of each resulting Typeface object has the specified 
+        /// The FontFamily of each resulting Typeface object has the specified
         /// Uri as its BaseUri property has a friendly name of the form "./#Family Name".
         /// </remarks>
         public static ICollection<Typeface> GetTypefaces(Uri baseUri)
@@ -157,15 +152,14 @@ namespace System.Windows.Media
         /// <summary>
         /// Enumerates typefaces in the font location specified by a base URI and/or a location string.
         /// </summary>
-        /// <param name="baseUri">Base URI used to determine the font location if the location parameter is not specified 
+        /// <param name="baseUri">Base URI used to determine the font location if the location parameter is not specified
         /// or is relative, and the value of the BaseUri property of each FontFamily in the resulting collection. This
         /// parameter can be null if the location parameter specifies an absolute location.</param>
-        /// <param name="location">Optional relative or absolute URI reference. The location is used (with baseUri) to 
+        /// <param name="location">Optional relative or absolute URI reference. The location is used (with baseUri) to
         /// determine the font folder and is exposed as part of the Source property of each FontFamily in the resulting
         /// collection. If location is null or empty then "./" is implied, meaning same folder as the base URI.</param>
         /// <returns>Collection of Typeface objects from the specified font location.</returns>
         /// <remarks>
-        /// The caller must have FileIOPermission(FileIOPermissionAccess.Read) for the specified font folder.
         /// Each resulting FontFamily object has the specified base Uri as its BaseUri property and includes the
         /// specified location as part of the friendly name specified by the Source property.
         /// </remarks>
@@ -221,7 +215,7 @@ namespace System.Windows.Media
 
 
         /// <summary>
-        /// This method enumerates the font families in the specified font location and returns the resulting 
+        /// This method enumerates the font families in the specified font location and returns the resulting
         /// collection of FontFamily objects.
         /// </summary>
         /// <param name="fontLocation">Absolute URI of file or folder containing font data</param>
@@ -237,13 +231,13 @@ namespace System.Windows.Media
             // Use reference comparison to determine the critical isWindowsFonts value. We want this
             // to be true ONLY if we're called internally to enumerate the default family collection.
             // See the SecurityNote for the FamilyCollection constructor.
-            FamilyCollection familyCollection = 
+            FamilyCollection familyCollection =
                 object.ReferenceEquals(fontLocation, Util.WindowsFontsUriObject) ?
-                    FamilyCollection.FromWindowsFonts(fontLocation) : 
+                    FamilyCollection.FromWindowsFonts(fontLocation) :
                     FamilyCollection.FromUri(fontLocation);
 
             FontFamily[] fontFamilyList = familyCollection.GetFontFamilies(fontFamilyBaseUri, fontFamilyLocationReference);
-            
+
             return Array.AsReadOnly<FontFamily>(fontFamilyList);
         }
 
@@ -252,9 +246,7 @@ namespace System.Windows.Media
         /// Creates a collection of font families in the Windows Fonts folder.
         /// </summary>
         /// <remarks>
-        /// This method is used to initialized the static _defaultFontCollection field. By having this
-        /// safe wrapper for CreateFamilyCollection we avoid having to create a static initializer and
-        /// declare it critical.
+        /// This method is used to initialized the static _defaultFontCollection field.
         /// </remarks>
         private static ICollection<FontFamily> CreateDefaultFamilyCollection()
         {

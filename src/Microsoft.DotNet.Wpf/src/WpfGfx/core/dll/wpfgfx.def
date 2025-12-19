@@ -126,6 +126,11 @@ EXPORTS
     InteropDeviceBitmap_AddDirtyRect
     InteropDeviceBitmap_GetAsSoftwareBitmap
 
+    InteropDeviceBitmap11_Create
+    InteropDeviceBitmap11_SubmitFrame
+    InteropDeviceBitmap11_Detach
+    InteropDeviceBitmap11_GetDroppedFrameCount
+
     MilGlyphRun_GetGlyphOutline
     MilGlyphRun_ReleasePathGeometryData
 

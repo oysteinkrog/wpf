@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 //
@@ -54,18 +54,21 @@ namespace MS.Internal.AppModel
                 //   for deployed files the <Content> files are deployed with the application.
                 string location = GetEntryAssemblyLocation();
 
+                string assemblyName, assemblyVersion, assemblyKey;
+                string filePath;
+
                 // For now, only Application assembly supports content files, 
                 // so we can simply ignore the assemblyname etc.
                 // In the future, we may extend this support for regular library assembly,
                 // assemblyName will be used to predict the right file path.
 
-                BaseUriHelper.GetAssemblyNameAndPart(Uri, out AssemblyPackageInfo assemblyInfo);
+                BaseUriHelper.GetAssemblyNameAndPart(Uri, out filePath, out assemblyName, out assemblyVersion, out assemblyKey);
 
-                // filePath should not have leading slash. GetAssemblyNameAndPart() will guarantee it.
-                _fullPath = Path.Join(Path.GetDirectoryName(location.AsSpan()), assemblyInfo.PackagePartName);
+                // filePath should not have leading slash.  GetAssemblyNameAndPart( ) can guarantee it.
+                _fullPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(location), filePath);
             }
 
-            stream = CriticalOpenFile(_fullPath);
+            stream = File.Open(_fullPath, FileMode.Open, FileAccess.Read, ResourceContainer.FileShare);
 
             if (stream == null)
             {
@@ -113,11 +116,6 @@ namespace MS.Internal.AppModel
             }
 
             return entryLocation;
-        }
-
-        private static Stream CriticalOpenFile(string filename)
-        {
-            return File.Open(filename, FileMode.Open, FileAccess.Read, ResourceContainer.FileShareMode);
         }
 
         #endregion

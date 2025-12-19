@@ -63,7 +63,7 @@ namespace System.Xaml
         internal static Point ClientToScreen(UIElement relativeTo, Point point)
         {
             GeneralTransform transform;
-            PresentationSource source = PresentationSource.CriticalFromVisual(relativeTo);
+            PresentationSource source = PresentationSource.FromVisual(relativeTo);
 
             if (source == null)
             {
@@ -211,6 +211,36 @@ namespace System.Xaml
                     _isGCCallbackPending = false;
                 }
             }
+        }
+
+        internal static bool IsSameKeyToken(byte[] reqKeyToken, byte[] curKeyToken)
+        {
+            bool isSame = false;
+
+            if (reqKeyToken is null && curKeyToken is null)
+            {
+                // Both Key Tokens are not set, treat them as same.
+                isSame = true;
+            }
+            else if (reqKeyToken is not null && curKeyToken is not null)
+            {
+                // Both KeyTokens are set.
+                if (reqKeyToken.Length == curKeyToken.Length)
+                {
+                    isSame = true;
+
+                    for (int i = 0; i < reqKeyToken.Length; i++)
+                    {
+                        if (reqKeyToken[i] != curKeyToken[i])
+                        {
+                            isSame = false;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return isSame;
         }
 
 #endif  // WINDOWS_BASE || PRESENTATION_CORE || SYSTEM_XAML

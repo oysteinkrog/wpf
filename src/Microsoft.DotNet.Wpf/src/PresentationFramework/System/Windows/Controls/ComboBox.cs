@@ -1920,7 +1920,7 @@ namespace System.Windows.Controls
                 Panel itemsHost = ItemsHost;
                 if (itemsHost != null)
                 {
-                    HwndSource source = PresentationSource.CriticalFromVisual(itemsHost) as HwndSource;
+                    HwndSource source = PresentationSource.FromVisual(itemsHost) as HwndSource;
 
                     if (source != null && !source.IsDisposed && source.RootVisual != null)
                     {

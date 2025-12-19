@@ -27,7 +27,7 @@ namespace MS.Internal
 
         object IEnumerator.Current
         {  get{ return Current; } }
-        
+
         public object Current
         {
             get

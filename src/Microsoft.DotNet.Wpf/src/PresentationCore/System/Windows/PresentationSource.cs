@@ -1,23 +1,13 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections;
-using System.Diagnostics;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 using System.Windows.Threading;
-using System.Security;
 using System.Windows.Media;
-using System.Windows.Media.Media3D;
-using System.Windows.Markup;
 using System.Windows.Input;
-using MS.Win32;
 using MS.Utility;
 using MS.Internal;
-
-using SR=MS.Internal.PresentationCore.SR;
 
 namespace System.Windows
 {
@@ -86,7 +76,7 @@ namespace System.Windows
         /// <returns>The source in which the visual is being presented.</returns>
         public static PresentationSource FromVisual(Visual visual)
         {
-            return CriticalFromVisual(visual);
+            return FromVisual(visual, enable2DTo3DTransition: true);
         }
 
         /// <summary>
@@ -96,7 +86,7 @@ namespace System.Windows
         /// <returns>The source in which the dependency object is being presented.</returns>
         public static PresentationSource FromDependencyObject(DependencyObject dependencyObject)
         {
-            return CriticalFromVisual(dependencyObject);
+            return FromVisual(dependencyObject, enable2DTo3DTransition: true);
         }
 
         /// <summary>
@@ -339,7 +329,10 @@ namespace System.Windows
         /// <summary>
         ///     Whether or not the object is disposed.
         /// </summary>
-        public abstract bool IsDisposed { get; }
+        public abstract bool IsDisposed
+        {
+            get;
+        }
 
         #endregion
 
@@ -357,8 +350,12 @@ namespace System.Windows
         /// </summary>
         public static IEnumerable CurrentSources
         {
-            get => _sources;
+            get
+            {
+                return CriticalCurrentSources;
+            }
         }
+
 
         #endregion
 
@@ -415,36 +412,21 @@ namespace System.Windows
             }
             
             // Always set the SourceProperty on the new root.
-            if (newRoot != null)
-            {
-                newRoot.SetValue(RootSourceProperty, this);
-            }
+            newRoot?.SetValue(RootSourceProperty, this);
 
             UIElement oldRootUIElement = oldRoot as UIElement;
             UIElement newRootUIElement = newRoot as UIElement;
 
             // The IsVisible property can only be true if root visual is connected to a presentation source.
             // For Read-Only force-inherited properties, use a private update method.
-            if(oldRootUIElement != null)
-            {
-                oldRootUIElement.UpdateIsVisibleCache();
-            }
-            if(newRootUIElement != null)
-            {
-                newRootUIElement.UpdateIsVisibleCache();
-            }
+            oldRootUIElement?.UpdateIsVisibleCache();
+            newRootUIElement?.UpdateIsVisibleCache();
 
             // Broadcast the Unloaded event starting at the old root visual
-            if (oldRootUIElement != null)
-            {
-                oldRootUIElement.OnPresentationSourceChanged(false);
-            }
+            oldRootUIElement?.OnPresentationSourceChanged(false);
 
             // Broadcast the Loaded event starting at the root visual
-            if (newRootUIElement != null)
-            {
-                newRootUIElement.OnPresentationSourceChanged(true);
-            }
+            newRootUIElement?.OnPresentationSourceChanged(true);
 
             // To fire PresentationSourceChanged when the RootVisual changes;
             // rather than simulate a "parent" pointer change, we just walk the
@@ -525,32 +507,32 @@ namespace System.Windows
             }
         }
 
+#nullable enable
         /// <summary>
-        /// Returns whether this <see cref="Visual"/> is connected to a <see cref="PresentationSource"/>.
-        /// In case it is, we can deem this <see cref="Visual"/> renderable.
+        /// Returns the source in which the visual is being presented.
         /// </summary>
-        /// <param name="visual">The <see cref="Visual"/> to check.</param>
-        /// <returns><see langword="true"/> if it is connected to a <see cref="PresentationSource"/>, <see langword="false"/> otherwise.</returns>
-        internal static bool IsVisualConnectedToSource(Visual visual)
+        /// <param name="visual">The visual to find the source for.</param>
+        /// <returns>
+        /// The source in which the visual is being presented or <see langword="null"/> in case <paramref name="visual"/> was <see langword="null"/>.
+        /// </returns>
+        /// <remarks>Unlike <see cref="FromVisual"/>, this allows <see langword="null"/> passed to <paramref name="visual"/>.</remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static PresentationSource? FromNullableVisual(DependencyObject? visual, bool enable2DTo3DTransition = true)
         {
-            return CriticalFromVisual(visual) is not null;
+            return visual is not null ? FromVisual(visual, enable2DTo3DTransition) : null;
         }
+#nullable disable
 
-        internal static PresentationSource CriticalFromVisual(DependencyObject v)
-        {
-            return CriticalFromVisual(v, true /* enable2DTo3DTransition */);
-        }
-
-        /// <param name="v">The dependency object to find the source for</param>
+        /// <param name="visual">The dependency object to find the source for</param>
         /// <param name="enable2DTo3DTransition">
         ///     Determines whether when walking the tree to enable transitioning from a 2D child
         ///     to a 3D parent or to stop once a 3D parent is encountered.
         /// </param>
-        internal static PresentationSource CriticalFromVisual(DependencyObject v, bool enable2DTo3DTransition)
+        internal static PresentationSource FromVisual(DependencyObject visual, bool enable2DTo3DTransition = true)
         {
-            ArgumentNullException.ThrowIfNull(v);
+            ArgumentNullException.ThrowIfNull(visual);
 
-            PresentationSource source = FindSource(v, enable2DTo3DTransition);
+            PresentationSource source = FindSource(visual, enable2DTo3DTransition);
 
             // Don't hand out a disposed source.
             if (null != source && source.IsDisposed)
@@ -579,28 +561,38 @@ namespace System.Windows
         ///     Helper method which returns true when all the given visuals 
         ///     are in the same presentation source.
         /// </summary>
-        internal static bool UnderSamePresentationSource(params DependencyObject[] visuals)
+        internal static bool IsUnderSamePresentationSource(params ReadOnlySpan<DependencyObject> visuals)
         {
-            if (visuals == null || visuals.Length == 0)
-            {
+            if (visuals.IsEmpty)
                 return true;
-            }
 
-            PresentationSource baseSource = CriticalFromVisual(visuals[0]);
-
-            int count = visuals.Length;
-            for (int i = 1; i < count; i++)
+            PresentationSource baseSource = FromVisual(visuals[0]);
+            for (int i = 1; i < visuals.Length; i++)
             {
-                PresentationSource currentSource = CriticalFromVisual(visuals[i]);
-                if (currentSource != baseSource)
+                if (baseSource != FromVisual(visuals[i]))
                 {
                     return false;
                 }
             }
+
             return true;
         }
 
         #endregion
+
+        //------------------------------------------------------
+        //
+        //  Internal Properties
+        //
+        //------------------------------------------------------
+        // None
+
+        //------------------------------------------------------
+        //
+        //  Internal Events
+        //
+        //------------------------------------------------------
+        // None
 
         //------------------------------------------------------
         //
@@ -614,9 +606,12 @@ namespace System.Windows
         ///   over a ReadOnly SnapShot of the List of sources.  The Enumerator
         ///   skips over the any dead weak references in the list.
         /// </summary>
-        internal static WeakReferenceList CurrentSourcesList
+        internal static WeakReferenceList CriticalCurrentSources
         {
-            get => _sources;
+            get
+            {
+                return _sources;
+            }
         }
 
         private static void AddElementToWatchList(DependencyObject element)
@@ -640,7 +635,7 @@ namespace System.Windows
 
         private static PresentationSource FindSource(DependencyObject o)
         {
-            return FindSource(o, true /* enable2DTo3DTransition */);
+            return FindSource(o, enable2DTo3DTransition: true);
         }
 
         /// <param name="o">The dependency object to find the source for</param>
@@ -676,9 +671,10 @@ namespace System.Windows
             {
                 doTarget.SetValue(CachedSourceProperty, realSource);
 
-                SourceChangedEventArgs args = new SourceChangedEventArgs(cachedSource, realSource);
-
-                args.RoutedEvent=SourceChangedEvent;
+                SourceChangedEventArgs args = new SourceChangedEventArgs(cachedSource, realSource)
+                {
+                    RoutedEvent = SourceChangedEvent
+                };
                 if (doTarget is UIElement uiElement)
                 {
                     uiElement.RaiseEvent(args);

@@ -232,18 +232,14 @@ namespace System.Windows
         /// <summary>
         /// Writes a bad switch combination to the event log and throws the appropriate error.
         /// </summary>
-        /// <SecurityNotes>
-        /// Critical:   Calls Process.GetProcess
-        /// Safe:       Does not accept or expose any critical data
-        /// </SecurityNotes>
         private static void WriteEventAndThrow(string message)
         {
-            var exception = new NotSupportedException(message);
+            NotSupportedException exception = new(message);
 
             if (EventLog.SourceExists(EventSource))
             {
                 EventLog.WriteEntry(EventSource,
-                    $"{Process.GetCurrentProcess().ProcessName}{Environment.NewLine}{exception.ToString()}",
+                    $"{Process.GetCurrentProcess().ProcessName}{Environment.NewLine}{exception}",
                     EventLogEntryType.Error, EventId);
             }
 

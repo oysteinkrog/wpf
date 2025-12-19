@@ -6,7 +6,7 @@
 //
 //  Description:
 //      Helper class for handling all web requests/responses in the framework. Using it ensures consisent
-//      handling and support for special features: cookies, NTLM authentication, caching, inferring MIME 
+//      handling and support for special features: cookies, NTLM authentication, caching, inferring MIME
 //      type from filename.
 //
 
@@ -22,16 +22,15 @@ using MS.Internal.PresentationCore;
 namespace MS.Internal
 {
     /// <summary>
-    /// Helper class for handling all web requests/responses in the framework. Using it ensures consisent handling 
+    /// Helper class for handling all web requests/responses in the framework. Using it ensures consistent handling
     /// and support for special features: cookies, NTLM authentication, caching, inferring MIME type from filename.
-    /// 
-    /// Only two methods are mandatory: 
-    ///   - CreateRequest. (PackWebRequestFactory.CreateWebRequest is an allowed alternative. It delegates to 
+    ///
+    /// Only two methods are mandatory:
+    ///   - CreateRequest. (PackWebRequestFactory.CreateWebRequest is an allowed alternative. It delegates to
     ///     this CreateRequest for non-pack URIs.)
-    ///   - HandleWebResponse. 
-    /// The remaining methods just automate the entire request process, up to the point of getting the response
-    /// stream. Using the SecurityTreatAsSafe ones helps avoid making other code SecurityCritical.
-    /// 
+    ///   - HandleWebResponse.
+    /// The remaining methods just automate the entire request process, up to the point of getting the response stream.
+    ///
     /// Related types:
     ///   - BaseUriHelper
     ///   - BindUriHelper (built into Framework, subset into Core)
@@ -61,23 +60,23 @@ namespace MS.Internal
             uri = new Uri(uri.GetLeftPart(UriPartial.Path));
         }
 
-        #pragma warning disable SYSLIB0014 
+        #pragma warning disable SYSLIB0014
         WebRequest request = WebRequest.Create(uri);
-        #pragma warning restore SYSLIB0014 
+        #pragma warning restore SYSLIB0014
 
         // It is not clear whether WebRequest.Create() can ever return null, but v1 code make this check in
         // a couple of places, so it is still done here, just in case.
         if(request == null)
         {
-            // Unfortunately, there is no appropriate exception string in PresentationCore, and for v3.5 
+            // Unfortunately, there is no appropriate exception string in PresentationCore, and for v3.5
             // we have a total resource freeze. So just report WebExceptionStatus.RequestCanceled:
-            // "The request was canceled, the WebRequest.Abort method was called, or an unclassifiable error 
+            // "The request was canceled, the WebRequest.Abort method was called, or an unclassifiable error
             // occurred. This is the default value for Status."
             Uri requestUri = BaseUriHelper.PackAppBaseUri.MakeRelativeUri(uri);
             throw new WebException(requestUri.ToString(), WebExceptionStatus.RequestCanceled);
             //throw new IOException(SR.Format(SR.GetResponseFailed, requestUri.ToString()));
         }
-        
+
         HttpWebRequest httpRequest = request as HttpWebRequest;
         if (httpRequest != null)
         {
@@ -100,7 +99,7 @@ namespace MS.Internal
 
     /// <remarks> ******
     /// This method was factored out of the defunct BindUriHelper.ConfigHttpWebRequest().
-    /// Ideally, all framework-created web requests should use the same caching settings, but in order not to 
+    /// Ideally, all framework-created web requests should use the same caching settings, but in order not to
     /// change behavior in SP1/v3.5, ConfigCachePolicy() is called separately by the code that previously
     /// relied on ConfigHttpWebRequest().
     /// </remarks>
@@ -176,12 +175,12 @@ namespace MS.Internal
     internal static WebResponse GetResponse(WebRequest request)
     {
         WebResponse response = request.GetResponse();
-        
+
         // 'is' is used here instead of exact type checks to allow for the (remote) possibility that an internal
         // implementation type derived from HttpWebRequest/Response may be used by System.Net.
         if (response is HttpWebResponse && !(request is HttpWebRequest))
             throw new ArgumentException();
-        
+
         // It is not clear whether WebRequest.GetRespone() can ever return null, but some of the v1 code had
         // this check, so it is added here just in case.
         if (response == null)
@@ -189,7 +188,7 @@ namespace MS.Internal
             Uri requestUri = BaseUriHelper.PackAppBaseUri.MakeRelativeUri(request.RequestUri);
             throw new IOException(SR.Format(SR.GetResponseFailed, requestUri.ToString()));
         }
-        
+
         HandleWebResponse(response);
         return response;
     }
@@ -215,7 +214,7 @@ namespace MS.Internal
         return response.GetResponseStream();
     }
     /// <summary>
-    /// Gets the response from the given request and determines the content type using the special rules 
+    /// Gets the response from the given request and determines the content type using the special rules
     /// implemented in GetContentType().
     /// </summary>
     internal static Stream GetResponseStream(WebRequest request, out ContentType contentType)
@@ -229,7 +228,7 @@ namespace MS.Internal
     // [Apr'07. Code moved here from BaseUriHelper.GetContentType().]
     /// <summary>
     /// Tries hard to obtain the content type of the given WebResponse. Special cases:
-    /// - The ContentType property may throw if not implemented. 
+    /// - The ContentType property may throw if not implemented.
     /// - Unconfigured web servers don't return the right type for WPF content. This method does lookup based on
     ///   file extension.
     /// </summary>
@@ -273,8 +272,8 @@ namespace MS.Internal
         }
 
         // DevDiv2 29007 - IE9 - pack://siteoforigin:,,,/ Uris fail for standalone applications
-        // Something about the contentType object we get when IE9 is installed breaks file-system pack://siteoforigin:,,, Uris 
-        // when we get here with a blank ContentType object.  
+        // Something about the contentType object we get when IE9 is installed breaks file-system pack://siteoforigin:,,, Uris
+        // when we get here with a blank ContentType object.
         // Workaround: Since we're only checking that content type hasn't been determined yet, checking the public properties versus
         // ContentType.Empty's copy of the same gets the same result, and also works for all versions of IE.
         if (contentType.TypeComponent == ContentType.Empty.TypeComponent &&

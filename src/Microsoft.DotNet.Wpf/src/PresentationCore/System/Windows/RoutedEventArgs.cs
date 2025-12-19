@@ -3,7 +3,6 @@
 
 using System.Collections.Specialized;
 using MS.Internal;
-using MS.Internal.KnownBoxes;
 
 namespace System.Windows
 {
@@ -136,7 +135,7 @@ namespace System.Windows
                 {
                     TraceRoutedEvent.TraceActivityItem(
                                             TraceRoutedEvent.HandleEvent,
-                                            BooleanBoxes.Box(value),
+                                            value,
                                             RoutedEvent.OwnerType.Name,
                                             RoutedEvent.Name,
                                             this );
@@ -290,7 +289,7 @@ namespace System.Windows
                 }
                 else
                 {
-                    genericHandler.DynamicInvoke(new object[] {genericTarget, this});
+                    genericHandler.DynamicInvoke(new object[] { genericTarget, this });
                 }
             }
             finally

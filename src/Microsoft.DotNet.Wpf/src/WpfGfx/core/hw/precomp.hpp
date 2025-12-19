@@ -18,6 +18,10 @@
 #include "std.h"
 #include "d2d1.h"
 
+// D3D11 for video processing (D3D11VideoDevice)
+#include <d3d11_4.h>
+#include <dxgi1_2.h>
+
 #include <strsafe.h>
 
 #include "wgx_core_dllname.h"

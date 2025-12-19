@@ -135,7 +135,7 @@ namespace System.Windows.Input
             {
                 DependencyObject focusScope = element;
 
-                if (PresentationSource.CriticalFromVisual(focusScope) != PresentationSource.CriticalFromVisual(focusedElement))
+                if (PresentationSource.FromVisual(focusScope) != PresentationSource.FromVisual(focusedElement))
                 {
                     SetFocusedElement(focusScope, null);
                     focusedElement = null;
