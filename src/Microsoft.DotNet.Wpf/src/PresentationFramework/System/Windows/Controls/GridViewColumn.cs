@@ -419,7 +419,7 @@ namespace System.Windows.Controls
 
             private set
             {
-                if (Double.IsNaN(value) || Double.IsInfinity(value) || value < 0.0)
+                if (!double.IsFinite(value) || value < 0.0)
                 {
                     Debug.Fail("Invalid value for ActualWidth.");
                 }
