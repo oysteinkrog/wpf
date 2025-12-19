@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 //
@@ -45,7 +45,7 @@ namespace MS.Internal.AppModel
         protected override Stream GetStreamCore(FileMode mode, FileAccess access)
         {
 #if DEBUG
-            if (SiteOfOriginContainer._traceSwitch.Enabled)
+            if (SiteOfOriginContainer.TraceSwitchEnabled)
                 System.Diagnostics.Trace.TraceInformation(
                         DateTime.Now.ToLongTimeString() + " " + DateTime.Now.Millisecond + " " +
                         Environment.CurrentManagedThreadId + 
@@ -57,7 +57,7 @@ namespace MS.Internal.AppModel
         protected override string GetContentTypeCore()
         {
 #if DEBUG
-            if (SiteOfOriginContainer._traceSwitch.Enabled)
+            if (SiteOfOriginContainer.TraceSwitchEnabled)
                 System.Diagnostics.Trace.TraceInformation(
                         DateTime.Now.ToLongTimeString() + " " + DateTime.Now.Millisecond + " " +
                         Environment.CurrentManagedThreadId + 
@@ -85,7 +85,7 @@ namespace MS.Internal.AppModel
                 if (onlyNeedContentType && _contentType != MS.Internal.ContentType.Empty)
                 {
 #if DEBUG
-                    if (SiteOfOriginContainer._traceSwitch.Enabled)
+                    if (SiteOfOriginContainer.TraceSwitchEnabled)
                         System.Diagnostics.Trace.TraceInformation(
                                 DateTime.Now.ToLongTimeString() + " " + DateTime.Now.Millisecond + " " +
                                 Environment.CurrentManagedThreadId + 
@@ -101,7 +101,7 @@ namespace MS.Internal.AppModel
                 if (_cacheStream != null)
                 {
 #if DEBUG
-                    if (SiteOfOriginContainer._traceSwitch.Enabled)
+                    if (SiteOfOriginContainer.TraceSwitchEnabled)
                         System.Diagnostics.Trace.TraceInformation(
                                 DateTime.Now.ToLongTimeString() + " " + DateTime.Now.Millisecond + " " +
                                 Environment.CurrentManagedThreadId +
@@ -115,7 +115,7 @@ namespace MS.Internal.AppModel
                 if (_absoluteLocation == null)
                 {
 #if DEBUG
-                    if (SiteOfOriginContainer._traceSwitch.Enabled)
+                    if (SiteOfOriginContainer.TraceSwitchEnabled)
                         System.Diagnostics.Trace.TraceInformation(
                                 DateTime.Now.ToLongTimeString() + " " + DateTime.Now.Millisecond + " " +
                                 Environment.CurrentManagedThreadId + 
@@ -128,7 +128,7 @@ namespace MS.Internal.AppModel
                 }
 
 #if DEBUG
-                if (SiteOfOriginContainer._traceSwitch.Enabled)
+                if (SiteOfOriginContainer.TraceSwitchEnabled)
                     System.Diagnostics.Trace.TraceInformation(
                             DateTime.Now.ToLongTimeString() + " " + DateTime.Now.Millisecond + " " +
                             Environment.CurrentManagedThreadId + 
@@ -154,7 +154,7 @@ namespace MS.Internal.AppModel
         private Stream HandleFileSource(bool onlyNeedContentType)
         {
 #if DEBUG
-            if (SiteOfOriginContainer._traceSwitch.Enabled)
+            if (SiteOfOriginContainer.TraceSwitchEnabled)
                 System.Diagnostics.Trace.TraceInformation(
                         DateTime.Now.ToLongTimeString() + " " + DateTime.Now.Millisecond + " " +
                         Environment.CurrentManagedThreadId + 
@@ -178,7 +178,7 @@ namespace MS.Internal.AppModel
             Stream responseStream = response.GetResponseStream();
 
 #if DEBUG
-            if (SiteOfOriginContainer._traceSwitch.Enabled)
+            if (SiteOfOriginContainer.TraceSwitchEnabled)
                 System.Diagnostics.Trace.TraceInformation(
                         DateTime.Now.ToLongTimeString() + " " + DateTime.Now.Millisecond + " " +
                         Environment.CurrentManagedThreadId + 
@@ -188,7 +188,7 @@ namespace MS.Internal.AppModel
             if (_contentType == MS.Internal.ContentType.Empty)
             {
 #if DEBUG
-                if (SiteOfOriginContainer._traceSwitch.Enabled)
+                if (SiteOfOriginContainer.TraceSwitchEnabled)
                     System.Diagnostics.Trace.TraceInformation(
                             DateTime.Now.ToLongTimeString() + " " + DateTime.Now.Millisecond + " " +
                             Environment.CurrentManagedThreadId + 
