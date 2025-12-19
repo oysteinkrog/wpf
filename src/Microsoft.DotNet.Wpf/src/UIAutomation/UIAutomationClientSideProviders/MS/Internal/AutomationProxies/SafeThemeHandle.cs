@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
@@ -27,7 +27,7 @@ namespace MS.Internal.AutomationProxies
         {
             // MustRun methods may only call other MustRun methods,
             // must not allocate along paths that must succeed, etc.
-            return !IsInvalid ? CloseThemeData(handle) == (IntPtr)NativeMethods.S_OK : true;
+            return IsInvalid || CloseThemeData(handle) == (IntPtr)NativeMethods.S_OK;
         }
 
         [DllImport("UxTheme.dll", CharSet = CharSet.Auto)/**/]

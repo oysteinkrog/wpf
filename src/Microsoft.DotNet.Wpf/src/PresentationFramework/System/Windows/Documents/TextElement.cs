@@ -1386,7 +1386,7 @@ namespace System.Windows.Documents
 
                 if (this.IsIMEStructuralElement)
                 {
-                    isFirstIMEVisibleSibling = (this.TextElementNode == null) ? true : this.TextElementNode.IsFirstSibling;
+                    isFirstIMEVisibleSibling = TextElementNode is null || TextElementNode.IsFirstSibling;
                 }
 
                 return isFirstIMEVisibleSibling;

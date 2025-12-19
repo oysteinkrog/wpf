@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -68,7 +68,7 @@ namespace MS.Internal.Xaml.Parser
 
         public bool CurrentXmlSpacePreserve
         {
-            get { return (_stack.Count == 0) ? false : _stack.Peek().XmlSpacePreserve; }
+            get { return _stack.Count != 0 && _stack.Peek().XmlSpacePreserve; }
             set
             {
                 Debug.Assert(_stack.Count != 0);
@@ -78,7 +78,7 @@ namespace MS.Internal.Xaml.Parser
 
         public bool CurrentlyInContent
         {
-            get { return (_stack.Count == 0) ? false : _stack.Peek().InContent; }
+            get { return _stack.Count != 0 && _stack.Peek().InContent; }
             set
             {
                 Debug.Assert(_stack.Count != 0);

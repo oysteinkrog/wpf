@@ -601,7 +601,7 @@ namespace System.Windows.Documents
                     menuItem.CommandTarget = textEditor.UiScope;
                 }
 
-                return (count > 0) ? true : false;
+                return (count > 0);
             }
 
             // Appends clipboard related items.

@@ -192,7 +192,7 @@ namespace System.Windows.Input
                 //   - No state to be restored even exception happens while this callback.
                 _InputLanguageChanging(this, args);
 
-                accepted = args.Rejected ? false : true;
+                accepted = !args.Rejected;
             }
             return accepted;
         }

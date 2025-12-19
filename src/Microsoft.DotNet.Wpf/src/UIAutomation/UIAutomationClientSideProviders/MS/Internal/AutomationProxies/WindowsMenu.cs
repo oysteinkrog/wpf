@@ -1791,7 +1791,7 @@ namespace MS.Internal.AutomationProxies
             {
                 get
                 {
-                    return IsChecked() ? true : false;
+                    return IsChecked();
                 }
             }
 

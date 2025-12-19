@@ -84,7 +84,7 @@ namespace MS.Internal.Ink
         internal StrokeNodeIterator(DrawingAttributes drawingAttributes)
             : this( null,   //stylusPoints
                     StrokeNodeOperations.CreateInstance((drawingAttributes?.StylusShape)),
-                    (drawingAttributes == null ? false : !drawingAttributes.IgnorePressure))  //usePressure
+                    (drawingAttributes is not null && !drawingAttributes.IgnorePressure))  //usePressure
         {
         }
 

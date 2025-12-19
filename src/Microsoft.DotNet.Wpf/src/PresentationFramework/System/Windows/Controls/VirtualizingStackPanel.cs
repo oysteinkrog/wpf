@@ -4147,7 +4147,7 @@ namespace System.Windows.Controls
 
             bool isScrolling = IsScrolling;
 
-            mustDisableVirtualization = isScrolling ? MustDisableVirtualization : false;
+            mustDisableVirtualization = isScrolling && MustDisableVirtualization;
 
             ItemsControl parentItemsControl = null;
             DependencyObject itemsOwner = ItemsControl.GetItemsOwnerInternal(this, out itemsControl);
@@ -4181,12 +4181,12 @@ namespace System.Windows.Controls
             if (groupItem != null)
             {
                 virtualizationInfoProvider = GetVirtualizingProvider(groupItem);
-                mustDisableVirtualization = virtualizationInfoProvider != null ? virtualizationInfoProvider.MustDisableVirtualization : false;
+                mustDisableVirtualization = virtualizationInfoProvider is not null && virtualizationInfoProvider.MustDisableVirtualization;
             }
             else if (!isScrolling)
             {
                 virtualizationInfoProvider = GetVirtualizingProvider(itemsControl);
-                mustDisableVirtualization = virtualizationInfoProvider != null ? virtualizationInfoProvider.MustDisableVirtualization : false;
+                mustDisableVirtualization = virtualizationInfoProvider is not null && virtualizationInfoProvider.MustDisableVirtualization;
             }
 
             if (shouldSetVirtualizationState)

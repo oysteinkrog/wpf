@@ -1,5 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 //
 // Description: Control for displaying paginated content.
@@ -873,7 +874,10 @@ namespace System.Windows.Controls
             AttachContent();
 
             // Update the toolbar with our current document state.
-            _findToolbar?.DocumentLoaded = (Document != null) ? true : false;
+            if (_findToolbar != null)
+            {
+                _findToolbar.DocumentLoaded = Document is not null;
+            }
 
             // We do not automatically go to the first page on the _first_ content
             // assignment, for two reasons:
@@ -2098,7 +2102,7 @@ namespace System.Windows.Controls
                     _findToolbar.FindClicked += new EventHandler(OnFindInvoked);
 
                     //set initial DocumentLoaded state.
-                    _findToolbar.DocumentLoaded = (Document != null) ? true : false;
+                    _findToolbar.DocumentLoaded = Document is not null;
                 }
 
                 // Now insert the toolbar, if it isn't already parented elsewhere.
@@ -2143,16 +2147,27 @@ namespace System.Windows.Controls
                         // No, we did not find anything.  Alert the user.
 
                         // build our message string.
-                        string messageString = _findToolbar.SearchUp ? SR.DocumentViewerSearchUpCompleteLabel : SR.DocumentViewerSearchDownCompleteLabel;
-                        messageString = string.Format(CultureInfo.CurrentCulture, messageString, _findToolbar.SearchText);
+                        string messageString = _findToolbar.SearchUp ?
+                            SR.DocumentViewerSearchUpCompleteLabel :
+                            SR.DocumentViewerSearchDownCompleteLabel;
 
-                        // If we have a parent window, use it when alerting the user, otherwise fallback.
-                        Window parentWindow = Application.Current?.CheckAccess() ?? false ? Application.Current.MainWindow : null;
+                        messageString = String.Format(
+                            CultureInfo.CurrentCulture,
+                            messageString,
+                            _findToolbar.SearchText);
 
-                        if (parentWindow is not null)
-                            MessageBox.Show(parentWindow, messageString, SR.DocumentViewerSearchCompleteTitle, MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                        else
-                            MessageBox.Show(messageString, SR.DocumentViewerSearchCompleteTitle, MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                        Window wnd = null;
+                        if (Application.Current != null && Application.Current.CheckAccess())
+                        {
+                            wnd = Application.Current.MainWindow;
+                        }
+
+                        MS.Internal.PresentationFramework.SecurityHelper.ShowMessageBoxHelper(
+                            wnd,
+                            messageString,
+                            SR.DocumentViewerSearchCompleteTitle,
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Asterisk);
                     }
                 }
             }
@@ -2247,6 +2262,41 @@ namespace System.Windows.Controls
         }
 
         /// <summary>
+        /// Determines if the parameter represents a valid double (that is a value other
+        /// than NaN, PositiveInfinity, or NegativeInfinity).
+        /// </summary>
+        /// <param name="value">The double value to be checked</param>
+        /// <returns>True if the double value is valid, false otherwise.</returns>
+        private static bool DoubleValue_Validate(object value)
+        {
+            // Place this helper method
+            // in a location with standard utilities.
+
+            bool ok;
+
+            // Ensure value is double
+            if (value is double checkValue)
+            {
+
+                // Check if double is within an assumed range
+                if ((double.IsNaN(checkValue)) ||
+                    (double.IsInfinity(checkValue)))
+                {
+                    ok = false;
+                }
+                else
+                {
+                    ok = true;
+                }
+            }
+            else
+            {
+                ok = false;
+            }
+            return ok;
+        }
+
+        /// <summary>
         /// Converts an IDocumentScrollInfo's Scale value to a Zoom
         /// </summary>
         /// <param name="scale">A valid IDocumentScrollInfo.Scale value.</param>
@@ -2276,7 +2326,7 @@ namespace System.Windows.Controls
         /// <returns>True if the offset is valid, false otherwise.</returns>
         private static bool ValidateOffset(object value)
         {
-            return value is double doubleValue && double.IsFinite(doubleValue) && doubleValue >= 0.0;
+            return DoubleValue_Validate(value) && ((double)value >= 0.0);
         }
 
         /// <summary>
@@ -2361,7 +2411,10 @@ namespace System.Windows.Controls
             DocumentViewer dv = (DocumentViewer) d;
 
             // If the ShowPageBorders has changed, then set the new value on the IDocumentScrollInfo.
-            dv._documentScrollInfo?.ShowPageBorders = (bool) e.NewValue;
+            if (dv._documentScrollInfo != null)
+            {
+                dv._documentScrollInfo.ShowPageBorders = (bool) e.NewValue;
+            }
         }
         #endregion ShowPageBorders
 
@@ -2456,7 +2509,7 @@ namespace System.Windows.Controls
         /// <returns>True if the offset is valid, false otherwise.</returns>
         private static bool ValidatePageSpacing(object value)
         {
-            return value is double doubleValue && double.IsFinite(doubleValue) && doubleValue >= 0.0;
+            return DoubleValue_Validate(value) && ((double)value >= 0.0);
         }
 
         /// <summary>
@@ -2467,7 +2520,10 @@ namespace System.Windows.Controls
             DocumentViewer dv = (DocumentViewer)d;
 
             // If the VerticalPageSpacing has changed, then set the new value on IDocumentScrollInfo.
-            dv._documentScrollInfo?.VerticalPageSpacing = (double) e.NewValue;
+            if (dv._documentScrollInfo != null)
+            {
+                dv._documentScrollInfo.VerticalPageSpacing = (double) e.NewValue;
+            }
         }
         #endregion VerticalPageSpacing
 
@@ -2480,7 +2536,10 @@ namespace System.Windows.Controls
             DocumentViewer dv = (DocumentViewer)d;
 
             // If the HorizontalPageSpacing has changed, then set the new value on IDocumentScrollInfo.
-            dv._documentScrollInfo?.HorizontalPageSpacing = (double) e.NewValue;
+            if (dv._documentScrollInfo != null)
+            {
+                dv._documentScrollInfo.HorizontalPageSpacing = (double) e.NewValue;
+            }
         }
         #endregion HorizontalPageSpacing
 

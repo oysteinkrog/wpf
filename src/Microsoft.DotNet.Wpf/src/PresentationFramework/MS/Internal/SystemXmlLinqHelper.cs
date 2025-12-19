@@ -15,7 +15,7 @@ namespace MS.Internal
         internal static bool IsXElement(object item)
         {
             SystemXmlLinqExtensionMethods extensions = AssemblyHelper.ExtensionsForSystemXmlLinq();
-            return (extensions != null) ? extensions.IsXElement(item) : false;
+            return extensions is not null && extensions.IsXElement(item);
         }
 
         // return a string of the form "{http://my.namespace}TagName"
@@ -31,7 +31,7 @@ namespace MS.Internal
         internal static bool IsXLinqCollectionProperty(PropertyDescriptor pd)
         {
             SystemXmlLinqExtensionMethods extensions = AssemblyHelper.ExtensionsForSystemXmlLinq();
-            return (extensions != null) ? extensions.IsXLinqCollectionProperty(pd) : false;
+            return extensions is not null && extensions.IsXLinqCollectionProperty(pd);
         }
 
         // XLinq exposes several properties on XElement that create new objects
@@ -39,7 +39,7 @@ namespace MS.Internal
         internal static bool IsXLinqNonIdempotentProperty(PropertyDescriptor pd)
         {
             SystemXmlLinqExtensionMethods extensions = AssemblyHelper.ExtensionsForSystemXmlLinq();
-            return (extensions != null) ? extensions.IsXLinqNonIdempotentProperty(pd) : false;
+            return extensions is not null && extensions.IsXLinqNonIdempotentProperty(pd);
         }
     }
 }

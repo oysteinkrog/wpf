@@ -267,7 +267,7 @@ namespace MS.Internal.Ink
                 prevLassoPoint = lassoPoint;
             }
 
-            return isInside ? !isOnClosingSegment : false;
+            return isInside && !isOnClosingSegment;
         }
         #endregion
 

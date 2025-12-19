@@ -1834,7 +1834,7 @@ namespace System.Windows.Markup
                     {
                         ParameterInfo[] parameters = methodInfo.GetParameters();
                         propertyType = parameters.Length == 1 ? methodInfo.ReturnType : parameters[1].ParameterType;
-                        propertyCanWrite = parameters.Length == 1 ? false : true;
+                        propertyCanWrite = parameters.Length != 1;
                     }
                     else
                     {

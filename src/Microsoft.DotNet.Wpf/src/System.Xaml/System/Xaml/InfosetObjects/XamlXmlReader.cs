@@ -85,7 +85,7 @@ namespace System.Xaml
 
         private XmlReader CreateXmlReader(string fileName, XamlXmlReaderSettings settings)
         {
-            bool closeInput = (settings is null) ? true : settings.CloseInput;
+            bool closeInput = settings is null || settings.CloseInput;
             return XmlReader.Create(fileName, new XmlReaderSettings { CloseInput = closeInput, DtdProcessing = DtdProcessing.Prohibit });
         }
 

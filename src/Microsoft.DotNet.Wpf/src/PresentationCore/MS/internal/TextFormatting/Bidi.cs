@@ -2205,7 +2205,7 @@ namespace MS.Internal.TextFormatting
                     // If we overflowed the stack, keep track of this in order to know when you hit
                     // a PDF if you should pop or not.
 
-                    if(!levelsStack.Push(currentClass == DirectionClass.LeftToRightEmbedding ? true : false))
+                    if (!levelsStack.Push(currentClass is DirectionClass.LeftToRightEmbedding))
                     {
                       stackOverflow++;
                     }
@@ -2231,7 +2231,7 @@ namespace MS.Internal.TextFormatting
                     if ((flags & Flags.IgnoreDirectionalControls) != 0)
                         break;  // Ignore directional controls. They won't affect bidi state
                     
-                    if(!levelsStack.Push(currentClass == DirectionClass.LeftToRightOverride ? true : false))
+                    if (!levelsStack.Push(currentClass is DirectionClass.LeftToRightOverride))
                     {
                       stackOverflow++;
                     }
@@ -2441,9 +2441,7 @@ namespace MS.Internal.TextFormatting
                                                           levels[runStart],
                                                           continuingAnalysis ? stateIn: null,
                                                           incompleteRun ? stateOut: null,
-                                                          ((counter == 0) && (stateIn == null)) ?
-                                                          ((flags & Flags.PreviousStrongIsArabic)!=0):
-                                                          false,
+                                                          ((counter == 0) && (stateIn == null)) && ((flags & Flags.PreviousStrongIsArabic) != 0),
                                                           flags);
                 if (!incompleteRun)
                 {
