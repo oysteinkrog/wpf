@@ -208,7 +208,7 @@ namespace System.Windows
         /// <returns>A <see langword="string"/> representation of this <see cref="FigureLength"/>.</returns>
         public override string ToString()
         {
-            return FigureLengthConverter.ToString(this, CultureInfo.InvariantCulture);
+            return FigureLengthConverter.ToString(in this, CultureInfo.InvariantCulture);
         }
     }
 }
