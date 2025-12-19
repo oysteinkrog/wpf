@@ -1,14 +1,17 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 /***************************************************************************\
 *
 * Purpose:  Public api for writing baml records to a stream
 *
 \***************************************************************************/
+
 using System.IO;
-using System.Collections;
 using System.Reflection;
+using System.Collections;
+using System.Diagnostics;
 
 namespace System.Windows.Markup
 {
@@ -22,8 +25,7 @@ namespace System.Windows.Markup
         /// <summary>
         /// Create a BamlWriter on the passed stream.  The stream must be writable.
         /// </summary>
-        public BamlWriter(
-            Stream stream)
+        public BamlWriter(Stream stream)
         {
             ArgumentNullException.ThrowIfNull(stream);
             if (!stream.CanWrite)
@@ -42,10 +44,10 @@ namespace System.Windows.Markup
             _startDocumentWritten = false;
             _depth = 0;
             _closed = false;
-            _nodeTypeStack = new ParserStack();
+            _nodeTypeStack = new ParserStack<WriteStackNode>();
             _assemblies = new Hashtable(7);
-           _extensionParser = new MarkupExtensionParser((IParserHelper)this, _parserContext);
-           _markupExtensionNodes = new ArrayList();
+            _extensionParser = new MarkupExtensionParser(this, _parserContext);
+            _markupExtensionNodes = new ArrayList();
         }
 
   
@@ -214,12 +216,10 @@ namespace System.Windows.Markup
                                                assemblyName,
                                                typeFullName,
                                                elementType,
-                                               serializerType)
-            {
-                IsInjected = isInjected,
-                CreateUsingTypeConverter = useTypeConverter
-            };
-
+                                               serializerType);  
+            node.IsInjected = isInjected;
+            node.CreateUsingTypeConverter = useTypeConverter;
+            
             _bamlRecordWriter.WriteElementStart(node);
         }
 
@@ -1269,7 +1269,7 @@ namespace System.Windows.Markup
     // Pop an item off the node stack and return its type.
     private BamlRecordType Pop()
     {
-        WriteStackNode stackNode = _nodeTypeStack.Pop() as WriteStackNode;
+        WriteStackNode stackNode = _nodeTypeStack.Pop();
         Debug.Assert(stackNode != null);
         return stackNode.RecordType;
     }
@@ -1277,7 +1277,7 @@ namespace System.Windows.Markup
     // Return the record type on the top of the stack
     private BamlRecordType PeekRecordType()
     {
-        WriteStackNode stackNode = _nodeTypeStack.Peek() as WriteStackNode;
+        WriteStackNode stackNode = _nodeTypeStack.Peek();
         Debug.Assert(stackNode != null);
         return stackNode.RecordType;
     }
@@ -1285,7 +1285,7 @@ namespace System.Windows.Markup
     // Return the element type on the top of the stack
     private Type PeekElementType()
     {
-        WriteStackNode stackNode = _nodeTypeStack.Peek() as WriteStackNode;
+        WriteStackNode stackNode = _nodeTypeStack.Peek();
         Debug.Assert(stackNode != null);
         return stackNode.ElementType;
     }
@@ -1296,16 +1296,10 @@ namespace System.Windows.Markup
     {
         if (_nodeTypeStack.Count > 0)
         {
-            WriteStackNode parentNode = _nodeTypeStack.Peek() as WriteStackNode;
-            if (!parentNode.EndAttributesReached &&
-                parentNode.RecordType == BamlRecordType.ElementStart)
+            WriteStackNode parentNode = _nodeTypeStack.Peek();
+            if (!parentNode.EndAttributesReached && parentNode.RecordType == BamlRecordType.ElementStart)
             {
-                XamlEndAttributesNode node = new XamlEndAttributesNode(
-                                                   0,
-                                                   0,
-                                                   _depth,
-                                                   false);
-                _bamlRecordWriter.WriteEndAttributes(node);
+                _bamlRecordWriter.WriteEndAttributes(new XamlEndAttributesNode(0, 0, _depth, false));
             }
             parentNode.EndAttributesReached = true;
         }
@@ -1351,49 +1345,49 @@ namespace System.Windows.Markup
                 get { return _elementType; }
             }
 
-            private bool           _endAttributesReached;
-            private BamlRecordType _recordType;
-            private Type           _elementType;
+            bool           _endAttributesReached;
+            BamlRecordType _recordType;
+            Type           _elementType;
         }
 
         // Writer that actually writes BamlRecords to a stream.
-        private BamlRecordWriter      _bamlRecordWriter;
+        BamlRecordWriter      _bamlRecordWriter;
     
         // True if the DocumentStart record has been written to the stream.
-        private bool                  _startDocumentWritten;
+        bool                  _startDocumentWritten;
 
         // The depth of the element tree, including complex properties
-        private int                   _depth;
+        int                   _depth;
 
         // True if Close() has been called.
-        private bool                  _closed;
+        bool                  _closed;
 
         // If a custom property is of Type DependencyProperty, this is used to provide
         // info about the Type of value for such a property in order to write it out in
         // an optimized form by its custom serializer.
-        private DependencyProperty    _dpProperty;
+        DependencyProperty    _dpProperty;
 
         // Stack of the type of nodes written to the baml stream.  This is 
         // used for end-tag matching and basic structure checking.  This
         // contains WriteStackNode objects.
-        private ParserStack           _nodeTypeStack;
+        private readonly ParserStack<WriteStackNode> _nodeTypeStack;
 
         // Cache of assemblies that are needed for type resolutions when
         // doingIBamlSerialize
-        private Hashtable             _assemblies;
+        Hashtable             _assemblies;
     
         // XamlTypeMapper used by this writer
-        private XamlTypeMapper        _xamlTypeMapper;
+        XamlTypeMapper        _xamlTypeMapper;
 
         // ParserContext for this writer
-        private ParserContext         _parserContext;
+        ParserContext         _parserContext;
 
         // The helper class that handles parsing of MarkupExtension values.
-        private MarkupExtensionParser _extensionParser;
+        MarkupExtensionParser _extensionParser;
 
         // Buffered XamlNodes that occur when a property with a MarkupExtension value
         // is written and expanded into a complex property subtree.
-        private ArrayList             _markupExtensionNodes;
+        ArrayList             _markupExtensionNodes;
 
 #endregion Data
     }
@@ -1413,7 +1407,7 @@ namespace System.Windows.Markup
         /// <returns>
         /// Always Returns true by default, since this is used by localization
         /// </returns>
-        protected sealed override bool AllowInternalType(Type type)
+        sealed protected override bool AllowInternalType(Type type)
         {
             return true;
         }
