@@ -1,11 +1,13 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
-using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using System.Collections.Generic;
 using System.Windows.Threading;
+using System.Windows.Media;
+using System.Diagnostics;
 using MS.Internal;
-using MS.Internal.PresentationFramework;                   // SafeSecurityHelper
 
 namespace System.Windows
 {
@@ -128,7 +130,7 @@ namespace System.Windows
             // Added to a tree
             if (oldParent == null && newParent != null)
             {
-                if(IsLoadedHelper(newParent))
+                if(IsLoadedHelper(newParent) == true)
                 {
                     // Broadcast Loaded event if your new parent is loaded
                     // Note that this broadcast will take place when you are
@@ -139,7 +141,7 @@ namespace System.Windows
             // Removed from a tree
             else if (oldParent != null && newParent == null)
             {
-                if (IsLoadedHelper(oldParent))
+                if (IsLoadedHelper(oldParent) == true)
                 {
                     // Broadcast Unloaded event if your old parent was loaded
                     // Note that this broadcast will take place when you are
@@ -458,37 +460,27 @@ namespace System.Windows
         // This method is invoked only when the loaded cache on the given node isn't valid.
         internal static bool IsParentLoaded(DependencyObject d)
         {
-            FrameworkObject     fo      = new FrameworkObject(d);
-            DependencyObject    parent  = fo.EffectiveParent;
-            Visual              visual;
-            Visual3D            visual3D;
+            FrameworkObject fo = new FrameworkObject(d);
+            DependencyObject parent = fo.EffectiveParent;
 
             if (parent != null)
             {
                 return IsLoadedHelper(parent);
             }
-            else if ((visual = d as Visual) != null)
+            else if (d is Visual visual)
             {
                 // If parent is null then this is the root element
-                return SafeSecurityHelper.IsConnectedToPresentationSource(visual);
+                return PresentationSource.IsVisualConnectedToSource(visual);
             }
-            else if ((visual3D = d as Visual3D) != null)
+            else if (d is Visual3D visual3D)
             {
-                // IsConnectedToPresentationSource could also be modified to take
-                // a DO - instead though we'll just get the containing visual2D for
-                // this 3D object.
+                // IsVisualConnectedToSource could also be modified to take a DO -
+                // instead though we'll just get the containing visual2D for this 3D object.
                 visual = VisualTreeHelper.GetContainingVisual2D(visual3D);
-                if (visual != null)
-                {
-                    return SafeSecurityHelper.IsConnectedToPresentationSource(visual);
-                }
-                else
-                {
-                    return false;
-                }
+                return visual is not null && PresentationSource.IsVisualConnectedToSource(visual);
             }
-            else
-                return false;
+
+            return false;
         }
 
 
@@ -684,23 +676,20 @@ namespace System.Windows
             else  // neither a FE or an FCE
             {
                 DependencyObject coreParent = null;
-                Visual v;
-                Visual3D v3D;
-                ContentElement ce;
 
                 // This is neither an FE nor and FCE
                 // Propagate the change to your visual ancestry
-                if ((v = d as Visual) != null)
+                if (d is Visual visual)
                 {
-                    coreParent = VisualTreeHelper.GetParent(v);
+                    coreParent = VisualTreeHelper.GetParent(visual);
                 }
-                else if ((ce = d as ContentElement) != null)
+                else if (d is ContentElement contentElement)
                 {
-                    coreParent = ContentOperations.GetParent(ce);
+                    coreParent = ContentOperations.GetParent(contentElement);
                 }
-                else if ((v3D = d as Visual3D) != null)
+                else if (d is Visual3D visual3D)
                 {
-                    coreParent = VisualTreeHelper.GetParent(v3D);
+                    coreParent = VisualTreeHelper.GetParent(visual3D);
                 }
 
                 if (coreParent != null)
@@ -713,9 +702,7 @@ namespace System.Windows
         /// <summary>
         ///     Updates the IsLoadedCache on the current FrameworkElement
         /// </summary>
-        private static void UpdateIsLoadedCache(
-            FrameworkElement fe,
-            DependencyObject parent)
+        private static void UpdateIsLoadedCache(FrameworkElement fe, DependencyObject parent)
         {
             if (fe.GetValue(FrameworkElement.LoadedPendingProperty) == null)
             {
@@ -726,7 +713,7 @@ namespace System.Windows
                 }
 
                 // This is the root visual.
-                else if ( SafeSecurityHelper.IsConnectedToPresentationSource( fe ))
+                else if (PresentationSource.IsVisualConnectedToSource(fe))
                 {
                     fe.IsLoadedCache = true;
                 }
@@ -745,9 +732,7 @@ namespace System.Windows
         /// <summary>
         ///     Updates the IsLoadedCache on the current FrameworkContentElement
         /// </summary>
-        private static void UpdateIsLoadedCache(
-            FrameworkContentElement fce,
-            DependencyObject        parent)
+        private static void UpdateIsLoadedCache(FrameworkContentElement fce, DependencyObject parent)
         {
             if (fce.GetValue(FrameworkElement.LoadedPendingProperty) == null)
             {

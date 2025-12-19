@@ -1,12 +1,23 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections;
+using System.Diagnostics;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
 using System.Windows.Threading;
+using System.Security;
 using System.Windows.Media;
+using System.Windows.Media.Media3D;
+using System.Windows.Markup;
 using System.Windows.Input;
+using MS.Win32;
 using MS.Utility;
 using MS.Internal;
+
+using SR=MS.Internal.PresentationCore.SR;
 
 namespace System.Windows
 {
@@ -73,12 +84,8 @@ namespace System.Windows
         /// </summary>
         /// <param name="visual">The visual to find the source for.</param>
         /// <returns>The source in which the visual is being presented.</returns>
-        ///<remarks>
-        ///     Callers must have UIPermission(UIPermissionWindow.AllWindows) to call this API.
-        ///</remarks> 
         public static PresentationSource FromVisual(Visual visual)
         {
-
             return CriticalFromVisual(visual);
         }
 
@@ -87,12 +94,8 @@ namespace System.Windows
         /// </summary>
         /// <param name="dependencyObject">The dependency object to find the source for.</param>
         /// <returns>The source in which the dependency object is being presented.</returns>
-        ///<remarks>
-        ///     Callers must have UIPermission(UIPermissionWindow.AllWindows) to call this API.
-        ///</remarks> 
         public static PresentationSource FromDependencyObject(DependencyObject dependencyObject)
         {
-
             return CriticalFromVisual(dependencyObject);
         }
 
@@ -107,7 +110,6 @@ namespace System.Windows
         ///     1) You cannot use the UIElement or ContentElement AddHandler() method.
         ///     2) Class handlers are not allowed.
         ///     3) The handlers will receive the SourceChanged event even if it was handled.
-        ///     Callers must have UIPermission(UIPermissionWindow.AllWindows) to call this API.
         /// </remarks>
         public static void AddSourceChangedHandler(IInputElement element, SourceChangedEventHandler handler)
         {
@@ -258,7 +260,7 @@ namespace System.Windows
             ArgumentNullException.ThrowIfNull(ce);
 
 
-            if ((bool)ce.GetValue(GetsSourceChangedEventProperty))
+            if (true == (bool)ce.GetValue(GetsSourceChangedEventProperty))
             {
                 UpdateSourceOfElement(ce, null, null);
             }
@@ -287,14 +289,7 @@ namespace System.Windows
         /// <summary>
         ///     The root visual being presented in the source.
         /// </summary>
-        /// <remarks>
-        ///     Callers must have UIPermission(UIPermissionWindow.AllWindows) to call this API.
-        /// </remarks>
-        public abstract Visual RootVisual
-        {
-            get;
-            set;
-        }
+        public abstract Visual RootVisual { get; set; }
 
         /// <summary>
         ///     Causes this PresentationSource to enter "menu mode".
@@ -344,10 +339,7 @@ namespace System.Windows
         /// <summary>
         ///     Whether or not the object is disposed.
         /// </summary>
-        public abstract bool IsDisposed
-        {
-            get;
-        }
+        public abstract bool IsDisposed { get; }
 
         #endregion
 
@@ -363,17 +355,10 @@ namespace System.Windows
         ///   over a ReadOnly SnapShot of the List of sources.  The Enumerator
         ///   skips over the any dead weak references in the list.
         /// </summary>
-        /// <remarks>
-        ///     Callers must have UIPermission(UIPermissionWindow.AllWindows) to call this API.
-        /// </remarks>
         public static IEnumerable CurrentSources
         {
-            get
-            {
-                return CriticalCurrentSources;
-            }
+            get => _sources;
         }
-
 
         #endregion
 
@@ -430,26 +415,41 @@ namespace System.Windows
             }
             
             // Always set the SourceProperty on the new root.
-            newRoot?.SetValue(RootSourceProperty, this);
+            if (newRoot != null)
+            {
+                newRoot.SetValue(RootSourceProperty, this);
+            }
 
             UIElement oldRootUIElement = oldRoot as UIElement;
             UIElement newRootUIElement = newRoot as UIElement;
 
             // The IsVisible property can only be true if root visual is connected to a presentation source.
             // For Read-Only force-inherited properties, use a private update method.
-            oldRootUIElement?.UpdateIsVisibleCache();
-            newRootUIElement?.UpdateIsVisibleCache();
+            if(oldRootUIElement != null)
+            {
+                oldRootUIElement.UpdateIsVisibleCache();
+            }
+            if(newRootUIElement != null)
+            {
+                newRootUIElement.UpdateIsVisibleCache();
+            }
 
             // Broadcast the Unloaded event starting at the old root visual
-            oldRootUIElement?.OnPresentationSourceChanged(false);
+            if (oldRootUIElement != null)
+            {
+                oldRootUIElement.OnPresentationSourceChanged(false);
+            }
 
             // Broadcast the Loaded event starting at the root visual
-            newRootUIElement?.OnPresentationSourceChanged(true);
+            if (newRootUIElement != null)
+            {
+                newRootUIElement.OnPresentationSourceChanged(true);
+            }
 
             // To fire PresentationSourceChanged when the RootVisual changes;
             // rather than simulate a "parent" pointer change, we just walk the
             // collection of all nodes that need the event.
-            foreach (DependencyObject element in s_watchers)
+            foreach (DependencyObject element in _watchers)
             {
                 // We only need to update those elements that are in the
                 // same context as this presentation source.
@@ -475,7 +475,7 @@ namespace System.Windows
         /// </summary>
         protected void AddSource()
         {
-            s_sources.Add(this);
+            _sources.Add(this);
         }
 
         /// <summary>
@@ -483,7 +483,7 @@ namespace System.Windows
         /// </summary>
         protected void RemoveSource()
         {
-            s_sources.Remove(this);
+            _sources.Remove(this);
         }
 
         /// <summary>
@@ -519,15 +519,26 @@ namespace System.Windows
         {
             Debug.Assert(uie is UIElement3D or UIElement);
             
-            if ((bool)uie.GetValue(GetsSourceChangedEventProperty))
+            if (true == (bool)uie.GetValue(GetsSourceChangedEventProperty))
             {
                 UpdateSourceOfElement(uie, e.Ancestor, e.OldParent);
             }
         }
 
+        /// <summary>
+        /// Returns whether this <see cref="Visual"/> is connected to a <see cref="PresentationSource"/>.
+        /// In case it is, we can deem this <see cref="Visual"/> renderable.
+        /// </summary>
+        /// <param name="visual">The <see cref="Visual"/> to check.</param>
+        /// <returns><see langword="true"/> if it is connected to a <see cref="PresentationSource"/>, <see langword="false"/> otherwise.</returns>
+        internal static bool IsVisualConnectedToSource(Visual visual)
+        {
+            return CriticalFromVisual(visual) is not null;
+        }
+
         internal static PresentationSource CriticalFromVisual(DependencyObject v)
         {
-            return CriticalFromVisual(v, enable2DTo3DTransition: true);
+            return CriticalFromVisual(v, true /* enable2DTo3DTransition */);
         }
 
         /// <param name="v">The dependency object to find the source for</param>
@@ -568,38 +579,28 @@ namespace System.Windows
         ///     Helper method which returns true when all the given visuals 
         ///     are in the same presentation source.
         /// </summary>
-        internal static bool IsUnderSamePresentationSource(params ReadOnlySpan<DependencyObject> visuals)
+        internal static bool UnderSamePresentationSource(params DependencyObject[] visuals)
         {
-            if (visuals.IsEmpty)
+            if (visuals == null || visuals.Length == 0)
+            {
                 return true;
+            }
 
             PresentationSource baseSource = CriticalFromVisual(visuals[0]);
-            for (int i = 1; i < visuals.Length; i++)
+
+            int count = visuals.Length;
+            for (int i = 1; i < count; i++)
             {
-                if (baseSource != CriticalFromVisual(visuals[i]))
+                PresentationSource currentSource = CriticalFromVisual(visuals[i]);
+                if (currentSource != baseSource)
                 {
                     return false;
                 }
             }
-
             return true;
         }
 
         #endregion
-
-        //------------------------------------------------------
-        //
-        //  Internal Properties
-        //
-        //------------------------------------------------------
-        // None
-
-        //------------------------------------------------------
-        //
-        //  Internal Events
-        //
-        //------------------------------------------------------
-        // None
 
         //------------------------------------------------------
         //
@@ -613,14 +614,14 @@ namespace System.Windows
         ///   over a ReadOnly SnapShot of the List of sources.  The Enumerator
         ///   skips over the any dead weak references in the list.
         /// </summary>
-        internal static WeakReferenceList<PresentationSource> CriticalCurrentSources
+        internal static WeakReferenceList CurrentSourcesList
         {
-            get => s_sources;
+            get => _sources;
         }
 
         private static void AddElementToWatchList(DependencyObject element)
         {
-            if (s_watchers.Add(element))
+            if(_watchers.Add(element))
             {
                 element.SetValue(CachedSourceProperty, PresentationSource.FindSource(element));
                 element.SetValue(GetsSourceChangedEventProperty, true);
@@ -630,7 +631,7 @@ namespace System.Windows
 
         private static void RemoveElementFromWatchList(DependencyObject element)
         {
-            if (s_watchers.Remove(element))
+            if(_watchers.Remove(element))
             {
                 element.ClearValue(CachedSourceProperty);
                 element.ClearValue(GetsSourceChangedEventProperty);
@@ -639,7 +640,7 @@ namespace System.Windows
 
         private static PresentationSource FindSource(DependencyObject o)
         {
-            return FindSource(o, enable2DTo3DTransition: true);
+            return FindSource(o, true /* enable2DTo3DTransition */);
         }
 
         /// <param name="o">The dependency object to find the source for</param>
@@ -675,10 +676,9 @@ namespace System.Windows
             {
                 doTarget.SetValue(CachedSourceProperty, realSource);
 
-                SourceChangedEventArgs args = new SourceChangedEventArgs(cachedSource, realSource)
-                {
-                    RoutedEvent = SourceChangedEvent
-                };
+                SourceChangedEventArgs args = new SourceChangedEventArgs(cachedSource, realSource);
+
+                args.RoutedEvent=SourceChangedEvent;
                 if (doTarget is UIElement uiElement)
                 {
                     uiElement.RaiseEvent(args);
@@ -727,24 +727,22 @@ namespace System.Windows
                                           new PropertyMetadata((PresentationSource)null));
 
         // We use a private DP to mark elements that we are watchin.
-        private static readonly DependencyProperty GetsSourceChangedEventProperty = DependencyProperty.RegisterAttached("IsBeingWatched", typeof(bool),
-            typeof(PresentationSource), new PropertyMetadata(BooleanBoxes.FalseBox));
+        private static readonly DependencyProperty GetsSourceChangedEventProperty = DependencyProperty.RegisterAttached("IsBeingWatched", typeof(bool), typeof(PresentationSource), new PropertyMetadata((bool)false));
 
         // We use a private direct-only event to notify elements of when the
         // source changes.  Use the public APIs AddSourceChangedHandler and
         // RemoveSourceChangedHandler to listen to this event.
-        private static readonly RoutedEvent SourceChangedEvent = EventManager.RegisterRoutedEvent("SourceChanged", RoutingStrategy.Direct,
-            typeof(SourceChangedEventHandler), typeof(PresentationSource));
+        private static readonly RoutedEvent SourceChangedEvent = EventManager.RegisterRoutedEvent("SourceChanged", RoutingStrategy.Direct, typeof(SourceChangedEventHandler), typeof(PresentationSource));
 
         // The lock we use to protect our static data.
         private static readonly object _globalLock = new object();
 
         // An array of weak-references to sources that we know about.
-        private static readonly WeakReferenceList<PresentationSource> s_sources = new(_globalLock);
+        private static WeakReferenceList _sources = new WeakReferenceList(_globalLock);
 
         // An array of weak-references to elements that need to know
         // about source changes.
-        private static readonly WeakReferenceList<DependencyObject> s_watchers = new(_globalLock);
+        private static WeakReferenceList _watchers = new WeakReferenceList(_globalLock);
 
         #endregion
     }

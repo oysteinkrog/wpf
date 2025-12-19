@@ -1,16 +1,31 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
+//
+
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading;
 using System.Windows.Threading;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Interop;
 using System.Runtime.InteropServices;
 using MS.Win32;
 using MS.Utility;
 using MS.Internal;
 using MS.Internal.Interop;
+using Microsoft.Win32;
+using System.Diagnostics;
 using System.ComponentModel;
+using System;
+using System.Security;
+using System.IO;
+
+using SR = MS.Internal.PresentationCore.SR;
+
+#pragma warning disable 1634, 1691  // suppressing PreSharp warnings
 
 namespace System.Windows.Interop
 {
@@ -19,6 +34,11 @@ namespace System.Windows.Interop
     /// </summary>
     public class HwndSource : PresentationSource, IDisposable, IWin32Window, IKeyboardInputSink
     {
+        static HwndSource()
+        {
+            _threadSlot = Thread.AllocateDataSlot();
+        }
+
         /// <summary>
         ///    Constructs an instance of the HwndSource class that will always resize to its content size.
         /// </summary>
@@ -56,12 +76,10 @@ namespace System.Windows.Interop
             IntPtr parent)
         {
 
-            HwndSourceParameters param = new HwndSourceParameters(name)
-            {
-                WindowClassStyle = classStyle,
-                WindowStyle = style,
-                ExtendedWindowStyle = exStyle
-            };
+            HwndSourceParameters param = new HwndSourceParameters(name);
+            param.WindowClassStyle = classStyle;
+            param.WindowStyle = style;
+            param.ExtendedWindowStyle = exStyle;
             param.SetPosition(x, y);
             param.ParentWindow = parent;
             Initialize(param);
@@ -117,12 +135,10 @@ namespace System.Windows.Interop
                           bool adjustSizingForNonClientArea)
         {
 
-            HwndSourceParameters parameters = new HwndSourceParameters(name, width, height)
-            {
-                WindowClassStyle = classStyle,
-                WindowStyle = style,
-                ExtendedWindowStyle = exStyle
-            };
+            HwndSourceParameters parameters = new HwndSourceParameters(name, width, height);
+            parameters.WindowClassStyle = classStyle;
+            parameters.WindowStyle = style;
+            parameters.ExtendedWindowStyle = exStyle;
             parameters.SetPosition(x, y);
             parameters.ParentWindow = parent;
             parameters.AdjustSizingForNonClientArea = adjustSizingForNonClientArea;
@@ -175,12 +191,10 @@ namespace System.Windows.Interop
             IntPtr parent)
         {
 
-            HwndSourceParameters parameters = new HwndSourceParameters(name, width, height)
-            {
-                WindowClassStyle = classStyle,
-                WindowStyle = style,
-                ExtendedWindowStyle = exStyle
-            };
+            HwndSourceParameters parameters = new HwndSourceParameters(name, width, height);
+            parameters.WindowClassStyle = classStyle;
+            parameters.WindowStyle = style;
+            parameters.ExtendedWindowStyle = exStyle;
             parameters.SetPosition(x, y);
             parameters.ParentWindow = parent;
             Initialize(parameters);
@@ -220,23 +234,18 @@ namespace System.Windows.Interop
             // list. If this is done the other way around, first HwndTarget resize will
             // force re-render, then layout will be updated according to the new size,
             // scheduling another render.
+            HwndWrapperHook[] wrapperHooks = { _hwndTargetHook, _layoutHook, _inputHook, null };
 
-            ReadOnlySpan<HwndWrapperHook> wrapperHooks = [_hwndTargetHook, _layoutHook, _inputHook, _publicHook];
-
-            if (parameters.HwndSourceHook is not null)
+            if (null != parameters.HwndSourceHook)
             {
                 // In case there's more than one delegate, add these to the event storage backwards
                 // so they'll get invoked in the expected order.
                 Delegate[] handlers = parameters.HwndSourceHook.GetInvocationList();
-                for (int i = handlers.Length - 1; i >= 0; --i)
+                for (int i = handlers.Length -1; i >= 0; --i)
                 {
                     EventHelper.AddHandler(ref _hooks, (HwndSourceHook)handlers[i]);
                 }
-            }
-            else
-            {
-                // In this case, we do not need the _publicHook
-                wrapperHooks = wrapperHooks.Slice(0, 3);
+                wrapperHooks[3] = _publicHook;
             }
 
             _restoreFocusMode = parameters.RestoreFocusMode;
@@ -251,19 +260,27 @@ namespace System.Windows.Interop
                 parameters.ExtendedWindowStyle &= (~NativeMethods.WS_EX_LAYERED);
             }
 
+
             _constructionParameters = parameters;
+            _hwndWrapper = new HwndWrapper(parameters.WindowClassStyle,
+                                       parameters.WindowStyle,
+                                       parameters.ExtendedWindowStyle,
+                                       parameters.PositionX,
+                                       parameters.PositionY,
+                                       parameters.Width,
+                                       parameters.Height,
+                                       parameters.WindowName,
+                                       parameters.ParentWindow,
+                                       wrapperHooks);
 
-            _hwndWrapper = new HwndWrapper(parameters.WindowClassStyle, parameters.WindowStyle, parameters.ExtendedWindowStyle,
-                                           parameters.PositionX, parameters.PositionY, parameters.Width, parameters.Height,
-                                           parameters.WindowName, parameters.ParentWindow, wrapperHooks);
-
-            _hwndTarget = new HwndTarget(_hwndWrapper.Handle) { UsesPerPixelOpacity = parameters.EffectivePerPixelOpacity };
-            if (_hwndTarget.UsesPerPixelOpacity)
+            _hwndTarget = new HwndTarget(_hwndWrapper.Handle);
+            _hwndTarget.UsesPerPixelOpacity = parameters.EffectivePerPixelOpacity;
+            if(_hwndTarget.UsesPerPixelOpacity)
             {
                 _hwndTarget.BackgroundColor = Colors.Transparent;
 
                 // Prevent this window from being themed.
-                UnsafeNativeMethods.CriticalSetWindowTheme(new HandleRef(this, _hwndWrapper.Handle), string.Empty, string.Empty);
+                UnsafeNativeMethods.CriticalSetWindowTheme(new HandleRef(this, _hwndWrapper.Handle), "", "");
             }
             _constructionParameters = null;
 
@@ -349,7 +366,7 @@ namespace System.Windows.Interop
         ///</remarks>
         public void AddHook(HwndSourceHook hook)
         {
-            ArgumentNullException.ThrowIfNull(hook, nameof(hook));
+            Verify.IsNotNull(hook, "hook");
 
             CheckDisposed(true);
 
@@ -433,7 +450,7 @@ namespace System.Windows.Interop
 
                 // New world transform has been set-up by HwndTarget
                 // set the layouts size again to account for this
-                if (IsLayoutActive())
+                if (IsLayoutActive() == true)
                 {
                     // Call the helper method SetLayoutSize to set Layout's size
                     // We may already be inside a call to SetLayoutSize - schedule another call
@@ -487,7 +504,7 @@ namespace System.Windows.Interop
                 // whichever code handles the DPI changes set up updated
                 // window sizes etc. in screen/client coordinates, and now
                 // we must adapt and update the corresponding layout sizes as well.
-                if (IsLayoutActive())
+                if (IsLayoutActive() == true)
                 {
                     // Call the helper method SetLayoutSize to set Layout's size
                     // We may already be inside a call to SetLayoutSize - schedule another call
@@ -566,7 +583,7 @@ namespace System.Windows.Interop
                             ((UIElement)(_rootVisual)).LayoutUpdated += new EventHandler(OnLayoutUpdated);
                         }
 
-                        if (_hwndTarget != null && !_hwndTarget.IsDisposed)
+                        if (_hwndTarget != null && _hwndTarget.IsDisposed == false)
                         {
                             _hwndTarget.RootVisual = _rootVisual;
                         }
@@ -594,7 +611,7 @@ namespace System.Windows.Interop
 
                     RootChanged(oldRoot, _rootVisual);
 
-                    if (IsLayoutActive())
+                    if (IsLayoutActive() == true)
                     {
                         // Call the helper method SetLayoutSize to set Layout's size
                         SetLayoutSize();
@@ -662,19 +679,17 @@ namespace System.Windows.Interop
             {
                 throw new ArgumentException(SR.NullHwnd);
             }
-            HwndSource hwndSource = null;
-            foreach (PresentationSource source in PresentationSource.CriticalCurrentSources)
+
+            foreach (PresentationSource source in PresentationSource.CurrentSourcesList)
             {
-                HwndSource test = source as HwndSource;
-                if (test != null && test.Handle == hwnd)
+                if (source is HwndSource hwndSource && hwndSource.Handle == hwnd)
                 {
-                    // Don't hand out a disposed source.
-                    if (!test.IsDisposed)
-                        hwndSource = test;
-                    break;
+                    // Don't hand out a disposed source
+                    return !hwndSource.IsDisposed ? hwndSource : null;
                 }
             }
-            return hwndSource;
+
+            return null;
         }
 
 
@@ -691,7 +706,7 @@ namespace System.Windows.Interop
 
                 // Even though we created the HwndTarget, it can get disposed out from
                 // underneath us.
-                if (_hwndTarget!= null && _hwndTarget.IsDisposed)
+                if (_hwndTarget!= null && _hwndTarget.IsDisposed == true)
                 {
                     return null;
                 }
@@ -843,7 +858,7 @@ namespace System.Windows.Interop
         {
             // Find the topmost window.  This will handle the case where the HwndSource
             // is a child window.
-            IntPtr hwndRoot = UnsafeNativeMethods.GetAncestor(new HandleRef(this, Handle), NativeMethods.GA_ROOT);
+            IntPtr hwndRoot = UnsafeNativeMethods.GetAncestor(new HandleRef(this, CriticalHandle), NativeMethods.GA_ROOT);
 
             // Open the system menu.
             UnsafeNativeMethods.PostMessage(new HandleRef(this, hwndRoot), MS.Internal.Interop.WindowMessage.WM_SYSCOMMAND, new IntPtr(NativeMethods.SC_KEYMENU), new IntPtr(NativeMethods.VK_SPACE));
@@ -876,7 +891,7 @@ namespace System.Windows.Interop
             // For windows with UsesPerPixelOpacity, we force the client to
             // fill the window, so we don't need to add in any frame space.
             //
-            if (!_adjustSizingForNonClientArea && !UsesPerPixelOpacity)
+            if (_adjustSizingForNonClientArea == false && !UsesPerPixelOpacity)
             {
                 int style = NativeMethods.IntPtrToInt32((IntPtr)SafeNativeMethods.GetWindowStyle(new HandleRef(this, _hwndWrapper.Handle), false));
                 int styleEx = NativeMethods.IntPtrToInt32((IntPtr)SafeNativeMethods.GetWindowStyle(new HandleRef(this, _hwndWrapper.Handle), true));
@@ -904,7 +919,18 @@ namespace System.Windows.Interop
         /// <summary>
         /// Returns the hwnd handle to the window.
         /// </summary>
+        ///<remarks>
+        ///     Callers must have UIPermission(UIPermissionWindow.AllWindows) to call this API.
+        ///</remarks>
         public IntPtr Handle
+        {
+            get
+            {
+                return CriticalHandle;
+            }
+        }
+
+        internal IntPtr CriticalHandle
         {
             get
             {
@@ -926,7 +952,7 @@ namespace System.Windows.Interop
             {
                 IntPtr capture = SafeNativeMethods.GetCapture();
 
-                return ( capture == Handle );
+                return ( capture == CriticalHandle );
             }
         }
 
@@ -965,7 +991,7 @@ namespace System.Windows.Interop
             {
                 CheckDisposed(true);
 
-                if (!IsValidSizeToContent(value))
+                if (IsValidSizeToContent(value) != true)
                 {
                     throw new InvalidEnumArgumentException("value", (int)value, typeof(SizeToContent));
                 }
@@ -981,7 +1007,7 @@ namespace System.Windows.Interop
                 // if a developer goes directly to HwndSource and sets SizeToContent, we will
                 // not notify the wrapping Window
 
-                if (IsLayoutActive())
+                if (IsLayoutActive() == true)
                 {
                     // Call the helper method SetLayoutSize to set Layout's size
                     SetLayoutSize();
@@ -991,7 +1017,7 @@ namespace System.Windows.Interop
 
         private bool IsLayoutActive()
         {
-            if ((_rootVisual is UIElement) && _hwndTarget!= null && !_hwndTarget.IsDisposed)
+            if ((_rootVisual is UIElement) && _hwndTarget!= null && _hwndTarget.IsDisposed == false)
             {
                 return true;
             }
@@ -1006,7 +1032,7 @@ namespace System.Windows.Interop
         private void SetLayoutSize()
         {
             Debug.Assert(_hwndTarget!= null, "HwndTarget is null");
-            Debug.Assert(!_hwndTarget.IsDisposed, "HwndTarget is disposed");
+            Debug.Assert(_hwndTarget.IsDisposed == false, "HwndTarget is disposed");
 
             UIElement rootUIElement = null;
             rootUIElement = _rootVisual as UIElement;
@@ -1129,7 +1155,7 @@ namespace System.Windows.Interop
             // Compute View's size and set
             NativeMethods.RECT rc = new NativeMethods.RECT(0, 0, 0, 0);
 
-            if (_adjustSizingForNonClientArea)
+            if (_adjustSizingForNonClientArea == true)
             {
                 GetNonClientRect(ref rc);
             }
@@ -1319,7 +1345,7 @@ namespace System.Windows.Interop
             // Only if SizeToContent overrides Win32 sizing change calls.
             // If it's coming from OnResize (_myOwnUpdate != true), it means we are adjusting
             // to the right size; don't need to do anything here.
-            if ((!_myOwnUpdate) && (SizeToContent != SizeToContent.Manual))
+            if ((_myOwnUpdate != true) && (SizeToContent != SizeToContent.Manual))
             {
                 // Get the current style and calculate the size to be with the new style.
                 // If WM_WINDOWPOSCHANGING is sent because of style changes, WM_STYLECHANGED is sent
@@ -1414,7 +1440,7 @@ namespace System.Windows.Interop
 
                 // WM_SIZE has the client size of the window.
                 // for appmodel window case, get the outside size of the hwnd.
-                if (_adjustSizingForNonClientArea)
+                if (_adjustSizingForNonClientArea == true)
                 {
                     NativeMethods.RECT rect = new NativeMethods.RECT(0, 0, (int)pt.X, (int)pt.Y);
                     GetNonClientRect(ref rect);
@@ -1441,7 +1467,7 @@ namespace System.Windows.Interop
                 // call to Measure is optimized out and no layout happens.  Invalidating
                 // layout here ensures that we do layout.
                 // This can happen only in the Window case
-                if (_adjustSizingForNonClientArea)
+                if (_adjustSizingForNonClientArea == true)
                 {
                     rootUIElement.InvalidateMeasure();
                 }
@@ -1510,17 +1536,17 @@ namespace System.Windows.Interop
         // HwndSourceParameters.TreatAncestorsAsNonClientArea setting.
         private void GetNonClientRect(ref NativeMethods.RECT rc)
         {
-            Debug.Assert(_adjustSizingForNonClientArea);
+            Debug.Assert(_adjustSizingForNonClientArea == true);
 
             IntPtr hwndRoot = IntPtr.Zero;
 
             if(_treatAncestorsAsNonClientArea)
             {
-                hwndRoot = UnsafeNativeMethods.GetAncestor(new HandleRef(this, Handle), NativeMethods.GA_ROOT);
+                hwndRoot = UnsafeNativeMethods.GetAncestor(new HandleRef(this, CriticalHandle), NativeMethods.GA_ROOT);
             }
             else
             {
-                hwndRoot = Handle;
+                hwndRoot = CriticalHandle;
             }
 
             SafeNativeMethods.GetWindowRect(new HandleRef(this, hwndRoot), ref rc);
@@ -1729,18 +1755,16 @@ namespace System.Windows.Interop
             case WindowMessage.WM_SYSCHAR:
             case WindowMessage.WM_DEADCHAR:
             case WindowMessage.WM_SYSDEADCHAR:
-                    MSGDATA msgdata = new MSGDATA
-                    {
-                        msg = msg,
-                        handled = handled
-                    };
+                MSGDATA msgdata = new MSGDATA();
+                msgdata.msg = msg;
+                msgdata.handled = handled;
 
-                    // Do this under the exception filter/handlers of the
-                    // dispatcher for this thread.
-                    //
-                    // NOTE: we lose the "perf optimization" of passing everything
-                    // around by-ref since we have to call through a delegate.
-                    object result = Dispatcher.CurrentDispatcher.Invoke(
+                // Do this under the exception filter/handlers of the
+                // dispatcher for this thread.
+                //
+                // NOTE: we lose the "perf optimization" of passing everything
+                // around by-ref since we have to call through a delegate.
+                object result = Dispatcher.CurrentDispatcher.Invoke(
                     DispatcherPriority.Send,
                     new DispatcherOperationCallback(OnPreprocessMessage),
                     msgdata);
@@ -2230,7 +2254,7 @@ namespace System.Windows.Interop
             }
         }
 
-        private IKeyboardInputSink ChildSinkWithFocus
+        IKeyboardInputSink ChildSinkWithFocus
         {
             get
             {
@@ -2373,25 +2397,21 @@ namespace System.Windows.Interop
 
                     if (focusElement != null)
                     {
-                        KeyEventArgs tunnelArgs = new KeyEventArgs(Keyboard.PrimaryDevice, this, msg.time, key)
-                        {
-                            ScanCode = scanCode,
-                            IsExtendedKey = isExtendedKey,
-                            RoutedEvent = keyPreviewEvent
-                        };
+                        KeyEventArgs tunnelArgs = new KeyEventArgs(Keyboard.PrimaryDevice, this, msg.time, key);
+                        tunnelArgs.ScanCode = scanCode;
+                        tunnelArgs.IsExtendedKey = isExtendedKey;
+                        tunnelArgs.RoutedEvent = keyPreviewEvent;
                         focusElement.RaiseEvent(tunnelArgs);
 
                         handled = tunnelArgs.Handled;
                     }
                     if (!handled)
                     {
-                        KeyEventArgs bubbleArgs = new KeyEventArgs(Keyboard.PrimaryDevice, this, msg.time, key)
-                        {
-                            ScanCode = scanCode,
-                            IsExtendedKey = isExtendedKey,
-                            RoutedEvent = keyEvent
-                        };
-                        if (focusElement != null)
+                        KeyEventArgs bubbleArgs = new KeyEventArgs(Keyboard.PrimaryDevice, this, msg.time, key);
+                        bubbleArgs.ScanCode = scanCode;
+                        bubbleArgs.IsExtendedKey = isExtendedKey;
+                        bubbleArgs.RoutedEvent=keyEvent;
+                        if(focusElement != null)
                         {
                             focusElement.RaiseEvent(bubbleArgs);
                             handled = bubbleArgs.Handled;
@@ -2504,12 +2524,13 @@ namespace System.Windows.Interop
                         {
                             Disposed(this, EventArgs.Empty);
                         }
+#pragma warning disable 56500
                         // We can't tolerate an exception thrown by third-party code to
                         // abort our Dispose half-way through.  So we just eat it.
                         catch
                         {
                         }
-
+#pragma warning restore 56500
                         Disposed = null;
                     }
 
@@ -2553,8 +2574,11 @@ namespace System.Windows.Interop
                     // (see comment above about disposing the HwndStylusInputProvider)
                     //
                     {
-                        _hwndTarget?.Dispose();
-                        _hwndTarget = null;
+                        if (_hwndTarget != null)
+                        {
+                            _hwndTarget.Dispose();
+                            _hwndTarget = null;
+                        }
 
                         if (_hwndWrapper != null)
                         {
@@ -2626,7 +2650,9 @@ namespace System.Windows.Interop
         {
             get
             {
-                return !_isDisposed && _hwndTarget is not null && !_hwndTarget.IsDisposed;
+                return _isDisposed == false &&
+                       _hwndTarget != null &&
+                       _hwndTarget.IsDisposed == false;
             }
         }
 
@@ -2634,7 +2660,7 @@ namespace System.Windows.Interop
         {
             get
             {
-                return UnsafeNativeMethods.GetFocus() == Handle;
+                return UnsafeNativeMethods.GetFocus() == CriticalHandle;
             }
         }
 
@@ -2646,7 +2672,7 @@ namespace System.Windows.Interop
                    value == SizeToContent.WidthAndHeight;
         }
 
-        private class ThreadDataBlob
+        class ThreadDataBlob
         {
             public int TranslateAcceleratorCallDepth;
         }
@@ -2655,9 +2681,18 @@ namespace System.Windows.Interop
         {
             get
             {
-                s_threadDataBlobInstance ??= new ThreadDataBlob();
-
-                return s_threadDataBlobInstance;
+                ThreadDataBlob data;
+                object obj = Thread.GetData(_threadSlot);
+                if(null == obj)
+                {
+                    data = new ThreadDataBlob();
+                    Thread.SetData(_threadSlot, data);
+                }
+                else
+                {
+                    data = (ThreadDataBlob) obj;
+                }
+                return data;
             }
         }
 
@@ -2702,9 +2737,9 @@ namespace System.Windows.Interop
                 _addToFront = addToFront;
                 _handler = new ThreadMessageEventHandler(this.OnPreprocessMessage);
 
-                if (addToFront)
+                if(addToFront)
                 {
-                    ComponentDispatcher.AddThreadPreprocessMessageHandlerFirst(_handler);
+                    ComponentDispatcher.CriticalAddThreadPreprocessMessageHandlerFirst(_handler);
                 }
                 else
                 {
@@ -2728,9 +2763,9 @@ namespace System.Windows.Interop
 
             public void Dispose()
             {
-                if (_addToFront)
+                if(_addToFront)
                 {
-                    ComponentDispatcher.RemoveThreadPreprocessMessageHandlerFirst(_handler);
+                    ComponentDispatcher.CriticalRemoveThreadPreprocessMessageHandlerFirst(_handler);
                 }
                 else
                 {
@@ -2779,17 +2814,13 @@ namespace System.Windows.Interop
 
         private HwndAppCommandInputProvider _appCommand;
 
-        private WeakEventDispatcherShutdown _weakShutdownHandler;
-        private WeakEventPreprocessMessage _weakPreprocessMessageHandler;
-        private WeakEventPreprocessMessage _weakMenuModeMessageHandler;
+        WeakEventDispatcherShutdown _weakShutdownHandler;
+        WeakEventPreprocessMessage _weakPreprocessMessageHandler;
+        WeakEventPreprocessMessage _weakMenuModeMessageHandler;
+
+        private static System.LocalDataStoreSlot _threadSlot;
 
         private RestoreFocusMode _restoreFocusMode;
-
-        /// <summary>
-        /// Holds a thread-specific instance of <see cref="ThreadDataBlob"/>.
-        /// </summary>
-        [ThreadStatic]
-        private static ThreadDataBlob s_threadDataBlobInstance;
 
         [ThreadStatic]
         private static bool? _defaultAcquireHwndFocusInMenuMode;
