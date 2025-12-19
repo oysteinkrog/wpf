@@ -1,5 +1,6 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 //
 //
@@ -12,12 +13,19 @@
 //
 //
 
+using System;
+using System.Diagnostics;
+using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Xml;
 using System.Windows;
 using System.Windows.Annotations;
+using System.Windows.Annotations.Storage;
 using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
+using System.Windows.Media;
+using MS.Utility;
 
 namespace MS.Internal.Annotations.Anchoring
 {
@@ -166,8 +174,8 @@ namespace MS.Internal.Annotations.Anchoring
             ArgumentNullException.ThrowIfNull(locatorPart);
             ArgumentNullException.ThrowIfNull(startNode);
 
-            if (PageNumberElementName != locatorPart.PartType)
-                throw new ArgumentException(SR.Format(SR.IncorrectLocatorPartType, $"{locatorPart.PartType.Namespace}:{locatorPart.PartType.Name}"), nameof(locatorPart));
+            if (s_pageNumberElementName != locatorPart.PartType)
+                throw new ArgumentException(SR.Format(SR.IncorrectLocatorPartType, $"{locatorPart.PartType.Namespace}:{locatorPart.PartType.Name}"), "locatorPart");
 
             // Initial value
             continueResolving = true;
@@ -178,7 +186,7 @@ namespace MS.Internal.Annotations.Anchoring
             if (pageNumberString != null)
                 pageNumber = Int32.Parse(pageNumberString, NumberFormatInfo.InvariantInfo);
             else
-                throw new ArgumentException(SR.Format(SR.IncorrectLocatorPartType, $"{locatorPart.PartType.Namespace}:{locatorPart.PartType.Name}"), nameof(locatorPart));
+                throw new ArgumentException(SR.Format(SR.IncorrectLocatorPartType, $"{locatorPart.PartType.Namespace}:{locatorPart.PartType.Name}"), "locatorPart");
 
 
             // Get the actual FixedPage for the page number specified in the LocatorPart.  We need
@@ -243,10 +251,7 @@ namespace MS.Internal.Annotations.Anchoring
         ///     Returns a list of XmlQualifiedNames representing the
         ///     the locator parts this processor can resolve/generate.
         /// </summary>
-        public override XmlQualifiedName[] GetLocatorPartTypes()
-        {
-            return (XmlQualifiedName[])LocatorPartTypeNames.Clone();
-        }
+        public override ReadOnlySpan<XmlQualifiedName> GetLocatorPartTypes() => new(in s_pageNumberElementName);
 
         #endregion Public Methods
 
@@ -273,7 +278,7 @@ namespace MS.Internal.Annotations.Anchoring
         ///     is done by the framework and does not need to be repeated.  Use this
         ///     string in markup as a value for SubTreeProcessorIdProperty.
         /// </summary>
-        public const String Id = "FixedPage";
+        public static readonly String Id = "FixedPage";
 
         #endregion Public Properties
 
@@ -313,11 +318,11 @@ namespace MS.Internal.Annotations.Anchoring
         ///     the passed in node; null is returned if the locator part cannot
         ///     be created for the node
         /// </returns>
-        internal static ContentLocatorPart CreateLocatorPart(int page)
+        static internal ContentLocatorPart CreateLocatorPart(int page)
         {
             Debug.Assert(page >= 0, "page can not be negative");
 
-            ContentLocatorPart part = new ContentLocatorPart(PageNumberElementName);
+            ContentLocatorPart part = new ContentLocatorPart(s_pageNumberElementName);
 
             part.NameValuePairs.Add(ValueAttributeName, page.ToString(NumberFormatInfo.InvariantInfo));
             return part;
@@ -334,15 +339,10 @@ namespace MS.Internal.Annotations.Anchoring
         #region Private Fields
 
         // Name of the value attribute containing the hash
-        private const String ValueAttributeName = "Value";
+        private static readonly String ValueAttributeName = "Value";
 
         // Name of the locator part produced by this processor.
-        private static readonly XmlQualifiedName PageNumberElementName = new XmlQualifiedName("PageNumber", AnnotationXmlConstants.Namespaces.BaseSchemaNamespace);
-
-        // ContentLocatorPart types understood by this processor
-        private static readonly XmlQualifiedName[] LocatorPartTypeNames = new XmlQualifiedName[] {
-            PageNumberElementName
-        };
+        private static readonly XmlQualifiedName s_pageNumberElementName = new("PageNumber", AnnotationXmlConstants.Namespaces.BaseSchemaNamespace);
 
         // Specifies whether the processor should use the logical tree to resolve locator parts.
         // If this is false (the default) only visible pages will be found.

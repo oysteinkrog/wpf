@@ -71,7 +71,7 @@ namespace MS.Internal.Annotations.Anchoring
         /// null</returns>
         /// <exception cref="ArgumentNullException">selection is null</exception>
         /// <exception cref="ArgumentException">selection is of wrong type</exception>
-        public abstract IList<DependencyObject> GetSelectedNodes(Object selection);
+        public abstract ReadOnlySpan<DependencyObject> GetSelectedNodes(object selection);
 
         /// <summary>
         ///     Gets the parent element of this selection.
@@ -80,7 +80,7 @@ namespace MS.Internal.Annotations.Anchoring
         /// <returns>the parent element of the selection; can be null</returns>
         /// <exception cref="ArgumentNullException">selection is null</exception>
         /// <exception cref="ArgumentException">selection is of wrong type</exception>
-        public abstract UIElement GetParent(Object selection);
+        public abstract UIElement GetParent(object selection);
 
         /// <summary>
         ///     Gets the anchor point for the selection
@@ -124,7 +124,7 @@ namespace MS.Internal.Annotations.Anchoring
         ///     Returns a list of XmlQualifiedNames representing the
         ///     the locator parts this processor can resolve/generate.
         /// </summary>
-        public abstract XmlQualifiedName[] GetLocatorPartTypes();
+        public abstract ReadOnlySpan<XmlQualifiedName> GetLocatorPartTypes();
 
         #endregion Public Methods
 

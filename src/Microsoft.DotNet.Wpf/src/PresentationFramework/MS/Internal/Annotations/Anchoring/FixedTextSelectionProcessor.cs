@@ -1,5 +1,6 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 //
 //
@@ -13,13 +14,25 @@
 //     Spec: Anchoring to text in paginated docs.doc
 //
 
+using System;
+using System.IO;
 using System.Windows;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Windows.Annotations;
+using System.Windows.Annotations.Storage;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
+using System.Windows.Media;
 using System.Xml;
+using MS.Utility;
+using MS.Internal.Documents;
+using MS.Internal.PtsHost;
+using System.Runtime.InteropServices;
 
 namespace MS.Internal.Annotations.Anchoring
 {
@@ -81,11 +94,11 @@ namespace MS.Internal.Annotations.Anchoring
         /// <exception cref="ArgumentNullException">selection is null</exception>
         /// <exception cref="ArgumentException">selection is of wrong type</exception>
         /// <exception cref="ArgumentException">selection start or end point can not be resolved to a page</exception>
-        public override IList<DependencyObject> GetSelectedNodes(Object selection)
+        public override ReadOnlySpan<DependencyObject> GetSelectedNodes(object selection)
         {
             IList<TextSegment> textSegments = CheckSelection(selection);
 
-            IList<DependencyObject> pageEl = new List<DependencyObject>();
+            List<DependencyObject> pageEl = new();
 
             Point start;
             Point end;
@@ -137,7 +150,7 @@ namespace MS.Internal.Annotations.Anchoring
                 }
             }
 
-            return pageEl;
+            return CollectionsMarshal.AsSpan(pageEl);
         }
 
         /// <summary>
@@ -148,7 +161,7 @@ namespace MS.Internal.Annotations.Anchoring
         /// <returns>the parent element of the selection; can be null</returns>
         /// <exception cref="ArgumentNullException">selection is null</exception>
         /// <exception cref="ArgumentException">selection is of wrong type</exception>
-        public override UIElement GetParent(Object selection)
+        public override UIElement GetParent(object selection)
         {
             CheckAnchor(selection);
             return TextSelectionHelper.GetParent(selection);
@@ -190,9 +203,9 @@ namespace MS.Internal.Annotations.Anchoring
             FixedPageProxy fp = startNode as FixedPageProxy;
 
             if (fp == null)
-                throw new ArgumentException(SR.StartNodeMustBeFixedPageProxy, nameof(startNode));
+                throw new ArgumentException(SR.StartNodeMustBeFixedPageProxy, "startNode");
 
-            ContentLocatorPart part = new ContentLocatorPart(FixedTextElementName);
+            ContentLocatorPart part = new ContentLocatorPart(s_fixedTextElementName);
             if (fp.Segments.Count == 0)
             {
                 part.NameValuePairs.Add(TextSelectionProcessor.CountAttribute, 1.ToString(NumberFormatInfo.InvariantInfo));
@@ -278,7 +291,7 @@ namespace MS.Internal.Annotations.Anchoring
 
             if (docPage == null)
             {
-                throw new ArgumentException(SR.StartNodeMustBeDocumentPageViewOrFixedPage, nameof(startNode));
+                throw new ArgumentException(SR.StartNodeMustBeDocumentPageViewOrFixedPage, "startNode");
             }
 
             ArgumentNullException.ThrowIfNull(locatorPart);
@@ -359,10 +372,7 @@ namespace MS.Internal.Annotations.Anchoring
         ///     Returns a list of XmlQualifiedNames representing the
         ///     the locator parts this processor can resolve/generate.
         /// </summary>
-        public override XmlQualifiedName[] GetLocatorPartTypes()
-        {
-            return (XmlQualifiedName[])LocatorPartTypeNames.Clone();
-        }
+        public override ReadOnlySpan<XmlQualifiedName> GetLocatorPartTypes() => new(in s_fixedTextElementName);
 
         #endregion Public Methods
 
@@ -489,36 +499,33 @@ namespace MS.Internal.Annotations.Anchoring
         {
             ArgumentNullException.ThrowIfNull(locatorPart);
 
-            if (FixedTextElementName != locatorPart.PartType)
-                throw new ArgumentException(SR.Format(SR.IncorrectLocatorPartType, $"{locatorPart.PartType.Namespace}:{locatorPart.PartType.Name}"), nameof(locatorPart));
+            if (s_fixedTextElementName != locatorPart.PartType)
+                throw new ArgumentException(SR.Format(SR.IncorrectLocatorPartType, $"{locatorPart.PartType.Namespace}:{locatorPart.PartType.Name}"), "locatorPart");
 
             string segmentValue = locatorPart.NameValuePairs[TextSelectionProcessor.SegmentAttribute + segmentNumber.ToString(NumberFormatInfo.InvariantInfo)];
             if (segmentValue == null)
                 throw new ArgumentException(SR.Format(SR.InvalidLocatorPart, TextSelectionProcessor.SegmentAttribute + segmentNumber.ToString(NumberFormatInfo.InvariantInfo)));
 
-            ReadOnlySpan<char> segmentValueSpan = segmentValue.AsSpan();
-            Span<Range> splitRegions = stackalloc Range[5];
-
-            if (segmentValueSpan.Split(splitRegions, TextSelectionProcessor.Separator) != 4)
+            string[] values = segmentValue.Split(TextSelectionProcessor.Separator);
+            if (values.Length != 4)
                 throw new ArgumentException(SR.Format(SR.InvalidLocatorPart, TextSelectionProcessor.SegmentAttribute + segmentNumber.ToString(NumberFormatInfo.InvariantInfo)));
-
-            start = GetPoint(segmentValueSpan[splitRegions[0]], segmentValueSpan[splitRegions[1]]);
-            end = GetPoint(segmentValueSpan[splitRegions[2]], segmentValueSpan[splitRegions[3]]);
+            start = GetPoint(values[0], values[1]);
+            end = GetPoint(values[2], values[3]);
         }
 
         /// <summary>
-        /// Calculates <see cref="Point"/> out of X and Y values supplied as a <see cref="string"/>.
+        /// Calculate Point out of string X and Y values
         /// </summary>
-        /// <param name="xValue">x string value</param>
-        /// <param name="yValue">y string value</param>
-        /// <returns>Initialized <see cref="Point"/> structure.</returns>
-        private static Point GetPoint(ReadOnlySpan<char> xValue, ReadOnlySpan<char> yValue)
+        /// <param name="xstr">x string value</param>
+        /// <param name="ystr">y string value</param>
+        /// <returns></returns>
+        private Point GetPoint(string xstr, string ystr)
         {
             Point point;
-            if (!xValue.Trim().IsEmpty && !yValue.Trim().IsEmpty)
+            if (xstr != null && !String.IsNullOrEmpty(xstr.Trim()) && ystr != null && !String.IsNullOrEmpty(ystr.Trim()))
             {
-                double x = double.Parse(xValue, NumberFormatInfo.InvariantInfo);
-                double y = double.Parse(yValue, NumberFormatInfo.InvariantInfo);
+                double x = Double.Parse(xstr, NumberFormatInfo.InvariantInfo);
+                double y = Double.Parse(ystr, NumberFormatInfo.InvariantInfo);
                 point = new Point(x, y);
             }
             else
@@ -615,14 +622,7 @@ namespace MS.Internal.Annotations.Anchoring
         #region Private Fields
 
         // Name of locator part element
-        private static readonly XmlQualifiedName FixedTextElementName = new XmlQualifiedName("FixedTextRange", AnnotationXmlConstants.Namespaces.BaseSchemaNamespace);
-
-        // ContentLocatorPart types understood by this processor
-        private static readonly XmlQualifiedName[] LocatorPartTypeNames =
-                new XmlQualifiedName[]
-                {
-                    FixedTextElementName
-                };
+        private static readonly XmlQualifiedName s_fixedTextElementName = new("FixedTextRange", AnnotationXmlConstants.Namespaces.BaseSchemaNamespace);
 
         #endregion Private Fields
 
@@ -654,8 +654,9 @@ namespace MS.Internal.Annotations.Anchoring
                 }
             }
 
-            private int _page;
-            private IList<PointSegment> _segments = new List<PointSegment>(1);
+
+            int _page;
+            IList<PointSegment> _segments = new List<PointSegment>(1);
         }
 
         /// <summary>
