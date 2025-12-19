@@ -22,7 +22,6 @@ using System.Windows.Media.Composition;
 
 namespace System.Windows.Media.Media3D
 {
-
     [Serializable]
     [TypeConverter(typeof(Rect3DConverter))]
     [ValueSerializer(typeof(Rect3DValueSerializer))] // Used by MarkupWriter
@@ -35,9 +34,6 @@ namespace System.Windows.Media.Media3D
         //------------------------------------------------------
 
         #region Public Methods
-
-
-
 
         /// <summary>
         /// Compares two Rect3D instances for exact equality.
@@ -206,10 +202,7 @@ namespace System.Windows.Media.Media3D
         //------------------------------------------------------
 
 
-
-
         #region Public Properties
-
 
 
         #endregion Public Properties
@@ -223,9 +216,6 @@ namespace System.Windows.Media.Media3D
         #region Protected Methods
 
 
-
-
-
         #endregion ProtectedMethods
 
         //------------------------------------------------------
@@ -235,13 +225,6 @@ namespace System.Windows.Media.Media3D
         //------------------------------------------------------
 
         #region Internal Methods
-
-
-
-
-
-
-
 
 
         #endregion Internal Methods
@@ -254,7 +237,6 @@ namespace System.Windows.Media.Media3D
 
         #region Internal Properties
 
-
         /// <summary>
         /// Creates a string representation of this object based on the current culture.
         /// </summary>
@@ -263,7 +245,6 @@ namespace System.Windows.Media.Media3D
         /// </returns>
         public override string ToString()
         {
-
             // Delegate to the internal method which implements all ToString calls.
             return ConvertToString(null /* format string */, null /* format provider */);
         }
@@ -277,7 +258,6 @@ namespace System.Windows.Media.Media3D
         /// </returns>
         public string ToString(IFormatProvider provider)
         {
-
             // Delegate to the internal method which implements all ToString calls.
             return ConvertToString(null /* format string */, provider);
         }
@@ -293,7 +273,6 @@ namespace System.Windows.Media.Media3D
         /// </returns>
         string IFormattable.ToString(string format, IFormatProvider provider)
         {
-
             // Delegate to the internal method which implements all ToString calls.
             return ConvertToString(format, provider);
         }
@@ -328,7 +307,6 @@ namespace System.Windows.Media.Media3D
         }
 
 
-
         #endregion Internal Properties
 
         //------------------------------------------------------
@@ -338,7 +316,6 @@ namespace System.Windows.Media.Media3D
         //------------------------------------------------------
 
         #region Dependency Properties
-
 
 
         #endregion Dependency Properties
@@ -351,7 +328,6 @@ namespace System.Windows.Media.Media3D
 
         #region Internal Fields
 
-
         internal double _x;
         internal double _y;
         internal double _z;
@@ -359,11 +335,7 @@ namespace System.Windows.Media.Media3D
         internal double _sizeY;
         internal double _sizeZ;
 
-
-
-
         #endregion Internal Fields
-
 
 
         #region Constructors
@@ -373,8 +345,6 @@ namespace System.Windows.Media.Media3D
         //  Constructors
         //
         //------------------------------------------------------
-
-
 
 
         #endregion Constructors

@@ -52,8 +52,6 @@ namespace System.Windows.Media
         }
 
 
-
-
         #endregion Public Methods
 
         //------------------------------------------------------
@@ -61,8 +59,6 @@ namespace System.Windows.Media
         //  Public Properties
         //
         //------------------------------------------------------
-
-
 
 
         #region Public Properties
@@ -116,8 +112,6 @@ namespace System.Windows.Media
             return new QuadraticBezierSegment();
         }
 
-
-
         #endregion ProtectedMethods
 
         //------------------------------------------------------
@@ -129,13 +123,6 @@ namespace System.Windows.Media
         #region Internal Methods
 
 
-
-
-
-
-
-
-
         #endregion Internal Methods
 
         //------------------------------------------------------
@@ -145,9 +132,6 @@ namespace System.Windows.Media
         //------------------------------------------------------
 
         #region Internal Properties
-
-
-
 
 
         #endregion Internal Properties
@@ -179,15 +163,10 @@ namespace System.Windows.Media
 
         #region Internal Fields
 
-
-
-
-
         internal static Point s_Point1 = new Point();
         internal static Point s_Point2 = new Point();
 
         #endregion Internal Fields
-
 
 
         #region Constructors
@@ -226,7 +205,6 @@ namespace System.Windows.Media
                                    /* isIndependentlyAnimated  = */ false,
                                    /* coerceValueCallback */ null);
         }
-
 
 
         #endregion Constructors

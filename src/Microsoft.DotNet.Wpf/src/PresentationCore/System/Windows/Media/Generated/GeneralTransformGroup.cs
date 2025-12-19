@@ -52,8 +52,6 @@ namespace System.Windows.Media
         }
 
 
-
-
         #endregion Public Methods
 
         //------------------------------------------------------
@@ -61,8 +59,6 @@ namespace System.Windows.Media
         //  Public Properties
         //
         //------------------------------------------------------
-
-
 
 
         #region Public Properties
@@ -101,8 +97,6 @@ namespace System.Windows.Media
             return new GeneralTransformGroup();
         }
 
-
-
         #endregion ProtectedMethods
 
         //------------------------------------------------------
@@ -114,13 +108,6 @@ namespace System.Windows.Media
         #region Internal Methods
 
 
-
-
-
-
-
-
-
         #endregion Internal Methods
 
         //------------------------------------------------------
@@ -130,9 +117,6 @@ namespace System.Windows.Media
         //------------------------------------------------------
 
         #region Internal Properties
-
-
-
 
 
         #endregion Internal Properties
@@ -160,14 +144,9 @@ namespace System.Windows.Media
 
         #region Internal Fields
 
-
-
-
-
         internal static GeneralTransformCollection s_Children = GeneralTransformCollection.Empty;
 
         #endregion Internal Fields
-
 
 
         #region Constructors
@@ -199,7 +178,6 @@ namespace System.Windows.Media
                                    /* isIndependentlyAnimated  = */ false,
                                    /* coerceValueCallback */ null);
         }
-
 
 
         #endregion Constructors

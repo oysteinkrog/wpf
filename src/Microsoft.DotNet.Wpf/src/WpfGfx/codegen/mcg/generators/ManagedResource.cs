@@ -71,7 +71,7 @@ namespace MS.Internal.MilCodeGen.Generators
                     
                     List<string> modifiers = new List<string>();
                     List<string> extends = new List<string>();
-                    string attributes = String.Empty;
+                    string attributes = null;
 
 					// TODO: Add accessibility modifiers in McgType data model
 					if (resource.Name != "ImplicitInputBrush")
@@ -173,7 +173,6 @@ namespace MS.Internal.MilCodeGen.Generators
 
                                     [[WriteClone(resource)]]
                                     [[WriteCloneCurrentValue(resource)]]
-
                                     [[WriteObjectMethods(resource)]]
 
                                     #endregion Public Methods
@@ -327,9 +326,7 @@ namespace MS.Internal.MilCodeGen.Generators
         private string WriteCloneCoreMethods(McgResource resource)
         {
             if (resource.IsValueType || (!resource.AddCloneHooks && !resource.IsCollection))
-            {
-                return String.Empty;
-            }
+				return null;
 
             string cloneCoreMethods = String.Empty;
 
@@ -397,14 +394,16 @@ namespace MS.Internal.MilCodeGen.Generators
 
         private string WriteClone(McgResource resource)
         {
-            if (!resource.IsFreezable) return String.Empty;
+            if (!resource.IsFreezable)
+				return null;
 
             return WriteStronglyTypedShadow("Clone", resource.Name);
         }
 
         private string WriteCloneCurrentValue(McgResource resource)
         {
-            if (!resource.IsFreezable) return String.Empty;
+            if (!resource.IsFreezable)
+				return null;
 
             return WriteStronglyTypedShadow("CloneCurrentValue", resource.Name);
         }
@@ -573,12 +572,12 @@ namespace MS.Internal.MilCodeGen.Generators
 
         private string WriteLocalPropertyDelegates(McgResource resource)
         {
-            if (resource.SkipProperties) return String.Empty;
-            if (resource.IsValueType) return String.Empty;
+            if (resource.SkipProperties || resource.IsValueType)
+				return null;
 
             StringCodeSink cs = new StringCodeSink();
 
-            foreach(McgField field in resource.LocalFields)
+            foreach (McgField field in resource.LocalFields)
             {
                 if (field.IsUnmanagedOnly) continue;
 
@@ -673,7 +672,6 @@ namespace MS.Internal.MilCodeGen.Generators
                                     target.[[field.PropertyName]]PropertyChangedHook(e);
                                     [[/conditional]]
                                     [[conditional(canEarlyOutIfIsASubPropertyChange)]]
-
                                     // The first change to the default value of a mutable collection property (e.g. GeometryGroup.Children) 
                                     // will promote the property value from a default value to a local value. This is technically a sub-property 
                                     // change because the collection was changed and not a new collection set (GeometryGroup.Children.
@@ -828,6 +826,7 @@ namespace MS.Internal.MilCodeGen.Generators
                                     [[conditional(field.PropertyChangedHook)]]
                                     target.[[field.PropertyName]]PropertyChangedHook(e);
                                     [[/conditional]]
+
                             [[/inline]]
                             );
                     }
@@ -952,17 +951,17 @@ namespace MS.Internal.MilCodeGen.Generators
                 }
            }
 
-            return cs.ToString();
+            return cs.IsEmpty ? null : cs.ToString();
         }
 
         private string WriteRegisterDPProperty(McgResource resource)
         {
-            if (resource.SkipProperties) return String.Empty;
-            if (resource.IsValueType) return String.Empty;
+            if (resource.SkipProperties || resource.IsValueType)
+				return null;
 
             StringCodeSink cs = new StringCodeSink();
 
-            foreach(McgField field in resource.LocalFields)
+            foreach (McgField field in resource.LocalFields)
             {
                 if (field.IsAliased || field.IsUnmanagedOnly) continue;
 
@@ -1002,7 +1001,7 @@ namespace MS.Internal.MilCodeGen.Generators
                               RegisterProperty("[[field.PropertyName]]",
                                                typeof([[field.Type.ManagedName]]),
                                                typeofThis,
-                                               [[GetDefaultValueBoxed(field)]],
+                                               [[GetDefaultValue(field)]],
                                                [[propertyChangedCallback]],
                     [[/inline]]
                 );
@@ -1043,7 +1042,7 @@ namespace MS.Internal.MilCodeGen.Generators
                     );
             }
 
-            return cs.ToString();
+            return cs.IsEmpty ? null : cs.ToString();
         }
 
         private string GetDefaultValue(McgField field)
@@ -1062,18 +1061,6 @@ namespace MS.Internal.MilCodeGen.Generators
             else
             {
                 return "null";
-            }
-        }
-		
-		private string GetDefaultValueBoxed(McgField field)
-        {
-            if (field.Type.ManagedName == "bool")
-            {
-				return field.Default == "true" ? "BooleanBoxes.TrueBox" : "BooleanBoxes.FalseBox";
-            }
-            else
-            {
-                return GetDefaultValue(field);
             }
         }
 
@@ -1119,7 +1106,7 @@ namespace MS.Internal.MilCodeGen.Generators
                 }
             }
 
-            return cs.ToString();
+            return cs.IsEmpty ? null : cs.ToString();
         }
 
         /// <summary>
@@ -1128,7 +1115,8 @@ namespace MS.Internal.MilCodeGen.Generators
         /// </summary>
         private string WriteCacheDecls(McgResource resource)
         {
-            if (resource.SkipFields) return String.Empty;
+            if (resource.SkipFields)
+				return null;
 
             StringCodeSink cs = new StringCodeSink();
 
@@ -1150,17 +1138,17 @@ namespace MS.Internal.MilCodeGen.Generators
                 }
             }
 
-            return cs.ToString();
+            return cs.IsEmpty ? null : cs.ToString();
         }
 
         private string WriteDefaultValues(McgResource resource)
         {
-            if (resource.SkipProperties) return String.Empty;
-            if (resource.IsValueType) return String.Empty;
+            if (resource.SkipProperties || resource.IsValueType)
+				return null;
 
             StringCodeSink cs = new StringCodeSink();
 
-            foreach(McgField field in resource.LocalFields)
+            foreach (McgField field in resource.LocalFields)
             {
                 if (field.IsUnmanagedOnly) continue;
 
@@ -1186,20 +1174,17 @@ namespace MS.Internal.MilCodeGen.Generators
                 }
             }
 
-            return cs.ToString();
+            return cs.IsEmpty ? null : cs.ToString();
         }
 
         private string WriteStaticCtor(McgResource resource)
         {
-            if (_staticCtorText.IsEmpty)
-            {
-                if (resource.SkipProperties) return String.Empty;
-                if (resource.IsValueType) return String.Empty;
-            }
+            if (_staticCtorText.IsEmpty && (resource.SkipProperties || resource.IsValueType))
+				return null;
 
             StringCodeSink cs = new StringCodeSink();
 
-            foreach(McgField field in resource.LocalFields)
+            foreach (McgField field in resource.LocalFields)
             {
                 if (field.IsUnmanagedOnly) continue;
 
@@ -1225,7 +1210,7 @@ namespace MS.Internal.MilCodeGen.Generators
                         [[inline]]
                             [[field.PropertyAlias]].OverrideMetadata(
                                 typeof([[resource.ManagedName]]),
-                                new UIPropertyMetadata([[GetDefaultValueBoxed(field)]],
+                                new UIPropertyMetadata([[GetDefaultValue(field)]],
                                                        new PropertyChangedCallback([[field.PropertyName]]PropertyChanged)));
                         [[/inline]]
                         );
@@ -1236,7 +1221,7 @@ namespace MS.Internal.MilCodeGen.Generators
             string staticCtorText = _staticCtorText.ToString();
             if (resource.UseStaticInitialize)
             {
-                staticCtorText = "StaticInitialize();\n\n" + staticCtorText;
+                staticCtorText = "StaticInitialize(typeofThis);\n" + staticCtorText;
             }
             
             if (!cs.IsEmpty || !_staticCtorText.IsEmpty)
@@ -1252,15 +1237,14 @@ namespace MS.Internal.MilCodeGen.Generators
                             [[cs]]
 
                             // Initializations
+                            Type typeofThis = typeof([[resource.Name]]);
                             [[staticCtorText]]
                         }
 
                     [[/inline]];
             }
-            else
-            {
-                return String.Empty;
-            }
+
+            return null;
         }
 
         /// <summary>
@@ -1271,7 +1255,8 @@ namespace MS.Internal.MilCodeGen.Generators
         /// </summary>
         private string WriteEffectiveValuesInitialSize(McgResource resource)
         {
-            if (resource.IsValueType) return String.Empty;
+            if (resource.IsValueType)
+				return null;
 
             // The default value is 2, so we don't need to emit this if the count == 2.
             if ((resource.CommonlySetFieldCount > 0) &&
@@ -1313,19 +1298,18 @@ namespace MS.Internal.MilCodeGen.Generators
 
                 return cs.ToString();
             }
-            else
-            {
-                return String.Empty;
-            }
+
+			return null;
         }
 
         private string WriteProperties(McgResource resource)
         {
-            if (resource.SkipProperties) return String.Empty;
+            if (resource.SkipProperties)
+				return null;
 
             StringCodeSink cs = new StringCodeSink();
 
-            foreach(McgField field in resource.LocalFields)
+            foreach (McgField field in resource.LocalFields)
             {
                 if (field.IsAliased || field.IsUnmanagedOnly) continue;
 
@@ -1340,7 +1324,7 @@ namespace MS.Internal.MilCodeGen.Generators
                 }
             }
 
-            return cs.ToString();
+            return cs.IsEmpty ? null : cs.ToString();
         }
 
         /// <summary>
@@ -1452,14 +1436,14 @@ namespace MS.Internal.MilCodeGen.Generators
                                                                   "///     " + field.PropertyName + " - " + field.Type.ManagedName + ".  Default value is 0.",
                                                                   true);
 
-            cs.WriteBlock(
+            cs.Write(
                 [[inline]]
                     /// <summary>
                     [[comment]]
                     /// </summary>
                     [[visibility]] [[field.Type.ManagedName]] [[field.PropertyName]]
                     {
-                        readonly get
+                        get
                         {
                             return [[fieldName]];
                         }
@@ -1468,7 +1452,7 @@ namespace MS.Internal.MilCodeGen.Generators
 
             if (!field.IsReadOnly)
             {
-                cs.WriteBlock(
+                cs.Write(
                 [[inline]]
                         set
                         {
@@ -1489,7 +1473,8 @@ namespace MS.Internal.MilCodeGen.Generators
 
         private string WriteCreateInstanceCore(McgResource resource)
         {
-            if (resource.IsAbstract || resource.IsValueType) return String.Empty;
+            if (resource.IsAbstract || resource.IsValueType)
+				return null;
 
             if (resource.CreateInstanceCoreViaActivator)
             {
@@ -1530,8 +1515,8 @@ namespace MS.Internal.MilCodeGen.Generators
 
         private string WriteResourceHandleField(McgResource resource)
         {
-            if (resource.IsValueType) return String.Empty;
-            if (!resource.HasUnmanagedResource) return String.Empty;
+            if (resource.IsValueType || !resource.HasUnmanagedResource)
+				return null;
 
             StringCodeSink cs = new StringCodeSink();
 
@@ -1553,7 +1538,7 @@ namespace MS.Internal.MilCodeGen.Generators
                 );
             }
 
-            return cs.ToString();
+            return cs.IsEmpty ? null : cs.ToString();
         }
 
 
@@ -1682,11 +1667,11 @@ namespace MS.Internal.MilCodeGen.Generators
 
         private string WriteUpdateResource(McgResource resource)
         {
+			if (resource.IsValueType || !resource.HasUnmanagedResource)
+				return null;
+			
             StringCodeSink cs = new StringCodeSink();
             StringCodeSink duceUpdate = new StringCodeSink();
-
-            if (resource.IsValueType) return String.Empty;
-            if (!resource.HasUnmanagedResource) return String.Empty;
 
             if (!resource.IsAbstract && (resource.IsCollection || resource.AllUceFields.Length > 0))
             {
@@ -2001,7 +1986,6 @@ namespace MS.Internal.MilCodeGen.Generators
                                     sizeof([[milcmdStruct]]),
                                     (int)([[additionalDataCalculation.ToString()]])
                                     );
-
                         [[/inline]]
                         );
 
@@ -2073,13 +2057,13 @@ namespace MS.Internal.MilCodeGen.Generators
                 );
              }
 
-            return cs.ToString();
+            return cs.IsEmpty ? null : cs.ToString();
         }
 
         private string WriteAddRefOnChannel(McgResource resource)
         {
-            if (resource.IsValueType) return String.Empty;
-            if (!resource.HasUnmanagedResource) return String.Empty;
+            if (resource.IsValueType || !resource.HasUnmanagedResource)
+				return null;
 
             StringCodeSink cs = new StringCodeSink();
 
@@ -2106,14 +2090,14 @@ namespace MS.Internal.MilCodeGen.Generators
                 }
                 else
                 {
-                    return "";
+                    return null;
                 }
             }
 
             string methodName = String.Empty;
-            string duceAddRef = String.Empty;
-            string duceAddRefAnimations = String.Empty;
-            string addRefCollection = String.Empty;
+            string duceAddRef = null;
+            string duceAddRefAnimations = null;
+            string addRefCollection = null;
             bool lockThis = false;
 
             if (!resource.DerivesFromTypeWhichHasUnmanagedResource)
@@ -2163,15 +2147,20 @@ namespace MS.Internal.MilCodeGen.Generators
             string visualAddRef = Helpers.CodeGenHelpers.WriteFieldStatements(visualFields,
                                                           "{managedType} v{propertyName} = {propertyName};\n" +
                                                           "v{propertyName}?.AddRefOnChannelForCyclicBrush(this, channel);");
-            if (visualAddRef != String.Empty)
+            if (visualAddRef != null)
             {
                 duceAddRef = duceAddRef + visualAddRef;
             }
 
-            duceAddRef = duceAddRef +
-                [[inline]]
-                    [[Helpers.CodeGenHelpers.WriteFieldStatements(collectionFields, addrefCollectionTemplate)]]
+            duceAddRef = duceAddRef + Helpers.CodeGenHelpers.WriteFieldStatements(collectionFields, addrefCollectionTemplate);
+
+			if (duceAddRef != null)
+			{
+				duceAddRef = [[inline]]
+                    [[duceAddRef]]
+
                 [[/inline]];
+			}
 
             if (resource.IsAnimatable)
             {
@@ -2199,7 +2188,7 @@ namespace MS.Internal.MilCodeGen.Generators
                 [[inline]]
                     [[methodName]]
                     {
-                        [[(lockThis ? "using (CompositionEngineLock.Acquire()) \n{" : "")]]
+                        [[(lockThis ? "using (CompositionEngineLock.Acquire()) \n{" : null)]]
                             if (_duceResource.CreateOrAddRefOnChannel(this, channel, System.Windows.Media.Composition.DUCE.ResourceType.TYPE_[[resource.ManagedName.ToUpper()]]))
                             {
                                 [[duceAddRef]]
@@ -2210,7 +2199,7 @@ namespace MS.Internal.MilCodeGen.Generators
                             }
 
                             return _duceResource.GetHandle(channel);
-                        [[(lockThis ? "}" : "")]]
+                        [[(lockThis ? "}" : null)]]
                     }
                 [[/inline]]
             );
@@ -2220,11 +2209,11 @@ namespace MS.Internal.MilCodeGen.Generators
 
         private string WriteReleaseOnChannel(McgResource resource)
         {
-            if (resource.IsValueType) return String.Empty;
-            if (!resource.HasUnmanagedResource) return String.Empty;
+            if (resource.IsValueType || !resource.HasUnmanagedResource)
+				return null;
 
             StringCodeSink cs = new StringCodeSink();
-            string duceRelease = String.Empty;
+            string duceRelease = null;
 
             if (resource.IsAbstract)
             {
@@ -2249,13 +2238,13 @@ namespace MS.Internal.MilCodeGen.Generators
                 }
                 else
                 {
-                    return "";
+                    return null;
                 }
             }
 
             string methodName = String.Empty;
-            string duceReleaseAnimations = String.Empty;
-            string releaseCollection = String.Empty;
+            string duceReleaseAnimations = null;
+            string releaseCollection = null;
             bool lockThis = false;
 
             if (!resource.DerivesFromTypeWhichHasUnmanagedResource)
@@ -2307,15 +2296,20 @@ namespace MS.Internal.MilCodeGen.Generators
                                                           "{managedType} v{propertyName} = {propertyName};\n" +
                                                           "v{propertyName}?.ReleaseOnChannelForCyclicBrush(this, channel);");
 
-            if (visualRelease != String.Empty)
+            if (visualRelease != null)
             {
                 duceRelease = duceRelease + visualRelease;
             }
 
-            duceRelease = duceRelease +
-                [[inline]]
-                    [[Helpers.CodeGenHelpers.WriteFieldStatements(collectionFields, releaseCollectionTemplate)]]
+            duceRelease = duceRelease + Helpers.CodeGenHelpers.WriteFieldStatements(collectionFields, releaseCollectionTemplate);
+				
+			if (duceRelease != null)
+			{
+				duceRelease = [[inline]]
+                    [[duceRelease]]
+
                 [[/inline]];
+			}
 
             if (resource.IsAnimatable)
             {
@@ -2342,7 +2336,7 @@ namespace MS.Internal.MilCodeGen.Generators
                 [[inline]]
                     [[methodName]]
                     {
-                        [[(lockThis ? "using (CompositionEngineLock.Acquire()) \n{" : "")]]
+                        [[(lockThis ? "using (CompositionEngineLock.Acquire()) \n{" : null)]]
                             Debug.Assert(_duceResource.IsOnChannel(channel));
 
                             if (_duceResource.ReleaseOnChannel(channel))
@@ -2351,7 +2345,7 @@ namespace MS.Internal.MilCodeGen.Generators
                                 [[duceReleaseAnimations]]
                                 [[releaseCollection]]
                             }
-                        [[(lockThis ? "}" : "")]]
+                        [[(lockThis ? "}" : null)]]
                     }
                 [[/inline]]
                 );
@@ -2361,8 +2355,8 @@ namespace MS.Internal.MilCodeGen.Generators
 
         private string WriteGetDuceResource(McgResource resource)
         {
-            if (resource.IsValueType) return String.Empty;
-            if (!resource.HasUnmanagedResource) return String.Empty;
+            if (resource.IsValueType || !resource.HasUnmanagedResource)
+				return null;
 
             StringCodeSink cs = new StringCodeSink();
             StringCodeSink releaseString = new StringCodeSink();
@@ -2393,7 +2387,7 @@ namespace MS.Internal.MilCodeGen.Generators
                 }
                 else
                 {
-                    return String.Empty;
+                    return null;
                 }
             }
 
@@ -2438,8 +2432,8 @@ namespace MS.Internal.MilCodeGen.Generators
 
         private string WriteGetChannelCount(McgResource resource)
         {
-            if (resource.IsValueType) return String.Empty;
-            if (!resource.HasUnmanagedResource) return String.Empty;
+            if (resource.IsValueType || !resource.HasUnmanagedResource)
+				return null;
 
             StringCodeSink cs = new StringCodeSink();
             StringCodeSink releaseString = new StringCodeSink();
@@ -2464,7 +2458,7 @@ namespace MS.Internal.MilCodeGen.Generators
                 }
                 else
                 {
-                    return String.Empty;
+                    return null;
                 }
             }
 
@@ -2505,8 +2499,8 @@ namespace MS.Internal.MilCodeGen.Generators
 
         private string WriteGetChannel(McgResource resource)
         {
-            if (resource.IsValueType) return String.Empty;
-            if (!resource.HasUnmanagedResource) return String.Empty;
+            if (resource.IsValueType || !resource.HasUnmanagedResource)
+				return null;
 
             StringCodeSink cs = new StringCodeSink();
             StringCodeSink releaseString = new StringCodeSink();
@@ -2531,7 +2525,7 @@ namespace MS.Internal.MilCodeGen.Generators
                 }
                 else
                 {
-                    return String.Empty;
+                    return null;
                 }
             }
 
@@ -2574,7 +2568,7 @@ namespace MS.Internal.MilCodeGen.Generators
         {
             StringCodeSink cs = new StringCodeSink();
 
-            foreach(McgField field in resource.LocalFields)
+            foreach (McgField field in resource.LocalFields)
             {
                 McgResource fieldResource = field.Type as McgResource;
 
@@ -2639,7 +2633,7 @@ namespace MS.Internal.MilCodeGen.Generators
                 }
             }
 
-            return cs.ToString();
+            return cs.IsEmpty ? null : cs.ToString();
         }
 
         //------------------------------------------------------
@@ -2811,60 +2805,58 @@ namespace MS.Internal.MilCodeGen.Generators
             }
         }
 
-         private static string WriteParse(McgResource resource)
-         {
-             if (resource.SkipToString) return String.Empty;
+        private static string WriteParse(McgResource resource)
+        {
+            if (resource.SkipToString)
+				return null;
 
-             // Should we emit the parse code?
-             if (resource.IsCollection ||
-                 ((resource.ParseMethod != null) && (resource.ParseMethod.Length > 0)))
-             {
-                 string parseBody;
+            // Should we emit the parse code?
+            if (resource.IsCollection || ((resource.ParseMethod != null) && (resource.ParseMethod.Length > 0)))
+            {
+                string parseBody;
 
-                 // A ParseMethod trumps the automatic handling of a collection
-                 if ((resource.ParseMethod != null) && (resource.ParseMethod.Length > 0))
-                 {
-                     parseBody = "return " + resource.ParseMethod + "(source, formatProvider);\n";
-                 }
-                 else
-                 {
-                     parseBody =
-                         [[inline]]
-                             ValueTokenizerHelper tokenizer = new(source, formatProvider);
-                             [[resource.ManagedName]] resource = new [[resource.ManagedName]]();
+                // A ParseMethod trumps the automatic handling of a collection
+                if ((resource.ParseMethod != null) && (resource.ParseMethod.Length > 0))
+                {
+                    parseBody = "return " + resource.ParseMethod + "(source, formatProvider);\n";
+                }
+                else
+                {
+                    parseBody =
+                        [[inline]]
+                            TokenizerHelper th = new TokenizerHelper(source, formatProvider);
+                            [[resource.ManagedName]] resource = new [[resource.ManagedName]]();
 
-                             [[resource.CollectionType.ManagedName]] value;
+                            [[resource.CollectionType.ManagedName]] value;
 
-                             while (tokenizer.NextToken())
-                             {
-                                 [[WriteParseBody(resource.CollectionType, "tokenizer.GetCurrentToken()")]]
+                            while (th.NextToken())
+                            {
+                                [[WriteParseBody(resource.CollectionType, "th.GetCurrentToken()")]]
 
-                                 resource.Add(value);
-                             }
+                                resource.Add(value);
+                            }
 
-                             return resource;
-                         [[/inline]];
-                 }
+                            return resource;
+                        [[/inline]];
+                }
 
-                 return
-                     [[inline]]
-                         /// <summary>
-                         /// Parse - returns an instance converted from the provided string
-                         /// using the current culture
-                         /// <param name="source"> string with [[resource.Name]] data </param>
-                         /// </summary>
-                         public static [[resource.Name]] Parse(string source)
-                         {
-                             IFormatProvider formatProvider = System.Windows.Markup.TypeConverterHelper.InvariantEnglishUS;
+                return
+                    [[inline]]
+                        /// <summary>
+                        /// Parse - returns an instance converted from the provided string
+                        /// using the current culture
+                        /// <param name="source"> string with [[resource.Name]] data </param>
+                        /// </summary>
+                        public static [[resource.Name]] Parse(string source)
+                        {
+                            IFormatProvider formatProvider = System.Windows.Markup.TypeConverterHelper.InvariantEnglishUS;
 
-                             [[parseBody]]
-                         }
-                     [[/inline]];
-             }
-             else
-             {
-                 return String.Empty;
-             }
+                            [[parseBody]]
+                        }
+                    [[/inline]];
+            }
+
+            return null;
         }
         #endregion Helper Methods
 

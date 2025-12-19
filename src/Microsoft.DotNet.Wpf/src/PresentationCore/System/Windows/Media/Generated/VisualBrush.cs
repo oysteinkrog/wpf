@@ -52,8 +52,6 @@ namespace System.Windows.Media
         }
 
 
-
-
         #endregion Public Methods
 
         //------------------------------------------------------
@@ -65,7 +63,6 @@ namespace System.Windows.Media
         private static void VisualPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             VisualBrush target = ((VisualBrush) d);
-
 
             Visual oldV = (Visual) e.OldValue;
 
@@ -120,10 +117,8 @@ namespace System.Windows.Media
         {
             VisualBrush target = ((VisualBrush) d);
 
-
             target.PropertyChanged(AutoLayoutContentProperty);
         }
-
 
         #region Public Properties
 
@@ -177,8 +172,6 @@ namespace System.Windows.Media
         {
             return new VisualBrush();
         }
-
-
 
         #endregion ProtectedMethods
 
@@ -279,7 +272,6 @@ namespace System.Windows.Media
         }
         internal override DUCE.ResourceHandle AddRefOnChannelCore(DUCE.Channel channel)
         {
-
                 if (_duceResource.CreateOrAddRefOnChannel(this, channel, System.Windows.Media.Composition.DUCE.ResourceType.TYPE_VISUALBRUSH))
                 {
                     Transform vTransform = Transform;
@@ -288,18 +280,16 @@ namespace System.Windows.Media
                     if (vRelativeTransform != null) ((DUCE.IResource)vRelativeTransform).AddRefOnChannel(channel);
                     Visual vVisual = Visual;
                     vVisual?.AddRefOnChannelForCyclicBrush(this, channel);
-                    AddRefOnChannelAnimations(channel);
 
+                    AddRefOnChannelAnimations(channel);
 
                     UpdateResource(channel, true /* skip "on channel" check - we already know that we're on channel */ );
                 }
 
                 return _duceResource.GetHandle(channel);
-
         }
         internal override void ReleaseOnChannelCore(DUCE.Channel channel)
         {
-
                 Debug.Assert(_duceResource.IsOnChannel(channel));
 
                 if (_duceResource.ReleaseOnChannel(channel))
@@ -310,10 +300,9 @@ namespace System.Windows.Media
                     if (vRelativeTransform != null) ((DUCE.IResource)vRelativeTransform).ReleaseOnChannel(channel);
                     Visual vVisual = Visual;
                     vVisual?.ReleaseOnChannelForCyclicBrush(this, channel);
+
                     ReleaseOnChannelAnimations(channel);
-
                 }
-
         }
         internal override DUCE.ResourceHandle GetHandleCore(DUCE.Channel channel)
         {
@@ -330,7 +319,6 @@ namespace System.Windows.Media
             // Note that we are in a lock here already.
             return _duceResource.GetChannel(index);
         }
-
 
         #endregion Internal Methods
 
@@ -356,8 +344,6 @@ namespace System.Windows.Media
                 return 1;
             }
         }
-
-
 
         #endregion Internal Properties
 
@@ -388,14 +374,10 @@ namespace System.Windows.Media
 
         #region Internal Fields
 
-
-
         internal System.Windows.Media.Composition.DUCE.MultiChannelResource _duceResource = new System.Windows.Media.Composition.DUCE.MultiChannelResource();
-
         internal const bool c_AutoLayoutContent = true;
 
         #endregion Internal Fields
-
 
 
         #region Constructors
@@ -439,7 +421,6 @@ namespace System.Windows.Media
                                    /* isIndependentlyAnimated  = */ false,
                                    /* coerceValueCallback */ null);
         }
-
 
 
         #endregion Constructors

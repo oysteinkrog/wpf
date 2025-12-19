@@ -52,8 +52,6 @@ namespace System.Windows.Media
         }
 
 
-
-
         #endregion Public Methods
 
         //------------------------------------------------------
@@ -66,21 +64,15 @@ namespace System.Windows.Media
         {
             DashStyle target = ((DashStyle) d);
 
-
             target.PropertyChanged(OffsetProperty);
         }
         private static void DashesPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
 
-
-
-
             DashStyle target = ((DashStyle) d);
-
 
             target.PropertyChanged(DashesProperty);
         }
-
 
         #region Public Properties
 
@@ -133,8 +125,6 @@ namespace System.Windows.Media
             return new DashStyle();
         }
 
-
-
         #endregion ProtectedMethods
 
         //------------------------------------------------------
@@ -182,7 +172,6 @@ namespace System.Windows.Media
                         (int)(data.DashesSize)
                         );
 
-
                     // Copy this collection's elements (or their handles) to reserved data
                     for (int i = 0; i < DashesCount; i++)
                     {
@@ -204,9 +193,7 @@ namespace System.Windows.Media
                 if (_duceResource.CreateOrAddRefOnChannel(this, channel, System.Windows.Media.Composition.DUCE.ResourceType.TYPE_DASHSTYLE))
                 {
 
-
                     AddRefOnChannelAnimations(channel);
-
 
                     UpdateResource(channel, true /* skip "on channel" check - we already know that we're on channel */ );
                 }
@@ -223,9 +210,7 @@ namespace System.Windows.Media
                 if (_duceResource.ReleaseOnChannel(channel))
                 {
 
-
                     ReleaseOnChannelAnimations(channel);
-
                 }
             }
         }
@@ -249,7 +234,6 @@ namespace System.Windows.Media
             // in a lock already
             return _duceResource.GetChannel(index);
         }
-
 
         #endregion Internal Methods
 
@@ -275,8 +259,6 @@ namespace System.Windows.Media
                 return 1;
             }
         }
-
-
 
         #endregion Internal Properties
 
@@ -307,15 +289,11 @@ namespace System.Windows.Media
 
         #region Internal Fields
 
-
-
         internal System.Windows.Media.Composition.DUCE.MultiChannelResource _duceResource = new System.Windows.Media.Composition.DUCE.MultiChannelResource();
-
         internal const double c_Offset = 0.0;
         internal static DoubleCollection s_Dashes = DoubleCollection.Empty;
 
         #endregion Internal Fields
-
 
 
         #region Constructors
@@ -356,7 +334,6 @@ namespace System.Windows.Media
                                    /* isIndependentlyAnimated  = */ false,
                                    /* coerceValueCallback */ null);
         }
-
 
 
         #endregion Constructors

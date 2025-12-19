@@ -52,8 +52,6 @@ namespace System.Windows.Media
         }
 
 
-
-
         #endregion Public Methods
 
         //------------------------------------------------------
@@ -66,14 +64,10 @@ namespace System.Windows.Media
         {
             GeometryGroup target = ((GeometryGroup) d);
 
-
             target.PropertyChanged(FillRuleProperty);
         }
         private static void ChildrenPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-
-
-
 
             // The first change to the default value of a mutable collection property (e.g. GeometryGroup.Children) 
             // will promote the property value from a default value to a local value. This is technically a sub-property 
@@ -91,7 +85,6 @@ namespace System.Windows.Media
 
 
             GeometryGroup target = ((GeometryGroup) d);
-
 
             // If this is both non-null and mutable, we need to unhook the Changed event.
             GeometryCollection oldCollection = null;
@@ -161,7 +154,6 @@ namespace System.Windows.Media
             target.PropertyChanged(ChildrenProperty);
         }
 
-
         #region Public Properties
 
         /// <summary>
@@ -212,8 +204,6 @@ namespace System.Windows.Media
         {
             return new GeometryGroup();
         }
-
-
 
         #endregion ProtectedMethods
 
@@ -270,7 +260,6 @@ namespace System.Windows.Media
                         (int)(data.ChildrenSize)
                         );
 
-
                     // Copy this collection's elements (or their handles) to reserved data
                     for (int i = 0; i < ChildrenCount; i++)
                     {
@@ -287,7 +276,6 @@ namespace System.Windows.Media
         }
         internal override DUCE.ResourceHandle AddRefOnChannelCore(DUCE.Channel channel)
         {
-
                 if (_duceResource.CreateOrAddRefOnChannel(this, channel, System.Windows.Media.Composition.DUCE.ResourceType.TYPE_GEOMETRYGROUP))
                 {
                     Transform vTransform = Transform;
@@ -303,18 +291,16 @@ namespace System.Windows.Media
                             ((DUCE.IResource) vChildren.Internal_GetItem(i)).AddRefOnChannel(channel);
                         }
                     }
-                    AddRefOnChannelAnimations(channel);
 
+                    AddRefOnChannelAnimations(channel);
 
                     UpdateResource(channel, true /* skip "on channel" check - we already know that we're on channel */ );
                 }
 
                 return _duceResource.GetHandle(channel);
-
         }
         internal override void ReleaseOnChannelCore(DUCE.Channel channel)
         {
-
                 Debug.Assert(_duceResource.IsOnChannel(channel));
 
                 if (_duceResource.ReleaseOnChannel(channel))
@@ -332,10 +318,9 @@ namespace System.Windows.Media
                             ((DUCE.IResource) vChildren.Internal_GetItem(i)).ReleaseOnChannel(channel);
                         }
                     }
+
                     ReleaseOnChannelAnimations(channel);
-
                 }
-
         }
         internal override DUCE.ResourceHandle GetHandleCore(DUCE.Channel channel)
         {
@@ -428,8 +413,6 @@ namespace System.Windows.Media
             }
         }
 
-
-
         #endregion Internal Properties
 
         //------------------------------------------------------
@@ -459,15 +442,11 @@ namespace System.Windows.Media
 
         #region Internal Fields
 
-
-
         internal System.Windows.Media.Composition.DUCE.MultiChannelResource _duceResource = new System.Windows.Media.Composition.DUCE.MultiChannelResource();
-
         internal const FillRule c_FillRule = FillRule.EvenOdd;
         internal static GeometryCollection s_Children = GeometryCollection.Empty;
 
         #endregion Internal Fields
-
 
 
         #region Constructors
@@ -508,7 +487,6 @@ namespace System.Windows.Media
                                    /* isIndependentlyAnimated  = */ false,
                                    /* coerceValueCallback */ null);
         }
-
 
 
         #endregion Constructors
