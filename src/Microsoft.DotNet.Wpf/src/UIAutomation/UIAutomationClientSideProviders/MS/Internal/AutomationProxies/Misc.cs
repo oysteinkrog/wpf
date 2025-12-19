@@ -1,11 +1,13 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 // Description: Miscellaneous helper routines
 
 using Microsoft.Win32.SafeHandles;
 using MS.Win32;
 using System;
+using System.Globalization;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -18,7 +20,7 @@ using NativeMethodsSetLastError = MS.Internal.UIAutomationClientSideProviders.Na
 
 namespace MS.Internal.AutomationProxies
 {
-    internal static class Misc
+    static class Misc
     {
 
         //------------------------------------------------------
@@ -157,7 +159,7 @@ namespace MS.Internal.AutomationProxies
         }
 
 
-        internal static unsafe bool EnumChildWindows(IntPtr hwnd, NativeMethods.EnumChildrenCallbackVoid lpEnumFunc, void* lParam)
+        internal unsafe static bool EnumChildWindows(IntPtr hwnd, NativeMethods.EnumChildrenCallbackVoid lpEnumFunc, void* lParam)
         {
             bool result = UnsafeNativeMethods.EnumChildWindows(hwnd, lpEnumFunc, lParam);
             int lastWin32Error = Marshal.GetLastWin32Error();
@@ -807,7 +809,7 @@ namespace MS.Internal.AutomationProxies
         // and that they are clipped by there parent.  For example this is called by the WindowsListBox.
         // In that case the hwnd is the list box and the itemRect would be a list item this code checks to see
         // if the item is scrolled out of view.
-        internal static bool IsItemVisible(IntPtr hwnd, ref NativeMethods.Win32Rect itemRect)
+        static internal bool IsItemVisible(IntPtr hwnd, ref NativeMethods.Win32Rect itemRect)
         {
             NativeMethods.Win32Rect clientRect = new NativeMethods.Win32Rect(0, 0, 0, 0);
             if (!GetClientRectInScreenCoordinates(hwnd, ref clientRect))
@@ -820,7 +822,7 @@ namespace MS.Internal.AutomationProxies
             return IntersectRect(ref intersection, ref clientRect, ref itemRect);
         }
 
-        internal static bool IsItemVisible(ref NativeMethods.Win32Rect parentRect, ref NativeMethods.Win32Rect itemRect)
+        static internal bool IsItemVisible(ref NativeMethods.Win32Rect parentRect, ref NativeMethods.Win32Rect itemRect)
         {
             NativeMethods.Win32Rect intersection = new NativeMethods.Win32Rect(0, 0, 0, 0);
 
@@ -829,7 +831,7 @@ namespace MS.Internal.AutomationProxies
             return IntersectRect(ref intersection, ref parentRect, ref itemRect);
         }
 
-        internal static bool IsItemVisible(ref NativeMethods.Win32Rect parentRect, ref Rect itemRect)
+        static internal bool IsItemVisible(ref NativeMethods.Win32Rect parentRect, ref Rect itemRect)
         {
             NativeMethods.Win32Rect itemRc = new NativeMethods.Win32Rect(itemRect);
             NativeMethods.Win32Rect intersection = new NativeMethods.Win32Rect(0, 0, 0, 0);
@@ -839,7 +841,7 @@ namespace MS.Internal.AutomationProxies
             return IntersectRect(ref intersection, ref parentRect, ref itemRc);
         }
 
-        internal static bool IsItemVisible(ref Rect parentRect, ref NativeMethods.Win32Rect itemRect)
+        static internal bool IsItemVisible(ref Rect parentRect, ref NativeMethods.Win32Rect itemRect)
         {
             NativeMethods.Win32Rect parentRc = new NativeMethods.Win32Rect(parentRect);
             NativeMethods.Win32Rect intersection = new NativeMethods.Win32Rect(0, 0, 0, 0);
@@ -849,7 +851,7 @@ namespace MS.Internal.AutomationProxies
             return IntersectRect(ref intersection, ref parentRc, ref itemRect);
         }
 
-        internal static bool IsItemVisible(ref Rect parentRect, ref Rect itemRect)
+        static internal bool IsItemVisible(ref Rect parentRect, ref Rect itemRect)
         {
             NativeMethods.Win32Rect itemRc = new NativeMethods.Win32Rect(itemRect);
             NativeMethods.Win32Rect parentRc = new NativeMethods.Win32Rect(parentRect);
@@ -864,14 +866,12 @@ namespace MS.Internal.AutomationProxies
         {
             while (hwnd != IntPtr.Zero)
             {
-                if (GetClassName(hwnd).Equals("Progman", StringComparison.Ordinal))
+                if (GetClassName(hwnd).CompareTo("Progman") == 0)
                 {
                     return true;
                 }
-
                 hwnd = NativeMethodsSetLastError.GetAncestor(hwnd, NativeMethods.GA_PARENT);
             }
-
             return false;
         }
 
@@ -1479,7 +1479,7 @@ namespace MS.Internal.AutomationProxies
         // This is implemented here to work around this behavior.
         // Fake keystroke are sent to a specific hwnd to force
         // Windows to give the focus to that hwnd.
-        internal static bool SetFocus(IntPtr hwnd)
+        static internal bool SetFocus(IntPtr hwnd)
         {
             // First Check for ComboLBox
             // Because it uses Keystrokes it dismisses the ComboLBox
@@ -1622,45 +1622,27 @@ namespace MS.Internal.AutomationProxies
             return UnsafeNativeMethods.SetWinEventHook(eventMin, eventMax, hmodWinEventProc, WinEventReentrancyFilter, idProcess, idThread, dwFlags);
         }
 
-        // this strips the mnemonic prefix for short cuts as well as leading spaces
-        // If we find && leave one & there.
-        internal static string StripMnemonic(string s)
+        /// <summary> Strips the mnemonic prefix for shortcuts as well as leading spaces. </summary>
+        /// <param name="value">The string to strip from.</param>
+        /// <returns> A <see langword="string"/> stripped of leading whitespaces / mnemonic prefix. </returns>
+        internal static string StripMnemonic(string value)
         {
-            // If there are no spaces or & then it's ok just return it
-            if (string.IsNullOrEmpty(s) || s.IndexOfAny(new char[2] { ' ', '&' }) < 0)
-            {
-                return s;
-            }
+            if (string.IsNullOrEmpty(value))
+                return value;
 
-            char[] ach = s.ToCharArray();
-            bool amper = false;
-            bool leadingSpace = false;
-            int dest = 0;
+            // Is there a '&' that we need to skip or ' ' that needs trimming?
+            int ampersandIndex = value.IndexOf('&');
+            if (value[0] != ' ' && ampersandIndex == -1)
+                return value;
 
-            for (int source = 0; source < ach.Length; source++)
-            {
-                // get rid of leading spaces
-                if (ach[source] == ' ' && !leadingSpace)
-                {
-                    continue;
-                }
-                else
-                {
-                    leadingSpace = true;
-                }
+            // Trim leading whitespaces, check if we need to remove '&' as well
+            ReadOnlySpan<char> trimmed = value.AsSpan().TrimStart(' ');
+            if (ampersandIndex == -1)
+                return trimmed.ToString();
 
-                // get rid of &
-                if (ach[source] == '&' && !amper)
-                {
-                    amper = true;
-                }
-                else
-                {
-                    ach[dest++] = ach[source];
-                }
-            }
-
-            return new string(ach, 0, dest);
+            // Update '&' index and slice it out
+            ampersandIndex -= (value.Length - trimmed.Length);
+            return string.Create(CultureInfo.InvariantCulture, stackalloc char[128], $"{trimmed.Slice(0, ampersandIndex)}{trimmed.Slice(ampersandIndex + 1)}");
         }
 
         internal static void ThrowWin32ExceptionsIfError(int errorCode)
