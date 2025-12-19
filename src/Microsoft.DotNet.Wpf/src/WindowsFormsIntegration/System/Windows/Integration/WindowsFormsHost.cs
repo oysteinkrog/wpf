@@ -1,5 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using MS.Win32;
 using System.ComponentModel;
@@ -64,7 +65,7 @@ namespace System.Windows.Forms.Integration
         /// <summary>
         /// Notifies Avalon that focus has moved within this WindowsFormsHost.
         /// </summary>
-        private void NotifyFocusWithinHost()
+        void NotifyFocusWithinHost()
         {
             DependencyObject focusScope = GetFocusScopeForElement(this);
             if (null != focusScope)
@@ -369,7 +370,7 @@ namespace System.Windows.Forms.Integration
 
         #region Rendering
 
-        private static Brush defaultBrush = SystemColors.WindowBrush;
+        static Brush defaultBrush = SystemColors.WindowBrush;
         /// <summary>
         ///     Manually searches up the parent tree to find the first FrameworkElement that
         ///     has a non-null background, and returns that Brush.
@@ -440,30 +441,6 @@ namespace System.Windows.Forms.Integration
 
         #endregion Keyboarding
 
-        #region NativeWindow
-
-        // In 4.0, we spun up a WinForms.NativeWindow to listen for WM_ACTIVATEAPP
-        // messages.  This was part of a failed attempt to make focus-restoration
-        // work correctly;   in 4.5 we solved the focus problems a different way
-        // that didn't need the NativeWindow.  However, the NativeWindow had a
-        // side-effect:  it swallows all exceptions.   For compat with 4.0, we
-        // re-introduce the NativeWindow.  We don't need it to do anything - it's
-        // only purpose is to swallow exceptions during WndProc so that 4.0 apps
-        // don't crash. (Dev11 475347)
-
-        private DummyNativeWindow _dummyNativeWindow;
-        private class DummyNativeWindow : NativeWindow, IDisposable
-        {
-            private WindowsFormsHost _host;
-            public DummyNativeWindow(WindowsFormsHost host)
-            { _host = host; }
-
-            public void Dispose()
-            { this.ReleaseHandle(); }
-        }
-
-        #endregion NativeWindow
-
         #region Window Handling & Misc
         /// <internalonly>
         ///     Overrides the base class implementation of BuildWindowCore to build the hosted
@@ -475,18 +452,14 @@ namespace System.Windows.Forms.Integration
 
             Debug.WriteLineIf(_traceHandle.TraceVerbose, String.Format(CultureInfo.CurrentCulture, "WindowsFormsHost({0}): BuildWindowCore (parent=0x{1:x8})", this.Name, hwndParent.Handle.ToInt32()));
 
-            // for 4.0 compat, create a Winforms.NativeWindow to swallow exceptions during WndProc
-            if (!CoreCompatibilityPreferences.TargetsAtLeast_Desktop_V4_5)
-            {
-                _dummyNativeWindow?.Dispose();
-                _dummyNativeWindow = new DummyNativeWindow(this);
-                _dummyNativeWindow.AssignHandle(hwndParent.Handle);
-            }
-
             _hwndParent = hwndParent;
-            //For Keyboard interop
-            ApplicationInterop.ThreadWindowsFormsHostList.Add(this);    //Keep track of this control, so it can get forwarded windows messages
-            EnableWindowsFormsInterop();        //Start the forwarding of windows messages to all WFH controls on active windows
+
+            // For Keyboard interop
+
+            // Keep track of this control, so it can get forwarded windows messages
+            ApplicationInterop.ThreadWindowsFormsHostList.Add(this);
+            // Start the forwarding of windows messages to all WFH controls on active windows
+            EnableWindowsFormsInterop();
 
             UnsafeNativeMethods.SetParent(/* child = */ HostContainerInternal.Handle, /* parent = */ _hwndParent.Handle);
             return new HandleRef(HostContainerInternal, HostContainerInternal.Handle);
@@ -505,7 +478,7 @@ namespace System.Windows.Forms.Integration
             HostContainerInternal?.Dispose();
         }
 
-        private void ApplyAllProperties(object sender, RoutedEventArgs e)
+        void ApplyAllProperties(object sender, RoutedEventArgs e)
         {
             _propertyMap.ApplyAll();
         }
@@ -527,7 +500,6 @@ namespace System.Windows.Forms.Integration
                     {
                         try
                         {
-                            _dummyNativeWindow?.Dispose();
                             _hostContainerInternal.Dispose();
                             this.Loaded -= new RoutedEventHandler(ApplyAllProperties);
                         }
@@ -866,7 +838,7 @@ namespace System.Windows.Forms.Integration
                     tabStopOnly = true;
                     break;
                 default:
-                    Debug.Fail("Unknown FocusNavigationDirection");
+                    Debug.Assert(false, "Unknown FocusNavigationDirection");
                     break;
             }
             _focusTarget.Enabled = false;

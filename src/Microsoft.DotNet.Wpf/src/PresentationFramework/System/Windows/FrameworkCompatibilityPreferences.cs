@@ -1,5 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System.Collections.Specialized;   // NameValueCollection
 using System.Configuration;             // ConfigurationManager
@@ -12,18 +13,6 @@ namespace System.Windows
 
         static FrameworkCompatibilityPreferences()
         {
-#if NETFX && !NETCOREAPP
-            _targetsDesktop_V4_0 = BinaryCompatibility.AppWasBuiltForFramework == TargetFrameworkId.NetFramework
-                && !BinaryCompatibility.TargetsAtLeast_Desktop_V4_5;
-#elif NETCOREAPP
-            // When building for NETCOREAPP, set this to false
-            // to indicate that quirks should be treated as if they are running on 
-            // .NET 4.5+
-            _targetsDesktop_V4_0 = false;
-#else
-            _targetsDesktop_V4_0 = false;
-#endif
-
             // user can use config file to set preferences
             NameValueCollection appSettings = null;
             try
@@ -46,28 +35,9 @@ namespace System.Windows
 
         #endregion Constructor
 
-        #region TargetsDesktop_V4_0
-
-        // CLR's BinaryCompatibility class doesn't expose a convenient way to determine
-        // if the app targets 4.0 exactly.  We use that a lot, so encapsulate it here
-        private static bool _targetsDesktop_V4_0;
-
-        internal static bool TargetsDesktop_V4_0
-        {
-            get { return _targetsDesktop_V4_0; }
-        }
-
-        #endregion TargetsDesktop_V4_0
-
         #region AreInactiveSelectionHighlightBrushKeysSupported
 
-#if NETFX && !NETCOREAPP
-        private static bool _areInactiveSelectionHighlightBrushKeysSupported = BinaryCompatibility.TargetsAtLeast_Desktop_V4_5 ? true : false;
-#elif NETCOREAPP
         private static bool _areInactiveSelectionHighlightBrushKeysSupported = true;
-#else
-        private static bool _areInactiveSelectionHighlightBrushKeysSupported = true;
-#endif
 
         public static bool AreInactiveSelectionHighlightBrushKeysSupported
         {
@@ -78,7 +48,7 @@ namespace System.Windows
                 {
                     if (_isSealed)
                     {
-                        throw new InvalidOperationException(SR.Format(SR.CompatibilityPreferencesSealed, nameof(AreInactiveSelectionHighlightBrushKeysSupported), "FrameworkCompatibilityPreferences"));
+                        throw new InvalidOperationException(SR.Format(SR.CompatibilityPreferencesSealed, "AreInactiveSelectionHighlightBrushKeysSupported", "FrameworkCompatibilityPreferences"));
                     }
 
                     _areInactiveSelectionHighlightBrushKeysSupported = value;
@@ -97,13 +67,7 @@ namespace System.Windows
 
         #region KeepTextBoxDisplaySynchronizedWithTextProperty
 
-#if NETFX && !NETCOREAPP
-        private static bool _keepTextBoxDisplaySynchronizedWithTextProperty = BinaryCompatibility.TargetsAtLeast_Desktop_V4_5 ? true : false;
-#elif NETCOREAPP
         private static bool _keepTextBoxDisplaySynchronizedWithTextProperty = true;
-#else
-        private static bool _keepTextBoxDisplaySynchronizedWithTextProperty = true;
-#endif
 
         /// <summary>
         /// In WPF 4.0, a TextBox can reach a state where its Text property
@@ -191,7 +155,7 @@ namespace System.Windows
                 {
                     if (_isSealed)
                     {
-                        throw new InvalidOperationException(SR.Format(SR.CompatibilityPreferencesSealed, nameof(UseSetWindowPosForTopmostWindows), "FrameworkCompatibilityPreferences"));
+                        throw new InvalidOperationException(SR.Format(SR.CompatibilityPreferencesSealed, "UseSetWindowPosForTopmostWindows", "FrameworkCompatibilityPreferences"));
                     }
 
                     _useSetWindowPosForTopmostWindows = value;
@@ -206,7 +170,7 @@ namespace System.Windows
             return UseSetWindowPosForTopmostWindows;
         }
 
-        private static void SetUseSetWindowPosForTopmostWindowsFromAppSettings(NameValueCollection appSettings)
+        static void SetUseSetWindowPosForTopmostWindowsFromAppSettings(NameValueCollection appSettings)
         {
             // user can use config file to enable this behavior change
             string s = appSettings["UseSetWindowPosForTopmostWindows"];
@@ -256,7 +220,7 @@ namespace System.Windows
             return VSP45Compat;
         }
 
-        private static void SetVSP45CompatFromAppSettings(NameValueCollection appSettings)
+        static void SetVSP45CompatFromAppSettings(NameValueCollection appSettings)
         {
             // user can use config file to opt out of VSP fixes
             string s = appSettings["IsVirtualizingStackPanel_45Compatible"];
@@ -287,7 +251,7 @@ namespace System.Windows
             return _scrollingTraceFile;
         }
 
-        private static void SetScrollingTraceFromAppSettings(NameValueCollection appSettings)
+        static void SetScrollingTraceFromAppSettings(NameValueCollection appSettings)
         {
             // user can use config file to select a control (TreeView, DataGrid, etc.)
             // for in-flight tracing of scrolling behavior:
@@ -389,7 +353,7 @@ namespace System.Windows
             return ShouldThrowOnCopyOrCutFailure;
         }
 
-        private static void SetShouldThrowOnCopyOrCutFailuresFromAppSettings(NameValueCollection appSettings)
+        static void SetShouldThrowOnCopyOrCutFailuresFromAppSettings(NameValueCollection appSettings)
         {
             // user can use config file to enable this behavior change
             string s = appSettings[nameof(ShouldThrowOnCopyOrCutFailure)];
@@ -422,7 +386,7 @@ namespace System.Windows
             return _IMECompositionTraceFile;
         }
 
-        private static void SetIMECompositionTraceFromAppSettings(NameValueCollection appSettings)
+        static void SetIMECompositionTraceFromAppSettings(NameValueCollection appSettings)
         {
             // user can use config file to select a control (TextBox, RichTextBox, etc.)
             // for in-flight tracing of IME composition behavior:
