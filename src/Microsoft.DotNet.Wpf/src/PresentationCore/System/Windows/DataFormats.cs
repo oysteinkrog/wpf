@@ -1,190 +1,355 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
-using System.Private.Windows.Ole;
+//
+// See spec at http://avalon/uis/Data%20Transfer%20clipboard%20dragdrop/Avalon%20Data%20Transfer%20Object.htm
+//
 
-namespace System.Windows;
+using MS.Internal.PresentationCore;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Ink;
+using System.Threading;
+using System.Text;
+using MS.Win32;
 
-/// <summary>
-///  Translates between Windows Design text-based formats and 32-bit signed integer-based clipboard formats.
-/// </summary>
-public static class DataFormats
+namespace System.Windows
 {
-    private static bool s_initialized;
-
     /// <summary>
-    ///  Gets an object with the Windows Clipboard numeric ID and name for the specified ID.
+    /// Translates between Windows Design text-based formats and
+    /// 32-bit signed integer-based clipboard formats.
     /// </summary>
-    public static DataFormat GetDataFormat(int id) => DataFormatsCore.GetOrAddFormat(id);
-
-    /// <summary>
-    ///  Gets the data format with the Windows Clipboard numeric ID and name for the specified data format.
-    /// </summary>
-    public static DataFormat GetDataFormat(string format)
+    public static class DataFormats
     {
-        ArgumentNullException.ThrowIfNull(format);
+        /// <summary>
+        /// Gets the data format with the Windows Clipboard numeric ID and name for the specified ID.
+        /// </summary>
+        public static DataFormat GetDataFormat(int id) => DataFormatsImpl.GetDataFormat(id);
 
-        if (format == string.Empty)
+        /// <summary>
+        /// Gets the data format with the Windows Clipboard numeric ID and name for the specified data format.
+        /// </summary>
+        public static DataFormat GetDataFormat(string format) => DataFormatsImpl.GetDataFormat(format);
+
+#pragma warning disable IDE1006 // Naming rule violation (Static fields without s_* prefix)
+
+        /// <summary>
+        /// Specifies the standard ANSI text format. This field is read-only.
+        /// </summary>
+        public static readonly string Text = "Text";
+
+        /// <summary>
+        /// Specifies the standard Windows Unicode text format. This
+        /// field is read-only.
+        /// </summary>
+        public static readonly string UnicodeText = "UnicodeText";
+
+        /// <summary>
+        /// Specifies the Windows Device Independent Bitmap (DIB)
+        /// format. This field is read-only.
+        /// </summary>
+        public static readonly string Dib = "DeviceIndependentBitmap";
+
+        /// <summary>
+        /// Specifies a Windows bitmap format. This field is read-only.
+        /// </summary>
+        public static readonly string Bitmap = "Bitmap";
+
+        /// <summary>
+        /// Specifies the Windows enhanced metafile format. This
+        /// field is read-only.
+        /// </summary>
+        public static readonly string EnhancedMetafile = "EnhancedMetafile";
+
+        /// <summary>
+        /// Specifies the Windows metafile format. This field is read-only.
+        /// </summary>
+        public static readonly string MetafilePicture = "MetaFilePict";
+
+        /// <summary>
+        /// Specifies the Windows symbolic link format. This
+        /// field is read-only.
+        /// </summary>
+        public static readonly string SymbolicLink = "SymbolicLink";
+
+        /// <summary>
+        /// Specifies the Windows data interchange format. This
+        /// field is read-only.
+        /// </summary>
+        public static readonly string Dif = "DataInterchangeFormat";
+
+        /// <summary>
+        /// Specifies the Tagged Image File Format (TIFF). This
+        /// field is read-only.
+        /// </summary>
+        public static readonly string Tiff = "TaggedImageFileFormat";
+
+        /// <summary>
+        /// Specifies the standard Windows original equipment
+        /// manufacturer (OEM) text format. This field is read-only.
+        /// </summary>
+        public static readonly string OemText = "OEMText";
+
+        /// <summary>
+        /// Specifies the Windows palette format. This
+        /// field is read-only.
+        /// </summary>
+        public static readonly string Palette = "Palette";
+
+        /// <summary>
+        /// Specifies the Windows pen data format, which consists of
+        /// pen strokes for handwriting software; This field is read-only.
+        /// </summary>
+        public static readonly string PenData = "PenData";
+
+        /// <summary>
+        /// Specifies the Resource Interchange File Format (RIFF)
+        /// audio format. This field is read-only.
+        /// </summary>
+        public static readonly string Riff = "RiffAudio";
+
+        /// <summary>
+        /// Specifies the wave audio format, which Windows Design does not
+        /// directly use. This field is read-only.
+        /// </summary>
+        public static readonly string WaveAudio = "WaveAudio";
+
+        /// <summary>
+        /// Specifies the Windows file drop format, which Windows Design
+        /// does not directly use. This field is read-only.
+        /// </summary>
+        public static readonly string FileDrop = "FileDrop";
+
+        /// <summary>
+        /// Specifies the Windows culture format, which Windows Design does
+        /// not directly use. This field is read-only.
+        /// </summary>
+        public static readonly string Locale = "Locale";
+
+        /// <summary>
+        /// Specifies text consisting of HTML data. This
+        /// field is read-only.
+        /// </summary>
+        public static readonly string Html = "HTML Format";
+
+        /// <summary>
+        /// Specifies text consisting of Rich Text Format (RTF) data. This
+        /// field is read-only.
+        /// </summary>
+        public static readonly string Rtf = "Rich Text Format";
+
+        /// <summary>
+        /// Specifies a comma-separated value (CSV) format, which is a
+        /// common interchange format used by spreadsheets. This format is not used directly
+        /// by Windows Design. This field is read-only.
+        /// </summary>
+        public static readonly string CommaSeparatedValue = "CSV";
+
+        /// <summary>
+        /// Specifies the Windows Design string class format, which Win
+        /// Forms uses to store string objects. This
+        /// field is read-only.
+        /// </summary>
+        public static readonly string StringFormat = typeof(string).FullName;
+
+        /// <summary>
+        /// Specifies a format that encapsulates any type of Windows Design
+        /// object. This field is read-only.
+        /// </summary>
+        public static readonly string Serializable = "PersistentObject";
+
+        /// <summary>
+        /// Specifies a data format as Xaml. This field is read-only.
+        /// </summary>
+        public static readonly string Xaml = "Xaml";
+
+        /// <summary>
+        /// Specifies a data format as Xaml Package. This field is read-only.
+        /// </summary>
+        public static readonly string XamlPackage = "XamlPackage";
+
+#pragma warning restore IDE1006 // Naming rule violation (Static fields without s_* prefix)
+
+        /// <summary>
+        /// Specifies a data format as ApplicationTrust which is used to block
+        /// paste from partial trust to full trust applications. The intent of this 
+        /// format is to store the permission set of the source application where the content came from.
+        /// This is then compared at paste time
+        /// </summary>
+        internal const string ApplicationTrust = "ApplicationTrust";
+
+        internal const string FileName = "FileName";
+        internal const string FileNameW = "FileNameW";
+
+        /// <summary>
+        /// Convert TextDataFormat to Dataformats.
+        /// </summary>
+        internal static string ConvertToDataFormats(TextDataFormat textDataformat) => textDataformat switch
         {
-            throw new ArgumentException(SR.DataObject_EmptyFormatNotAllowed);
-        }
+            TextDataFormat.Text => DataFormats.Text,
+            TextDataFormat.UnicodeText => DataFormats.UnicodeText,
+            TextDataFormat.Rtf => DataFormats.Rtf,
+            TextDataFormat.Html => DataFormats.Html,
+            TextDataFormat.CommaSeparatedValue => DataFormats.CommaSeparatedValue,
+            TextDataFormat.Xaml => DataFormats.Xaml,
+            _ => DataFormats.UnicodeText
+        };
 
-        // Ensures the predefined Win32 data formats into our format list.
-        EnsurePredefined();
-
-        return DataFormatsCore.GetOrAddFormat(format);
-    }
-
-    /// <summary>
-    ///  Specifies the standard ANSI text format.
-    /// </summary>
-    public static readonly string Text = DataFormatNames.Text;
-
-    /// <summary>
-    ///  Specifies the standard Windows Unicode text format.
-    /// </summary>
-    public static readonly string UnicodeText = DataFormatNames.UnicodeText;
-
-    /// <summary>
-    ///  Specifies the Windows Device Independent Bitmap (DIB) format.
-    /// </summary>
-    public static readonly string Dib = DataFormatNames.Dib;
-
-    /// <summary>
-    ///  Specifies a Windows bitmap format.
-    /// </summary>
-    public static readonly string Bitmap = DataFormatNames.Bitmap;
-
-    /// <summary>
-    ///  Specifies the Windows enhanced metafile format.
-    /// </summary>
-    public static readonly string EnhancedMetafile = DataFormatNames.Emf;
-
-    /// <summary>
-    ///  Specifies the Windows metafile format.
-    /// </summary>
-    public static readonly string MetafilePicture = DataFormatNames.Wmf;
-
-    /// <summary>
-    ///  Specifies the Windows symbolic link format.
-    /// </summary>
-    public static readonly string SymbolicLink = DataFormatNames.SymbolicLink;
-
-    /// <summary>
-    ///  Specifies the Windows data interchange format.
-    /// </summary>
-    public static readonly string Dif = DataFormatNames.Dif;
-
-    /// <summary>
-    ///  Specifies the Tagged Image File Format (TIFF).
-    /// </summary>
-    public static readonly string Tiff = DataFormatNames.Tiff;
-
-    /// <summary>
-    ///  Specifies the standard Windows original equipment manufacturer (OEM) text format.
-    /// </summary>
-    public static readonly string OemText = DataFormatNames.OemText;
-
-    /// <summary>
-    ///  Specifies the Windows palette format.
-    /// </summary>
-    public static readonly string Palette = DataFormatNames.Palette;
-
-    /// <summary>
-    ///  Specifies the Windows pen data format, which consists of pen strokes for handwriting software.
-    /// </summary>
-    public static readonly string PenData = DataFormatNames.PenData;
-
-    /// <summary>
-    ///  Specifies the Resource Interchange File Format (RIFF) audio format.
-    /// </summary>
-    public static readonly string Riff = DataFormatNames.Riff;
-
-    /// <summary>
-    ///  Specifies the wave audio format, which Windows Design does not directly use.
-    /// </summary>
-    public static readonly string WaveAudio = DataFormatNames.WaveAudio;
-
-    /// <summary>
-    ///  Specifies the Windows file drop format, which Windows Design does not directly use.
-    /// </summary>
-    public static readonly string FileDrop = DataFormatNames.FileDrop;
-
-    /// <summary>
-    ///  Specifies the Windows culture format, which Windows Design does not directly use.
-    /// </summary>
-    public static readonly string Locale = DataFormatNames.Locale;
-
-    /// <summary>
-    ///  Specifies text consisting of HTML data.
-    /// </summary>
-    public static readonly string Html = DataFormatNames.Html;
-
-    /// <summary>
-    ///  Specifies text consisting of Rich Text Format (RTF) data. This
-    /// </summary>
-    public static readonly string Rtf = DataFormatNames.Rtf;
-
-    /// <summary>
-    ///  Specifies a comma-separated value (CSV) format, which is a common interchange format used by spreadsheets.
-    ///  This format is not used directly by Windows Design.
-    /// </summary>
-    public static readonly string CommaSeparatedValue = DataFormatNames.Csv;
-
-    /// <summary>
-    ///  Specifies the Windows Design string class format, which WinForms uses to store string objects.
-    /// </summary>
-    public static readonly string StringFormat = DataFormatNames.String;
-
-    /// <summary>
-    ///  Specifies a format that encapsulates any type of Windows Design object.
-    /// </summary>
-    public static readonly string Serializable = DataFormatNames.Serializable;
-
-    /// <summary>
-    ///  Specifies a data format as Xaml.
-    /// </summary>
-    public static readonly string Xaml = DataFormatNames.Xaml;
-
-    /// <summary>
-    ///  Specifies a data format as Xaml Package.
-    /// </summary>
-    public static readonly string XamlPackage = DataFormatNames.XamlPackage;
-
-    /// <summary>
-    ///  Convert TextDataFormat to Dataformats.
-    /// </summary>
-    internal static string ConvertToDataFormats(TextDataFormat textDataformat) => textDataformat switch
-    {
-        TextDataFormat.Text => DataFormatNames.Text,
-        TextDataFormat.UnicodeText => DataFormatNames.UnicodeText,
-        TextDataFormat.Rtf => DataFormatNames.Rtf,
-        TextDataFormat.Html => DataFormatNames.Html,
-        TextDataFormat.CommaSeparatedValue => DataFormatNames.Csv,
-        TextDataFormat.Xaml => DataFormatNames.Xaml,
-        _ => DataFormatNames.UnicodeText,
-    };
-
-    /// <summary>
-    ///  Validate the text data format.
-    /// </summary>
-    internal static bool IsValidTextDataFormat(TextDataFormat textDataFormat) =>
-        textDataFormat is TextDataFormat.Text
-            or TextDataFormat.UnicodeText
-            or TextDataFormat.Rtf
-            or TextDataFormat.Html
-            or TextDataFormat.CommaSeparatedValue
-            or TextDataFormat.Xaml;
-
-    private static void EnsurePredefined()
-    {
-        if (!s_initialized)
+        /// <summary>
+        /// Validate the text data format.
+        /// </summary>
+        ///
+        internal static bool IsValidTextDataFormat(TextDataFormat textDataFormat) => textDataFormat switch
         {
-            s_initialized = true;
+            TextDataFormat.Text => true,
+            TextDataFormat.UnicodeText => true,
+            TextDataFormat.Rtf => true,
+            TextDataFormat.Html => true,
+            TextDataFormat.CommaSeparatedValue => true,
+            TextDataFormat.Xaml => true,
+            _ => false
+        };
 
-            // Add the WPF specific data formats by getting the ids for each.
-            DataFormatsCore.GetOrAddFormat(DataFormatNames.Xaml);
-            DataFormatsCore.GetOrAddFormat(DataFormatNames.InkSerializedFormat);
+        /// <summary>
+        /// Static class containing the internal format list and associated lookup methods.
+        /// </summary>
+        private static class DataFormatsImpl
+        {
+            /// <summary>
+            /// Ensures that the Win32 predefined formats are setup in our format list.
+            /// This is called anytime we need to search the list.
+            /// </summary>
+            static DataFormatsImpl()
+            {
+                // Create format list for the default formats.
+                s_formatList = new List<DataFormat>(19)
+                {
+                    new(DataFormats.UnicodeText, NativeMethods.CF_UNICODETEXT),
+                    new(DataFormats.Text, NativeMethods.CF_TEXT),
+                    new(DataFormats.Bitmap, NativeMethods.CF_BITMAP),
+                    new(DataFormats.MetafilePicture, NativeMethods.CF_METAFILEPICT),
+                    new(DataFormats.EnhancedMetafile, NativeMethods.CF_ENHMETAFILE),
+                    new(DataFormats.Dif, NativeMethods.CF_DIF),
+                    new(DataFormats.Tiff, NativeMethods.CF_TIFF),
+                    new(DataFormats.OemText, NativeMethods.CF_OEMTEXT),
+                    new(DataFormats.Dib, NativeMethods.CF_DIB),
+                    new(DataFormats.Palette, NativeMethods.CF_PALETTE),
+                    new(DataFormats.PenData, NativeMethods.CF_PENDATA),
+                    new(DataFormats.Riff, NativeMethods.CF_RIFF),
+                    new(DataFormats.WaveAudio, NativeMethods.CF_WAVE),
+                    new(DataFormats.SymbolicLink, NativeMethods.CF_SYLK),
+                    new(DataFormats.FileDrop, NativeMethods.CF_HDROP),
+                    new(DataFormats.Locale, NativeMethods.CF_LOCALE)
+                };
+
+                int xamlFormatId = UnsafeNativeMethods.RegisterClipboardFormat(DataFormats.Xaml);
+                if (xamlFormatId != 0)
+                    s_formatList.Add(new DataFormat(DataFormats.Xaml, xamlFormatId));
+
+                // This is the format to store trust boundary information. Essentially this is accompalished by storing 
+                // the permission set of the source application where the content comes from. During paste we compare this to
+                // the permission set of the target application.
+                int applicationTrustFormatId = UnsafeNativeMethods.RegisterClipboardFormat(DataFormats.ApplicationTrust);
+                if (applicationTrustFormatId != 0)
+                    s_formatList.Add(new DataFormat(DataFormats.ApplicationTrust, applicationTrustFormatId));
+
+                // RegisterClipboardFormat returns 0 on failure
+                int inkServicesFrameworkFormatId = UnsafeNativeMethods.RegisterClipboardFormat(StrokeCollection.InkSerializedFormat);
+                if (inkServicesFrameworkFormatId != 0)
+                    s_formatList.Add(new DataFormat(StrokeCollection.InkSerializedFormat, inkServicesFrameworkFormatId));
+            }
+
+            /// <summary>
+            /// Allows a new format name to be specified if the requested format is not in the list.
+            /// </summary>
+            internal static unsafe DataFormat GetDataFormat(int id)
+            {
+                // Lock the data format list to obtain the mutual-exclusion.
+                lock (s_formatListlock)
+                {
+                    DataFormat formatItem;
+                    for (int i = 0; i < s_formatList.Count; i++)
+                    {
+                        formatItem = s_formatList[i];
+
+                        // OLE FORMATETC defined CLIPFORMAT as the unsigned short, so we should ignore
+                        // high 2bytes to find the matched CLIPFORMAT ID. 
+                        if ((formatItem.Id & 0x0000ffff) == (id & 0x0000ffff))
+                            return formatItem;
+                    }
+
+                    const string Format = "Format";
+
+                    // This can happen if windows adds a standard format that we don't know about, so we should play it safe.
+                    // Maximum length can be up to 255: https://learn.microsoft.com/en-us/windows/win32/dataxchg/about-atom-tables
+                    Span<char> formatName = stackalloc char[256];
+                    int atomLength = 0;
+                    fixed (char* ptrFormatName = formatName)
+                    {
+                        // If the return value is zero, the ID was not found, hence we will just create a placeholder name "Format{id}"
+                        if ((atomLength = UnsafeNativeMethods.GetClipboardFormatName(id, ptrFormatName, formatName.Length)) == 0)
+                        {
+                            Format.CopyTo(formatName);
+                            id.TryFormat(formatName.Slice(Format.Length), out int charsWritten);
+
+                            atomLength = Format.Length + charsWritten;
+                        }
+                    }
+
+                    // Create a new format and store it
+                    formatItem = new DataFormat(new string(formatName.Slice(0, atomLength)), id);
+                    s_formatList.Add(formatItem);
+
+                    return formatItem;
+                }
+            }
+
+            /// <summary>
+            /// Retrieves a data format using its name or attempts to register a new one if it doesn't exist.
+            /// </summary>
+            internal static DataFormat GetDataFormat(string format)
+            {
+                ArgumentNullException.ThrowIfNull(format);
+
+                if (format == string.Empty)
+                    throw new ArgumentException(SR.DataObject_EmptyFormatNotAllowed);
+
+                // Lock the data format list to obtain the mutual-exclusion.
+                lock (s_formatListlock)
+                {
+                    for (int i = 0; i < s_formatList.Count; i++)
+                    {
+                        DataFormat formatItem = s_formatList[i];
+
+                        if (formatItem.Name.Equals(format, StringComparison.OrdinalIgnoreCase))
+                            return formatItem;
+                    }
+
+                    // Register this format string
+                    int formatId = UnsafeNativeMethods.RegisterClipboardFormat(format);
+
+                    if (formatId == 0)
+                        throw new Win32Exception();
+
+                    // Create a new format and store it
+                    DataFormat newFormat = new(format, formatId);
+                    s_formatList.Add(newFormat);
+
+                    return newFormat;
+                }
+            }
+
+            /// <summary>
+            /// List of all registered <see cref="DataFormat"/> that we're aware of.
+            /// </summary>
+            private static readonly List<DataFormat> s_formatList;
+
+            /// <summary>
+            /// Lock specially used for access to <see cref="s_formatList"/> field.
+            /// </summary>
+            private static readonly Lock s_formatListlock = new();
+
         }
     }
 }
