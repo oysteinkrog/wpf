@@ -7,7 +7,6 @@ using MS.Internal;
 using MS.Internal.Annotations.Component;
 using MS.Internal.Controls.StickyNote;
 using MS.Internal.Commands;
-using MS.Internal.KnownBoxes;
 using System.Windows.Threading;
 using System.Windows.Data;
 using System.Windows.Annotations;
@@ -95,8 +94,13 @@ namespace System.Windows.Controls
             DefaultStyleKeyProperty.OverrideMetadata(typeof(StickyNoteControl), new FrameworkPropertyMetadata(
                 new ComponentResourceKey(typeof(PresentationUIStyleResources), "StickyNoteControlStyleKey")));
 
+<<<<<<< HEAD
             KeyboardNavigation.TabNavigationProperty.OverrideMetadata(typeof(StickyNoteControl), new FrameworkPropertyMetadata(KeyboardNavigationMode.Local));
             Control.IsTabStopProperty.OverrideMetadata(typeof(StickyNoteControl), new FrameworkPropertyMetadata(false));
+=======
+            KeyboardNavigation.TabNavigationProperty.OverrideMetadata(owner, new FrameworkPropertyMetadata(KeyboardNavigationMode.Local));
+            Control.IsTabStopProperty.OverrideMetadata(owner, new FrameworkPropertyMetadata(BooleanBoxes.FalseBox));
+>>>>>>> origin/pr/10711
 
             // Override the changed callback of the Foreground Property.
             ForegroundProperty.OverrideMetadata(

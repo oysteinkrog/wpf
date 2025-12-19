@@ -9,7 +9,6 @@
 //
 
 using MS.Internal;
-using MS.Internal.KnownBoxes;
 using MS.Internal.Collections;
 using MS.Utility;
 using System.Collections;
@@ -332,8 +331,13 @@ namespace System.Windows.Media
             SnapsToDevicePixelsProperty =
                   RegisterProperty("SnapsToDevicePixels",
                                    typeof(bool),
+<<<<<<< HEAD
                                    typeof(BitmapCache),
                                    false,
+=======
+                                   typeofThis,
+                                   BooleanBoxes.FalseBox,
+>>>>>>> origin/pr/10711
                                    new PropertyChangedCallback(SnapsToDevicePixelsPropertyChanged),
                                    null,
                                    /* isIndependentlyAnimated  = */ false,
@@ -341,8 +345,13 @@ namespace System.Windows.Media
             EnableClearTypeProperty =
                   RegisterProperty("EnableClearType",
                                    typeof(bool),
+<<<<<<< HEAD
                                    typeof(BitmapCache),
                                    false,
+=======
+                                   typeofThis,
+                                   BooleanBoxes.FalseBox,
+>>>>>>> origin/pr/10711
                                    new PropertyChangedCallback(EnableClearTypePropertyChanged),
                                    null,
                                    /* isIndependentlyAnimated  = */ false,

@@ -3501,7 +3501,7 @@ namespace System.Windows.Controls
                       typeof(bool),
                       typeof(Grid),
                       new FrameworkPropertyMetadata(
-                              false,
+                              BooleanBoxes.FalseBox,
                               new PropertyChangedCallback(DefinitionBase.OnIsSharedSizeScopePropertyChanged)));
 
         #endregion Properties

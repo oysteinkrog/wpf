@@ -9,7 +9,6 @@
 //
 
 using MS.Internal;
-using MS.Internal.KnownBoxes;
 using MS.Internal.Collections;
 using MS.Utility;
 using System.Collections;
@@ -548,8 +547,13 @@ namespace System.Windows.Media
             AutoLayoutContentProperty =
                   RegisterProperty("AutoLayoutContent",
                                    typeof(bool),
+<<<<<<< HEAD
                                    typeof(BitmapCacheBrush),
                                    true,
+=======
+                                   typeofThis,
+                                   BooleanBoxes.TrueBox,
+>>>>>>> origin/pr/10711
                                    new PropertyChangedCallback(AutoLayoutContentPropertyChanged),
                                    null,
                                    /* isIndependentlyAnimated  = */ false,
@@ -566,8 +570,13 @@ namespace System.Windows.Media
             AutoWrapTargetProperty =
                   RegisterProperty("AutoWrapTarget",
                                    typeof(bool),
+<<<<<<< HEAD
                                    typeof(BitmapCacheBrush),
                                    false,
+=======
+                                   typeofThis,
+                                   BooleanBoxes.FalseBox,
+>>>>>>> origin/pr/10711
                                    new PropertyChangedCallback(AutoWrapTargetPropertyChanged),
                                    null,
                                    /* isIndependentlyAnimated  = */ false,

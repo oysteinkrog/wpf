@@ -243,7 +243,7 @@ namespace System.Windows.Data
                     "CanChangeLiveSorting",
                     typeof(bool),
                     typeof(CollectionViewSource),
-                    new FrameworkPropertyMetadata((bool)false));
+                    new FrameworkPropertyMetadata(BooleanBoxes.FalseBox));
 
         /// <summary>
         ///     The DependencyProperty for the CanChangeLiveSorting property.
@@ -275,7 +275,7 @@ namespace System.Windows.Data
                     "IsLiveSortingRequested",
                     typeof(bool),
                     typeof(CollectionViewSource),
-                    new FrameworkPropertyMetadata((bool)false,
+                    new FrameworkPropertyMetadata(BooleanBoxes.FalseBox,
                         new PropertyChangedCallback(OnIsLiveSortingRequestedChanged)));
 
         ///<summary>
@@ -366,7 +366,7 @@ namespace System.Windows.Data
                     "CanChangeLiveFiltering",
                     typeof(bool),
                     typeof(CollectionViewSource),
-                    new FrameworkPropertyMetadata((bool)false));
+                    new FrameworkPropertyMetadata(BooleanBoxes.FalseBox));
 
         /// <summary>
         ///     The DependencyProperty for the CanChangeLiveFiltering property.
@@ -398,7 +398,7 @@ namespace System.Windows.Data
                     "IsLiveFilteringRequested",
                     typeof(bool),
                     typeof(CollectionViewSource),
-                    new FrameworkPropertyMetadata((bool)false,
+                    new FrameworkPropertyMetadata(BooleanBoxes.FalseBox,
                         new PropertyChangedCallback(OnIsLiveFilteringRequestedChanged)));
 
         ///<summary>
@@ -487,7 +487,7 @@ namespace System.Windows.Data
                     "CanChangeLiveGrouping",
                     typeof(bool),
                     typeof(CollectionViewSource),
-                    new FrameworkPropertyMetadata((bool)false));
+                    new FrameworkPropertyMetadata(BooleanBoxes.FalseBox));
 
         /// <summary>
         ///     The DependencyProperty for the CanChangeLiveGrouping property.
@@ -519,7 +519,7 @@ namespace System.Windows.Data
                     "IsLiveGroupingRequested",
                     typeof(bool),
                     typeof(CollectionViewSource),
-                    new FrameworkPropertyMetadata((bool)false,
+                    new FrameworkPropertyMetadata(BooleanBoxes.FalseBox,
                         new PropertyChangedCallback(OnIsLiveGroupingRequestedChanged)));
 
         ///<summary>

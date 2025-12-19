@@ -8,7 +8,20 @@
 // Please see MilCodeGen.html for more information.
 //
 
+<<<<<<< HEAD
 using System.Windows.Media;
+=======
+using MS.Internal;
+using MS.Internal.Collections;
+using MS.Utility;
+using System.Collections;
+using System.ComponentModel;
+using System.Globalization;
+using System.Text;
+using System.Windows.Media.Effects;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Composition;
+>>>>>>> origin/pr/10711
 using System.Windows.Markup;
 
 using ConverterHelper = System.Windows.Markup.TypeConverterHelper;

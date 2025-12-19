@@ -1001,8 +1001,8 @@ namespace MS.Internal.MilCodeGen.Generators
                         [[field.DPPropertyName]] =
                               RegisterProperty("[[field.PropertyName]]",
                                                typeof([[field.Type.ManagedName]]),
-                                               typeof([[resource.Name]]),
-                                               [[GetDefaultValue(field)]],
+                                               typeofThis,
+                                               [[GetDefaultValueBoxed(field)]],
                                                [[propertyChangedCallback]],
                     [[/inline]]
                 );
@@ -1062,6 +1062,18 @@ namespace MS.Internal.MilCodeGen.Generators
             else
             {
                 return "null";
+            }
+        }
+		
+		private string GetDefaultValueBoxed(McgField field)
+        {
+            if (field.Type.ManagedName == "bool")
+            {
+				return field.Default == "true" ? "BooleanBoxes.TrueBox" : "BooleanBoxes.FalseBox";
+            }
+            else
+            {
+                return GetDefaultValue(field);
             }
         }
 
@@ -1213,7 +1225,7 @@ namespace MS.Internal.MilCodeGen.Generators
                         [[inline]]
                             [[field.PropertyAlias]].OverrideMetadata(
                                 typeof([[resource.ManagedName]]),
-                                new UIPropertyMetadata([[GetDefaultValue(field)]],
+                                new UIPropertyMetadata([[GetDefaultValueBoxed(field)]],
                                                        new PropertyChangedCallback([[field.PropertyName]]PropertyChanged)));
                         [[/inline]]
                         );

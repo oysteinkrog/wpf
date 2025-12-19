@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 using System.Windows.Input;
 using System.Windows.Media;
 using MS.Internal;
@@ -29,15 +27,27 @@ namespace System.Windows.Controls.Primitives
 
         static DataGridColumnHeadersPresenter()
         {
+<<<<<<< HEAD
             DefaultStyleKeyProperty.OverrideMetadata(typeof(DataGridColumnHeadersPresenter), new FrameworkPropertyMetadata(typeof(DataGridColumnHeadersPresenter)));
             FocusableProperty.OverrideMetadata(typeof(DataGridColumnHeadersPresenter), new FrameworkPropertyMetadata(false));
+=======
+            Type ownerType = typeof(DataGridColumnHeadersPresenter);
+
+            DefaultStyleKeyProperty.OverrideMetadata(ownerType, new FrameworkPropertyMetadata(ownerType));
+            FocusableProperty.OverrideMetadata(ownerType, new FrameworkPropertyMetadata(BooleanBoxes.FalseBox));
+>>>>>>> origin/pr/10711
 
             FrameworkElementFactory factory = new FrameworkElementFactory(typeof(DataGridCellsPanel));
             ItemsPanelProperty.OverrideMetadata(typeof(DataGridColumnHeadersPresenter), new FrameworkPropertyMetadata(new ItemsPanelTemplate(factory)));
 
             VirtualizingPanel.IsVirtualizingProperty.OverrideMetadata(
+<<<<<<< HEAD
                 typeof(DataGridColumnHeadersPresenter),
                 new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnIsVirtualizingPropertyChanged), new CoerceValueCallback(OnCoerceIsVirtualizingProperty)));
+=======
+                ownerType,
+                new FrameworkPropertyMetadata(BooleanBoxes.FalseBox, new PropertyChangedCallback(OnIsVirtualizingPropertyChanged), new CoerceValueCallback(OnCoerceIsVirtualizingProperty)));
+>>>>>>> origin/pr/10711
 
             VirtualizingPanel.VirtualizationModeProperty.OverrideMetadata(
                 typeof(DataGridColumnHeadersPresenter),

@@ -84,8 +84,13 @@ namespace System.Windows.Documents
                 typographyProperties[i].OverrideMetadata(typeof(FlowDocument), new FrameworkPropertyMetadata(typographyChanged));
             }
 
+<<<<<<< HEAD
             DefaultStyleKeyProperty.OverrideMetadata(typeof(FlowDocument), new FrameworkPropertyMetadata(typeof(FlowDocument)));
             FocusableProperty.OverrideMetadata(typeof(FlowDocument), new FrameworkPropertyMetadata(true));
+=======
+            DefaultStyleKeyProperty.OverrideMetadata(_typeofThis, new FrameworkPropertyMetadata(_typeofThis));
+            FocusableProperty.OverrideMetadata(_typeofThis, new FrameworkPropertyMetadata(BooleanBoxes.TrueBox));
+>>>>>>> origin/pr/10711
 
             ControlsTraceLogger.AddControl(TelemetryControls.FlowDocument);
         }
