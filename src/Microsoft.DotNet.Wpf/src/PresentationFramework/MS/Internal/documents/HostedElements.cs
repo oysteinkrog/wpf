@@ -1,7 +1,14 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
+//
+// Enumerator class for returning descendants of TextBlock and FlowDocumentPage
+//
+
+using System.Diagnostics;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace System.Windows.Documents
@@ -10,7 +17,7 @@ namespace System.Windows.Documents
     ///  Enumerator class for implementation of IContentHost on TextBlock and FlowDocumentPage.
     ///  Used to iterate through descendants of the content host
     /// </summary>
-    internal class HostedElements : IEnumerator<IInputElement>
+    internal sealed class HostedElements : IEnumerator<IInputElement>
     {
         //-------------------------------------------------------------------
         //
@@ -153,18 +160,13 @@ namespace System.Windows.Documents
         {
             get
             {
-                // HostedElements must throw exception if Current property is incorrectly accessed
                 if (_textSegments == null)
                 {
-                    // Collection was modified 
-                    // IEnumerator.Current is documented to throw this exception
                     throw new InvalidOperationException(SR.EnumeratorCollectionDisposed);
                 }
 
                 if (_currentPosition == null)
                 {
-                    // Enumerator not started. Call MoveNext to see if we can move ahead
-                    // IEnumerator.Current is documented to throw this exception
                     throw new InvalidOperationException(SR.EnumeratorNotStarted);
                 }
 
@@ -182,7 +184,7 @@ namespace System.Windows.Documents
                     default:
                         // Throw exception because this function should only be called after MoveNext, and not 
                         // if MoveNext returns false
-                        Debug.Fail("Invalid state in HostedElements.cs");
+                        Debug.Assert(false, "Invalid state in HostedElements.cs");
                         break;
                 }
                 return currentElement;
@@ -199,9 +201,9 @@ namespace System.Windows.Documents
 
         #region Private Fields
 
-        private ReadOnlyCollection<TextSegment> _textSegments;
-        private TextPointer _currentPosition;
-        private int _currentTextSegment;
+        ReadOnlyCollection<TextSegment> _textSegments;
+        TextPointer _currentPosition;
+        int _currentTextSegment;
 
         #endregion Private Fields
     }
