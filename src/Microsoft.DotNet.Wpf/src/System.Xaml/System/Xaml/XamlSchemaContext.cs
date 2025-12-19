@@ -151,10 +151,10 @@ namespace System.Xaml
                 }
                 else
                 {
-                    string clrNs, assemblyName;
+                    ReadOnlySpan<char> clrNs, assemblyName;
                     if (ClrNamespaceUriParser.TryParseUri(xmlns, out clrNs, out assemblyName))
                     {
-                        result = GetPrefixForClrNs(clrNs, assemblyName);
+                        result = GetPrefixForClrNs(clrNs.ToString(), assemblyName.ToString());
                     }
                     else
                     {
@@ -166,7 +166,7 @@ namespace System.Xaml
             return result;
         }
 
-        string GetPrefixForClrNs(string clrNs, string assemblyName)
+        private string GetPrefixForClrNs(string clrNs, string assemblyName)
         {
             if (string.IsNullOrEmpty(assemblyName))
             {
@@ -205,7 +205,7 @@ namespace System.Xaml
             }
         }
 
-        void InitializePreferredPrefixes()
+        private void InitializePreferredPrefixes()
         {
             // To avoid an assignment race condition, prevent new assemblies from being processed while we're
             // iterating the existing list
@@ -220,7 +220,7 @@ namespace System.Xaml
             }
         }
 
-        void UpdatePreferredPrefixes(XmlNsInfo newNamespaces, ConcurrentDictionary<string, string> prefixDict)
+        private void UpdatePreferredPrefixes(XmlNsInfo newNamespaces, ConcurrentDictionary<string, string> prefixDict)
         {
             foreach (KeyValuePair<string, string> nsToPrefix in newNamespaces.Prefixes)
             {
@@ -683,15 +683,15 @@ namespace System.Xaml
         private ConcurrentDictionary<Assembly, XmlNsInfo> _xmlnsInfoForUnreferencedAssemblies;
 
         // immutable, initialized in ctor
-        AssemblyLoadHandler _assemblyLoadHandler;
+        private AssemblyLoadHandler _assemblyLoadHandler;
 
         // tracks new assemblies seen by the AssemblyLoad handler, but not yet reflected
         private IList<Assembly> _unexaminedAssemblies;
-        bool _isGCCallbackPending;
+        private bool _isGCCallbackPending;
 
         // take this lock when modifying _unexaminedAssemblies or _isGCCallbackPending
         // Acquisition order: If also taking _syncExaminingAssemblies, take it first
-        object _syncAccessingUnexaminedAssemblies;
+        private object _syncAccessingUnexaminedAssemblies;
 
         // This dictionary is also thread-safe for single reads and writes, but if you're
         // iterating them, lock on _syncExaminingAssemblies to ensure consistent results
@@ -917,7 +917,7 @@ namespace System.Xaml
                 return xamlNamespace;
             }
 
-            string clrNs, assemblyName;
+            ReadOnlySpan<char> clrNs, assemblyName;
             if (ClrNamespaceUriParser.TryParseUri(xmlns, out clrNs, out assemblyName))
             {
                 xamlNamespace = new XamlNamespace(this, clrNs, assemblyName);
@@ -1003,7 +1003,7 @@ namespace System.Xaml
             ConcurrentDictionary<string, IList<string>> assemblyMappings = nsInfo.ClrToXmlNs;
             IList<string> result;
 
-            clrNs = clrNs ?? string.Empty;
+            clrNs ??= string.Empty;
 
             if (!assemblyMappings.TryGetValue(clrNs, out result))
             {
@@ -1020,7 +1020,7 @@ namespace System.Xaml
 
         private void InitializeAssemblyLoadHook()
         {
-            _syncAccessingUnexaminedAssemblies = new Object();
+            _syncAccessingUnexaminedAssemblies = new object();
             if (ReferenceAssemblies == null)
             {
 
@@ -1052,7 +1052,7 @@ namespace System.Xaml
             }
         }
 
-        void SchemaContextAssemblyLoadEventHandler(object sender, AssemblyLoadEventArgs args)
+        private void SchemaContextAssemblyLoadEventHandler(object sender, AssemblyLoadEventArgs args)
         {
             lock (_syncAccessingUnexaminedAssemblies)
             {
@@ -1142,7 +1142,7 @@ namespace System.Xaml
             return foundNew;
         }
 
-        bool UpdateNamespaceByUriList(XmlNsInfo nsInfo)
+        private bool UpdateNamespaceByUriList(XmlNsInfo nsInfo)
         {
             bool foundNew = false;
             IList<XmlNsInfo.XmlNsDefinition> xmlnsDefs = nsInfo.NsDefs;
@@ -1340,7 +1340,7 @@ namespace System.Xaml
         // WeakRef wrapper around XSC so that it can hook AppDomain event without getting rooted
         private class AssemblyLoadHandler
         {
-            WeakReference schemaContextRef;
+            private readonly WeakReference schemaContextRef;
 
             public AssemblyLoadHandler(XamlSchemaContext schemaContext)
             {
