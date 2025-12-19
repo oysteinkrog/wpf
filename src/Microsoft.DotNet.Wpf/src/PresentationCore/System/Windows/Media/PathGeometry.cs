@@ -51,6 +51,14 @@ namespace System.Windows.Media
             SetDirty();
         }
 
+        internal PathGeometry(params ReadOnlySpan<PathFigure> figures)
+        {
+            foreach (PathFigure item in figures)
+                Figures.Add(item);
+
+            SetDirty();
+        }
+
         /// <summary>
         /// Constructor
         /// </summary>
