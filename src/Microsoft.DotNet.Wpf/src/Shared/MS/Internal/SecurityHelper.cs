@@ -1,25 +1,12 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 /***************************************************************************\
 *
 * Purpose:  Helper functions that require elevation but are safe to use.
 *
 \***************************************************************************/
-
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using Microsoft.Win32;
-
-#if PRESENTATION_CORE
-using MS.Internal.AppModel;
-using System.Security;
-using MS.Win32;
-#endif
-
-#if PRESENTATIONFRAMEWORK_ONLY
-using System.Windows;
-#endif
 
 // The SecurityHelper class differs between assemblies and could not actually be
 //  shared, so it is duplicated across namespaces to prevent name collision.
@@ -32,13 +19,54 @@ using MS.Internal.PresentationCore;
 namespace MS.Internal // Promote the one from PresentationCore as the default to use.
 #elif PRESENTATIONFRAMEWORK
 namespace MS.Internal.PresentationFramework
+#elif PBTCOMPILER
+namespace MS.Internal.PresentationBuildTasks
+#elif REACHFRAMEWORK
+namespace MS.Internal.ReachFramework
 #elif DRT
 namespace MS.Internal.Drt
 #else
 #error Class is being used from an unknown assembly.
 #endif
 {
-    internal static class SecurityHelper
+    using System;
+    using System.Globalization;     // CultureInfo
+    using System.Security;
+    using System.ComponentModel;
+    using System.Runtime.InteropServices;
+    using Microsoft.Win32;
+    using System.Diagnostics.CodeAnalysis;
+
+
+#if !PBTCOMPILER
+    using MS.Win32;
+    using System.IO.Packaging;
+#endif
+
+#if PRESENTATION_CORE
+using MS.Internal.AppModel;
+#endif
+
+#if PRESENTATIONFRAMEWORK_ONLY
+    using System.Diagnostics;
+    using System.Windows;
+    using MS.Internal.Utility;      // BindUriHelper
+    using MS.Internal.AppModel;
+#endif
+
+#if REACHFRAMEWORK
+    using MS.Internal.Utility;
+#endif
+#if WINDOWS_BASE
+    // This existed originally to allow FontCache service to 
+    // see the WindowsBase variant of this class. We no longer have
+    // a FontCache service, but over time other parts of WPF might
+    // have started to depend on this, so we leave it as-is for 
+    // compat. 
+#endif
+
+
+internal static class SecurityHelper
     {
 
 #if PRESENTATION_CORE
@@ -105,64 +133,47 @@ namespace MS.Internal.Drt
         }
 #endif
 
-#if PRESENTATIONFRAMEWORK
-
-        /// <summary>
-        /// A helper method to do the necessary work to display a standard MessageBox.  This method performs
-        /// and necessary elevations to make the dialog work as well.
-        /// </summary>
-        internal
-        static
-        void
-        ShowMessageBoxHelper(
-            System.Windows.Window parent,
-            string text,
-            string title,
-            System.Windows.MessageBoxButton buttons,
-            System.Windows.MessageBoxImage image
-            )
+#if WINDOWS_BASE || PRESENTATION_CORE || PRESENTATIONFRAMEWORK
+        internal static Exception GetExceptionForHR(int hr)
         {
-            // if we have a known parent window set, let's use it when alerting the user.
-            if (parent != null)
-            {
-                System.Windows.MessageBox.Show(parent, text, title, buttons, image);
-            }
-            else
-            {
-                System.Windows.MessageBox.Show(text, title, buttons, image);
-            }
+            return Marshal.GetExceptionForHR(hr, new IntPtr(-1));
         }
-        /// <summary>
-        /// A helper method to do the necessary work to display a standard MessageBox.  This method performs
-        /// and necessary elevations to make the dialog work as well.
-        /// </summary>
-        internal
-        static
-        void
-        ShowMessageBoxHelper(
-            IntPtr parentHwnd,
-            string text,
-            string title,
-            System.Windows.MessageBoxButton buttons,
-            System.Windows.MessageBoxImage image
-            )
+#endif
+
+#if WINDOWS_BASE || PRESENTATION_CORE
+        internal static void ThrowExceptionForHR(int hr)
         {
-            // NOTE: the last param must always be MessageBoxOptions.None for this to be considered TreatAsSafe
-            System.Windows.MessageBox.ShowCore(parentHwnd, text, title, buttons, image, MessageBoxResult.None, MessageBoxOptions.None);
+            Marshal.ThrowExceptionForHR(hr, new IntPtr(-1));
+        }
+        
+        internal static int GetHRForException(Exception exception)
+        {
+            ArgumentNullException.ThrowIfNull(exception);
+
+            // GetHRForException fills a per thread IErrorInfo object with data from the exception
+            // The exception may contain security sensitive data like full file paths that we do not
+            // want to leak into an IErrorInfo
+            int hr = Marshal.GetHRForException(exception);
+
+            // Call GetHRForException a second time with a security safe exception object
+            // to make sure the per thread IErrorInfo is cleared of security sensitive data
+            Marshal.GetHRForException(new Exception());
+
+            return hr;
         }
 #endif
 
 #if WINDOWS_BASE
         ///
         /// Read and return a registry value.
-        internal static object ReadRegistryValue(RegistryKey baseRegistryKey, string keyName, string valueName)
-        {
+       static internal object ReadRegistryValue( RegistryKey baseRegistryKey, string keyName, string valueName )
+       {
             object value = null;
 
             RegistryKey key = baseRegistryKey.OpenSubKey(keyName);
             if (key != null)
             {
-                using (key)
+                using( key )
                 {
                     value = key.GetValue(valueName);
                 }
@@ -171,5 +182,6 @@ namespace MS.Internal.Drt
             return value;
         }
 #endif // WINDOWS_BASE
-    }
 }
+}
+
