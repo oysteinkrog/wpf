@@ -30,7 +30,8 @@ namespace System.Windows
         /// </summary>
         public Style()
         {
-            GetUniqueGlobalIndex();
+            // Get globally unique ID
+            GlobalIndex = Interlocked.Increment(ref s_globalStyleIndex);
         }
 
         /// <summary>
@@ -41,7 +42,8 @@ namespace System.Windows
         {
             TargetType = targetType;
 
-            GetUniqueGlobalIndex();
+            // Get globally unique ID
+            GlobalIndex = Interlocked.Increment(ref s_globalStyleIndex);
         }
 
         /// <summary>
@@ -54,7 +56,8 @@ namespace System.Windows
             TargetType = targetType;
             BasedOn = basedOn;
 
-            GetUniqueGlobalIndex();
+            // Get globally unique ID
+            GlobalIndex = Interlocked.Increment(ref s_globalStyleIndex);
         }
 
         #region INameScope
@@ -97,19 +100,6 @@ namespace System.Windows
 
         private NameScope _nameScope = new NameScope();
         #endregion IIdScope
-
-        /// <summary>
-        /// Each Style gets its own unique index used for Style.GetHashCode
-        /// </summary>
-        private void GetUniqueGlobalIndex()
-        {
-            lock (Synchronized)
-            {
-                // Setup unqiue global index
-                StyleInstanceCount++;
-                GlobalIndex = StyleInstanceCount;
-            }
-        }
 
         /// <summary>
         ///     Style mutability state
@@ -907,13 +897,15 @@ namespace System.Windows
             set { _hasLoadedChangeHandler = value; }
         }
 
-        // Special equality check that takes into account 'null'
-        private static bool IsEqual(object a, object b)
-        {
-            return (a != null) ? a.Equals(b) : (b == null);
-        }
+        /// <summary>
+        /// Each Style gets its own unique index used for <see cref="GetHashCode"/>.
+        /// </summary>
+        internal int GlobalIndex { get; }
 
-        internal bool IsBasedOnModified { get { return IsModified(BasedOnID); } }
+        internal bool IsBasedOnModified
+        {
+            get => IsModified(BasedOnID);
+        }
 
         private EventHandlersStore _eventHandlersStore = null;
 
@@ -934,8 +926,6 @@ namespace System.Windows
         // Holds resources that are applicable to the container
         // of this style and its sub-tree.
         internal ResourceDictionary _resources = null;
-
-        /* property */ internal int GlobalIndex;
 
         // Style tables
         // Synchronized (write locks, lock-free reads): Covered by Style instance lock
@@ -985,12 +975,13 @@ namespace System.Windows
         //   A DataTrigger can have Setters but no EnterAction/ExitAction.  (The reverse can also be true.)
         internal HybridDictionary DataTriggersWithActions = null;
 
-        // Unique index for every instance of Style
-        // Synchronized: Covered by Style.Synchronized
-        private static int StyleInstanceCount = 0;
-
-        // Global, cross-object synchronization
-        internal static object Synchronized = new object();
+        /// <summary>
+        /// Global indexer for <see cref="Style"/> and its derivates.
+        /// </summary>
+        /// <remarks>
+        /// Access must be done atomically, currently only written via constructors.
+        /// </remarks>
+        private static int s_globalStyleIndex = 0;
 
         private const int TargetTypeID = 0x01;
         internal const int BasedOnID    = 0x02;

@@ -1,11 +1,17 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using StoryboardLayers = System.Windows.Media.Animation.Storyboard.Layers;
 
 using System.Collections.Specialized;
 
+using System.ComponentModel;            // DesignerSerializationVisibilityAttribute & DefaultValue
+using System.Diagnostics;
+using System.Threading;
+
 using MS.Utility;
 using MS.Internal;
-using System.ComponentModel;            // DesignerSerializationVisibilityAttribute & DefaultValue
 
 namespace System.Windows
 {
@@ -203,18 +209,15 @@ namespace System.Windows
         /// data structures) by Style.Seal(). We keep them around even after
         /// that point should we need to serialize this data back out.
         /// </remarks>
-        // This is only called from ProcessSettersCollection, which is guranteed to be on single thread.
         internal void AddToPropertyValues(string childName, DependencyProperty dp, object value, PropertyValueType valueType)
         {
             // Store original data
-            PropertyValue propertyValue = new PropertyValue
-            {
-                ValueType = valueType,
-                Conditions = null,  // Delayed - derived class is responsible for this item.
-                ChildName = childName,
-                Property = dp,
-                ValueInternal = value
-            };
+            PropertyValue propertyValue = new PropertyValue();
+            propertyValue.ValueType = valueType;
+            propertyValue.Conditions = null;  // Delayed - derived class is responsible for this item.
+            propertyValue.ChildName = childName;
+            propertyValue.Property = dp;
+            propertyValue.ValueInternal = value;
 
             PropertyValues.Add(propertyValue);
         }
@@ -231,8 +234,7 @@ namespace System.Windows
             // Track Dependent/Source relationship for prediction
             for (int i = 0; i < PropertyValues.Count; i++)
             {
-                // We can use ref here as we're guranteed via VerifyAccess() to be on single thread
-                ref PropertyValue propertyValue = ref PropertyValues.GetEntryAtRef(i);
+                PropertyValue propertyValue = PropertyValues[i];
 
                 DependencyProperty dependent = propertyValue.Property;
 
@@ -251,18 +253,20 @@ namespace System.Windows
                 }
             }
 
-            _enterActions?.Seal(this);
-            _exitActions?.Seal(this);
+            if( _enterActions != null )
+            {
+                _enterActions.Seal(this);
+            }
+            if( _exitActions != null )
+            {
+                _exitActions.Seal(this);
+            }
 
             // Remove thread affinity so it can be accessed across threads
             DetachFromDispatcher();
         }
 
-        /// <summary>
-        /// This will transfer information in the _setters collection to PropertyValues array.
-        /// </summary>
-        // NOTE: This is currently only called in Seal() overrides and it should stay that way
-        // as it gurantees that any changes made to PropertyValues are on single thread!
+        // This will transfer information in the _setters collection to PropertyValues array.
         internal void ProcessSettersCollection(SetterBaseCollection setters)
         {
             // Add information in Setters collection to PropertyValues array.
@@ -344,25 +348,20 @@ namespace System.Windows
         // This ranking is used when trigger needs to be sorted relative to
         //  the ordering, as when determining precedence for enter/exit
         //  animation composition.  Otherwise, it stays at default value of zero.
-        internal Int64 Layer
+        internal long Layer
         {
-            get { return _globalLayerRank; }
+            get => _globalLayerRank;
         }
 
         // Set self rank to current number, increment global static.
         internal void EstablishLayer()
         {
-            if( _globalLayerRank == 0 )
+            if (_globalLayerRank == 0)
             {
-                lock(Synchronized)
-                {
-                    _globalLayerRank = _nextGlobalLayerRank++;
-                }
+                _globalLayerRank = Interlocked.Increment(ref s_nextGlobalLayerRank);
 
-                if( _nextGlobalLayerRank == Int64.MaxValue )
-                {
+                if (s_nextGlobalLayerRank == long.MaxValue)
                     throw new InvalidOperationException(SR.PropertyTriggerLayerLimitExceeded);
-                }
             }
         }
 
@@ -383,15 +382,10 @@ namespace System.Windows
         }
 
         // Synchronized (write locks, lock-free reads): Covered by the TriggerBase instance
-        // NOTE: There are actually no locks performed as any write operations
-        // are done on a Dispatcher thread before the TriggerBase is sealed
-        internal FrugalStructList<PropertyValue> PropertyValues = new();
-
-        // Global, cross-object synchronization
-        private static readonly object Synchronized = new object();
+        /* property */ internal FrugalStructList<System.Windows.PropertyValue> PropertyValues = new FrugalStructList<System.Windows.PropertyValue>();
 
         // Conditions
-        private TriggerCondition[] _triggerConditions;
+        TriggerCondition[] _triggerConditions;
 
         // Fields to implement DO's inheritance context
         private DependencyObject _inheritanceContext = null;
@@ -402,10 +396,20 @@ namespace System.Windows
         private TriggerActionCollection _exitActions = null;
 
 //      On hold - is this a new public API we want to do?
-//        private bool _executeEnterActionsOnApply = false;
-//        private bool _executeExitActionsOnApply = false;
+//      private bool _executeEnterActionsOnApply = false;
+//      private bool _executeExitActionsOnApply = false;
 
-        private Int64 _globalLayerRank = 0;
-        private static Int64 _nextGlobalLayerRank = System.Windows.Media.Animation.Storyboard.Layers.PropertyTriggerStartLayer;
+        /// <summary>
+        /// Global index of this particular instance.
+        /// </summary>
+        private long _globalLayerRank = 0;
+
+        /// <summary>
+        /// Global indexer for <see cref="TriggerBase"/> and its derivates.
+        /// </summary>
+        /// <remarks>
+        /// Access must be done atomically, currently only written via <see cref="EstablishLayer"/>.
+        /// </remarks>
+        private static long s_nextGlobalLayerRank = StoryboardLayers.PropertyTriggerStartLayer; // 2
     }
 }
