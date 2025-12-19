@@ -756,7 +756,7 @@ namespace MS.Internal.Data
                     }
                     else
                     {
-                        _cachedBaseUri = BaseUriHelper.BaseUri;
+                        _cachedBaseUri = BaseUriHelper.PackAppBaseUri;
                     }
                 }
                 return _cachedBaseUri;

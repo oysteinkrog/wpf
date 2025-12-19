@@ -12,7 +12,7 @@ namespace System.Windows.Input
     public class MouseGestureConverter : TypeConverter
     {
         /// <summary>
-        /// To aid with conversion from <see cref="MouseAction"/> to <see cref="string"/>. 
+        /// To aid with conversion from <see cref="MouseAction"/> to <see cref="string"/>.
         /// </summary>
         private static readonly MouseActionConverter s_mouseActionConverter = new();
 
