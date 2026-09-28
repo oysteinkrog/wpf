@@ -22,7 +22,7 @@ namespace System.Windows.Interop
     {
         static HwndHost()
         {
-            FocusableProperty.OverrideMetadata(typeof(HwndHost), new FrameworkPropertyMetadata(true));
+            FocusableProperty.OverrideMetadata(typeof(HwndHost), new FrameworkPropertyMetadata(BooleanBoxes.TrueBox));
             HwndHost.DpiChangedEvent = Window.DpiChangedEvent.AddOwner(typeof(HwndHost));
         }
 

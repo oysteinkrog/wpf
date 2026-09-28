@@ -9,7 +9,6 @@
 //
 
 using MS.Internal;
-using MS.Internal.KnownBoxes;
 using MS.Internal.Collections;
 using MS.Utility;
 using System.Collections;
@@ -389,7 +388,7 @@ namespace System.Windows.Media
                   RegisterProperty("IsDynamic",
                                    typeof(bool),
                                    typeof(GuidelineSet),
-                                   false,
+                                   BooleanBoxes.FalseBox,
                                    new PropertyChangedCallback(IsDynamicPropertyChanged),
                                    null,
                                    /* isIndependentlyAnimated  = */ false,

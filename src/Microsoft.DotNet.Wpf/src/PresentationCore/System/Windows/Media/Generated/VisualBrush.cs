@@ -9,7 +9,6 @@
 //
 
 using MS.Internal;
-using MS.Internal.KnownBoxes;
 using MS.Internal.Collections;
 using MS.Utility;
 using System.Collections;
@@ -429,7 +428,7 @@ namespace System.Windows.Media
                   RegisterProperty("AutoLayoutContent",
                                    typeof(bool),
                                    typeof(VisualBrush),
-                                   true,
+                                   BooleanBoxes.TrueBox,
                                    new PropertyChangedCallback(AutoLayoutContentPropertyChanged),
                                    null,
                                    /* isIndependentlyAnimated  = */ false,

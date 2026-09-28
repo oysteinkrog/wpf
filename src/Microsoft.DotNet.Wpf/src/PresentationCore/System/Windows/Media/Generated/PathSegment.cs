@@ -9,7 +9,6 @@
 //
 
 using MS.Internal;
-using MS.Internal.KnownBoxes;
 using MS.Internal.Collections;
 using MS.Utility;
 using System.Collections;
@@ -205,7 +204,7 @@ namespace System.Windows.Media
                   RegisterProperty("IsStroked",
                                    typeof(bool),
                                    typeof(PathSegment),
-                                   true,
+                                   BooleanBoxes.TrueBox,
                                    null,
                                    null,
                                    /* isIndependentlyAnimated  = */ false,
@@ -214,7 +213,7 @@ namespace System.Windows.Media
                   RegisterProperty("IsSmoothJoin",
                                    typeof(bool),
                                    typeof(PathSegment),
-                                   false,
+                                   BooleanBoxes.FalseBox,
                                    null,
                                    null,
                                    /* isIndependentlyAnimated  = */ false,

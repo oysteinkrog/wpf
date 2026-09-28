@@ -9,7 +9,6 @@
 //
 
 using MS.Internal;
-using MS.Internal.KnownBoxes;
 using MS.Internal.Collections;
 using MS.Utility;
 using System.Collections;
@@ -278,7 +277,7 @@ namespace System.Windows.Media
                   RegisterProperty("IsFilled",
                                    typeof(bool),
                                    typeof(PathFigure),
-                                   true,
+                                   BooleanBoxes.TrueBox,
                                    null,
                                    null,
                                    /* isIndependentlyAnimated  = */ false,
@@ -296,7 +295,7 @@ namespace System.Windows.Media
                   RegisterProperty("IsClosed",
                                    typeof(bool),
                                    typeof(PathFigure),
-                                   false,
+                                   BooleanBoxes.FalseBox,
                                    null,
                                    null,
                                    /* isIndependentlyAnimated  = */ false,

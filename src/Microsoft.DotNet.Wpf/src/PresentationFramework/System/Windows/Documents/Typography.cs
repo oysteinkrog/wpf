@@ -1479,7 +1479,7 @@ namespace System.Windows.Documents
                         typeof(bool),
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                true,
+                                BooleanBoxes.TrueBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> ContextualLigatures Property </summary>
@@ -1489,7 +1489,7 @@ namespace System.Windows.Documents
                         typeof(bool),
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                true,
+                                BooleanBoxes.TrueBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> DiscretionaryLigatures Property </summary>
@@ -1499,7 +1499,7 @@ namespace System.Windows.Documents
                         typeof(bool),
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> HistoricalLigatures Property </summary>
@@ -1509,7 +1509,7 @@ namespace System.Windows.Documents
                         typeof(bool),
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> AnnotationAlternates Property </summary>
@@ -1529,7 +1529,7 @@ namespace System.Windows.Documents
                         typeof(bool),
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                true,
+                                BooleanBoxes.TrueBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> HistoricalForms Property </summary>
@@ -1539,7 +1539,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> Kerning Property </summary>
@@ -1549,7 +1549,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                true,
+                                BooleanBoxes.TrueBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> CapitalSpacing Property </summary>
@@ -1559,7 +1559,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> CaseSensitiveForms Property </summary>
@@ -1569,7 +1569,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet1 Property </summary>
@@ -1579,7 +1579,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet2 Property </summary>
@@ -1589,7 +1589,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet3 Property </summary>
@@ -1599,7 +1599,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet4 Property </summary>
@@ -1609,7 +1609,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet5 Property </summary>
@@ -1619,7 +1619,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet6 Property </summary>
@@ -1629,7 +1629,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet7 Property </summary>
@@ -1639,7 +1639,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet8 Property </summary>
@@ -1649,7 +1649,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet9 Property </summary>
@@ -1659,7 +1659,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet10 Property </summary>
@@ -1669,7 +1669,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet11 Property </summary>
@@ -1679,7 +1679,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet12 Property </summary>
@@ -1689,7 +1689,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet13 Property </summary>
@@ -1699,7 +1699,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet14 Property </summary>
@@ -1709,7 +1709,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet15 Property </summary>
@@ -1719,7 +1719,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet16 Property </summary>
@@ -1729,7 +1729,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet17 Property </summary>
@@ -1739,7 +1739,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet18 Property </summary>
@@ -1749,7 +1749,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet19 Property </summary>
@@ -1759,7 +1759,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> StylisticSet20 Property </summary>
@@ -1769,7 +1769,7 @@ namespace System.Windows.Documents
                         typeof(bool), 
                         typeof(Typography),
                         new FrameworkPropertyMetadata(
-                                false,
+                                BooleanBoxes.FalseBox,
                                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender | FrameworkPropertyMetadataOptions.Inherits));
 
         /// <summary> Fraction Property </summary>

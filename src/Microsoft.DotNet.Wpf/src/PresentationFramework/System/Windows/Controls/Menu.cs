@@ -1,9 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-using MS.Internal.KnownBoxes;
-
 #if OLD_AUTOMATION
 using System.Windows.Automation.Provider;
 #endif
@@ -46,7 +43,7 @@ namespace System.Windows.Controls
             _dType = DependencyObjectType.FromSystemTypeInternal(typeof(Menu));
 
             ItemsPanelProperty.OverrideMetadata(typeof(Menu), new FrameworkPropertyMetadata(GetDefaultPanel()));
-            IsTabStopProperty.OverrideMetadata(typeof(Menu), new FrameworkPropertyMetadata(false));
+            IsTabStopProperty.OverrideMetadata(typeof(Menu), new FrameworkPropertyMetadata(BooleanBoxes.FalseBox));
 
             KeyboardNavigation.ControlTabNavigationProperty.OverrideMetadata(typeof(Menu), new FrameworkPropertyMetadata(KeyboardNavigationMode.Once));
             KeyboardNavigation.DirectionalNavigationProperty.OverrideMetadata(typeof(Menu), new FrameworkPropertyMetadata(KeyboardNavigationMode.Cycle));
