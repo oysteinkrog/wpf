@@ -15,8 +15,10 @@ namespace System.Windows.Media.Imaging
     /// <summary>
     /// BitmapImage provides caching functionality for a BitmapSource.
     /// </summary>
-    public sealed partial class BitmapImage : Imaging.BitmapSource, ISupportInitialize, IUriContext
+    public sealed partial class BitmapImage : BitmapSource, ISupportInitialize, IUriContext
     {
+        private static readonly WeakReferenceCache<Uri, BitmapImage> s_imageCache = new();
+
         /// <summary>
         /// BitmapImage constructor
         /// </summary>
@@ -224,29 +226,9 @@ namespace System.Windows.Media.Imaging
         }
 
         /// Check the cache for an existing BitmapImage
-        private BitmapImage CheckCache(Uri uri)
+        private static BitmapImage CheckCache(Uri uri)
         {
-            if (uri != null)
-            {
-                WeakReference bitmapWeakReference = ImagingCache.CheckImageCache(uri) as WeakReference;
-
-                if (bitmapWeakReference != null)
-                {
-                    BitmapImage bitmapImage = (bitmapWeakReference.Target as BitmapImage);
-
-                    // See if this bitmap was already in the image cache.
-                    if (bitmapImage != null)
-                    {
-                        return bitmapImage;
-                    }
-                    else
-                    {
-                        ImagingCache.RemoveFromImageCache(uri);
-                    }
-                }
-            }
-
-            return null;
+            return uri is not null && s_imageCache.TryGetValue(uri, out BitmapImage bitmapImage) ? bitmapImage : null;
         }
 
         /// Insert BitmapImage in cache
@@ -270,7 +252,7 @@ namespace System.Windows.Media.Imaging
                 // network are cached to disk at another level and are unaffected by the weak references.
                 //
 
-                ImagingCache.AddToImageCache(uri, new WeakReference(this));
+                s_imageCache.Add(uri, this);
             }
         }
 
@@ -284,12 +266,15 @@ namespace System.Windows.Media.Imaging
             if (_baseUri != null)
                 uri = new Uri(_baseUri, UriSource);
 
+            BitmapImage bitmapImage = null;
             if ((CreateOptions & BitmapCreateOptions.IgnoreImageCache) != 0)
             {
-                ImagingCache.RemoveFromImageCache(uri);
+                s_imageCache.Remove(uri);
             }
-
-            BitmapImage bitmapImage = CheckCache(uri);
+            else
+            {
+                bitmapImage = CheckCache(uri);
+            }
 
             if (bitmapImage != null &&
                 bitmapImage.CheckAccess() &&
