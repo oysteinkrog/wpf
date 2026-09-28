@@ -458,9 +458,7 @@ namespace System.Windows.Controls.Primitives
                 // This property is rarely set so let's try to avoid the GetValue
                 // caching of the mutable default value
                 DoubleCollection ticks = null;
-                bool hasModifiers;
-                if (GetValueSource(TicksProperty, null, out hasModifiers)
-                    != BaseValueSourceInternal.Default || hasModifiers)
+                if ((GetValueSource(TicksProperty, null, out bool hasModifiers) != BaseValueSourceInternal.Default) || hasModifiers)
                 {
                     ticks = Ticks;
                 }
@@ -514,11 +512,7 @@ namespace System.Windows.Controls.Primitives
                     Point pt1 = new Point(startPoint.X + tickLen2, y0);
                     Point pt2 = new Point(startPoint.X + tickLen2, y0 + Math.Abs(tickLen2) * progression);
 
-                    PathSegment[] segments = new PathSegment[] {
-                        new LineSegment(pt2, true),
-                        new LineSegment(pt0, true),
-                    };
-                    PathGeometry geo = new PathGeometry(new PathFigure[] { new PathFigure(pt1, segments, true) });
+                    PathGeometry geo = new PathGeometry(new PathFigure(pt1, [new LineSegment(pt2, true), new LineSegment(pt0, true)], true));
 
                     dc.DrawGeometry(Fill, pen, geo);
 
@@ -527,11 +521,7 @@ namespace System.Windows.Controls.Primitives
                     pt1 = new Point(startPoint.X + tickLen2, y0);
                     pt2 = new Point(startPoint.X + tickLen2, y0 - Math.Abs(tickLen2) * progression);
 
-                    segments = new PathSegment[] {
-                        new LineSegment(pt2, true),
-                        new LineSegment(pt0, true),
-                    };
-                    geo = new PathGeometry(new PathFigure[] { new PathFigure(pt1, segments, true) });
+                    geo = new PathGeometry(new PathFigure(pt1, [new LineSegment(pt2, true), new LineSegment(pt0, true)], true));
                     dc.DrawGeometry(Fill, pen, geo);
                 }
             }
@@ -565,9 +555,7 @@ namespace System.Windows.Controls.Primitives
                 // This property is rarely set so let's try to avoid the GetValue
                 // caching of the mutable default value
                 DoubleCollection ticks = null;
-                bool hasModifiers;
-                if (GetValueSource(TicksProperty, null, out hasModifiers)
-                    != BaseValueSourceInternal.Default || hasModifiers)
+                if ((GetValueSource(TicksProperty, null, out bool hasModifiers) != BaseValueSourceInternal.Default) || hasModifiers)
                 {
                     ticks = Ticks;
                 }
@@ -619,11 +607,7 @@ namespace System.Windows.Controls.Primitives
                     Point pt1 = new Point(x0, startPoint.Y + tickLen2);
                     Point pt2 = new Point(x0 + Math.Abs(tickLen2) * progression, startPoint.Y + tickLen2);
 
-                    PathSegment[] segments = new PathSegment[] {
-                        new LineSegment(pt2, true),
-                        new LineSegment(pt0, true),
-                    };
-                    PathGeometry geo = new PathGeometry(new PathFigure[] { new PathFigure(pt1, segments, true) });
+                    PathGeometry geo = new PathGeometry(new PathFigure(pt1, [new LineSegment(pt2, true), new LineSegment(pt0, true)], true));
 
                     dc.DrawGeometry(Fill, pen, geo);
 
@@ -632,11 +616,7 @@ namespace System.Windows.Controls.Primitives
                     pt1 = new Point(x0, startPoint.Y + tickLen2);
                     pt2 = new Point(x0 - Math.Abs(tickLen2) * progression, startPoint.Y + tickLen2);
 
-                    segments = new PathSegment[] {
-                        new LineSegment(pt2, true),
-                        new LineSegment(pt0, true),
-                    };
-                    geo = new PathGeometry(new PathFigure[] { new PathFigure(pt1, segments, true) });
+                    geo = new PathGeometry(new PathFigure(pt1, [new LineSegment(pt2, true), new LineSegment(pt0, true)], true));
                     dc.DrawGeometry(Fill, pen, geo);
                 }
             }
