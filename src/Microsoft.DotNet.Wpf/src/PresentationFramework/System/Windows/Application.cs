@@ -2053,19 +2053,7 @@ namespace System.Windows
                 // (HwndWrapper keeps a WeakReference to the hook)
 
                 _appFilterHook = new HwndWrapperHook(AppFilterMessage);
-                HwndWrapperHook[] wrapperHooks = {_appFilterHook};
-
-                _parkingHwnd = new HwndWrapper(
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                "",
-                                IntPtr.Zero,
-                                wrapperHooks);
+                _parkingHwnd = new HwndWrapper(0, 0, 0, 0, 0, 0, 0, string.Empty, IntPtr.Zero, _appFilterHook);
             }
         }
 

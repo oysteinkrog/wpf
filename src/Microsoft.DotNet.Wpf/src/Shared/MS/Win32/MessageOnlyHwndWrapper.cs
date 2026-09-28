@@ -3,12 +3,12 @@
 
 namespace MS.Win32
 {
-    // Specialized version of HwndWrapper for message-only windows.
-
-    internal class MessageOnlyHwndWrapper : HwndWrapper
+    /// <summary>
+    /// Specialized version of <see cref="HwndWrapper"/> for message-only windows.
+    /// </summary>
+    internal sealed class MessageOnlyHwndWrapper : HwndWrapper
     {
-        public MessageOnlyHwndWrapper() : base(0, 0, 0, 0, 0, 0, 0, "", NativeMethods.HWND_MESSAGE, null)
-        {
-        }
+        public MessageOnlyHwndWrapper() : base(0, 0, 0, 0, 0, 0, 0, string.Empty, NativeMethods.HWND_MESSAGE) { }
+
     }
 }
