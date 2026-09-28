@@ -165,7 +165,7 @@ namespace MS.Internal.IO.Packaging
         private const string _certificatePartNamePrefix = "/package/services/digital-signature/certificate/";
         private const string _certificatePartNameExtension = ".cer";
         private const string _certificatePartRelationshipType = "http://schemas.openxmlformats.org/package/2006/relationships/digital-signature/certificate";
-        private static readonly long _maximumCertificateStreamLength = 0x40000;   // 4MB
+        private const long _maximumCertificateStreamLength = 0x40000;   // 4MB
         #endregion Private Members
     }
 }
