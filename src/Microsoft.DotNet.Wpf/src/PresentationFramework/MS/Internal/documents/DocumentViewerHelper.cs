@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 //
@@ -275,7 +275,7 @@ namespace MS.Internal.Documents
             string messageString = findToolBar.SearchUp ? SR.DocumentViewerSearchUpCompleteLabel : SR.DocumentViewerSearchDownCompleteLabel;
             messageString = string.Format(CultureInfo.CurrentCulture, messageString, findToolBar.SearchText);
 
-            IntPtr hwnd = PresentationSource.CriticalFromVisual(findToolBar) is HwndSource hwndSource ? hwndSource.Handle : IntPtr.Zero;
+            IntPtr hwnd = PresentationSource.FromVisual(findToolBar) is HwndSource hwndSource ? hwndSource.Handle : IntPtr.Zero;
 
             MessageBox.ShowCore(hwnd, messageString, SR.DocumentViewerSearchCompleteTitle,
                                 MessageBoxButton.OK, MessageBoxImage.Asterisk, MessageBoxResult.None, MessageBoxOptions.None);

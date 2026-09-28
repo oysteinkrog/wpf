@@ -290,7 +290,7 @@ namespace System.Windows
                 }
                 else
                 {
-                    genericHandler.DynamicInvoke(new object[] {genericTarget, this});
+                    genericHandler.DynamicInvoke(new object[] { genericTarget, this });
                 }
             }
             finally

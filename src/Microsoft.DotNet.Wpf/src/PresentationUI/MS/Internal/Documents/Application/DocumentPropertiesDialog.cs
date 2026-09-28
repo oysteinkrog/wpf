@@ -110,10 +110,10 @@ namespace MS.Internal.Documents.Application
             SetTextProperty(_language, DocumentProperties.Current.CoreProperties.Language);
 
             // Load additional properties (file or system related)
-            SetTextProperty(_fileAccessedDate, DocumentProperties.Current.FileAccessed);  //SecurityCritical
-            SetTextProperty(_fileCreatedDate, DocumentProperties.Current.FileCreated);    //SecurityCritical
-            SetTextProperty(_fileModifiedDate, DocumentProperties.Current.FileModified);  //SecurityCritical
-            SetTextProperty(_size, FormatFileSize(DocumentProperties.Current.FileSize));  //SecurityCritical
+            SetTextProperty(_fileAccessedDate, DocumentProperties.Current.FileAccessed); 
+            SetTextProperty(_fileCreatedDate, DocumentProperties.Current.FileCreated);   
+            SetTextProperty(_fileModifiedDate, DocumentProperties.Current.FileModified); 
+            SetTextProperty(_size, FormatFileSize(DocumentProperties.Current.FileSize)); 
 
             SetTextProperty(_filename, DocumentProperties.Current.Filename);
 

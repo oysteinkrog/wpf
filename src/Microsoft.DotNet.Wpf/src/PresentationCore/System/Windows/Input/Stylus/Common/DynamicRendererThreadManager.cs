@@ -240,7 +240,7 @@ namespace System.Windows.Input.StylusPlugIns
                 {
                     try
                     {
-                        __inkingDispatcher.CriticalInvokeShutdown();
+                        __inkingDispatcher.InvokeShutdown();
                     }
                     catch(System.ComponentModel.Win32Exception e)
                     {

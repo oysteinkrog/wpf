@@ -65,7 +65,7 @@ namespace MS.Internal.AppModel
                 _fullPath = Path.Join(Path.GetDirectoryName(location.AsSpan()), assemblyInfo.PackagePartName);
             }
 
-            stream = CriticalOpenFile(_fullPath);
+            stream = File.Open(_fullPath, FileMode.Open, FileAccess.Read, ResourceContainer.FileShareMode);
 
             if (stream == null)
             {
@@ -113,11 +113,6 @@ namespace MS.Internal.AppModel
             }
 
             return entryLocation;
-        }
-
-        private static Stream CriticalOpenFile(string filename)
-        {
-            return File.Open(filename, FileMode.Open, FileAccess.Read, ResourceContainer.FileShareMode);
         }
 
         #endregion

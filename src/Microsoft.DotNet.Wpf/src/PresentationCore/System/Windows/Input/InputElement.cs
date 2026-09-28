@@ -267,9 +267,8 @@ namespace System.Windows.Input
                         // we only know how to do that if both roots are sourced in HwndSources.
                         if(rootFrom != rootTo)
                         {
-                            HwndSource sourceFrom = PresentationSource.CriticalFromVisual(rootFrom) as HwndSource;
-                            HwndSource sourceTo = PresentationSource.CriticalFromVisual(rootTo) as HwndSource;
-
+                            HwndSource sourceFrom = PresentationSource.FromVisual(rootFrom) as HwndSource;
+                            HwndSource sourceTo = PresentationSource.FromVisual(rootTo) as HwndSource;
 
                             if(sourceFrom != null && sourceFrom.Handle != IntPtr.Zero && sourceFrom.CompositionTarget != null &&
                                sourceTo != null && sourceTo.Handle != IntPtr.Zero && sourceTo.CompositionTarget != null)

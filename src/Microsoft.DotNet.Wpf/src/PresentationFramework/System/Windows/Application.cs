@@ -210,11 +210,7 @@ namespace System.Windows
         ///
         ///     Once shutdown() is called, the application gets called with the
         ///     OnShutdown method to raise the Shutdown event.
-        ///     Requires SecurityPermission for unmanaged code
         /// </summary>
-        /// <remarks>
-        ///     Requires UIPermission with AllWindows access
-        /// </remarks>
         public void Shutdown()
         {
             Shutdown(0);
@@ -228,15 +224,8 @@ namespace System.Windows
         ///     The exitCode parameter passed in at Shutdown will be returned as a
         ///     return parameter on the run() method, so it can be passed back to the OS.
         /// </summary>
-        /// <remarks>
-        ///     Callers must have UIPermission(UIPermissionWindow.AllWindows) to call this API.
-        /// </remarks>
         /// <param name="exitCode">returned to the Application.Run() method. Typically this will be returned to the OS</param>
         public void Shutdown(int exitCode)
-        {
-            CriticalShutdown(exitCode);
-        }
-        internal void CriticalShutdown(int exitCode)
         {
             VerifyAccess();
             //Already called once??
@@ -250,7 +239,7 @@ namespace System.Windows
             SetExitCode(exitCode);
             IsShuttingDown = true;
             Dispatcher.BeginInvoke(DispatcherPriority.Normal, new DispatcherOperationCallback(ShutdownCallback), null);
-}
+        }
 
         /// <summary>
         ///     Searches for a resource with the passed resourceKey and returns it
@@ -708,9 +697,6 @@ namespace System.Windows
         /// </summary>
         /// <param name="uri">The uri for which the cookie is to be read</param>
         /// <returns>The cookie, if it exsits, else an exception is thrown.</returns>
-        /// <Remarks>
-        ///     Callers must have FileIOPermission(FileIOPermissionAccess.Read) or WebPermission(NetworkAccess.Connect) for the Uri, depending on whether the Uri is a file Uri or not, to call this API.
-        /// </Remarks>
         public static string GetCookie(Uri uri)
         {
             return CookieHandler.GetCookie(uri, true/*throwIfNoCookie*/);
@@ -721,9 +707,6 @@ namespace System.Windows
         /// </summary>
         /// <param name="uri">The uri for which the cookie is to be set</param>
         /// <param name="value">The value of the cookie. Should be name=value, but "value-only" cookies are also allowed. </param>
-        /// <Remarks>
-        ///     Callers must have FileIOPermission(FileIOPermissionAccess.Read) or WebPermission(NetworkAccess.Connect) for the Uri, depending on whether the Uri is a file Uri or not, to call this API.
-        /// </Remarks>
         public static void SetCookie(Uri uri, string value)
         {
             CookieHandler.SetCookie(uri, value);
@@ -2196,7 +2179,7 @@ namespace System.Windows
                 // Quit the dispatcher if we ran our own.
                 if (_ownDispatcherStarted)
                 {
-                    Dispatcher.CriticalInvokeShutdown();
+                    Dispatcher.InvokeShutdown();
                 }
             }
         }
