@@ -22,6 +22,7 @@ using System.Windows.Markup; // IUriContext, [XamlDesignerSerializer]
 using MS.Internal;                  // CriticalExceptions
 using MS.Internal.Utility;          // BindUriHelper
 using MS.Internal.Data;             // XmlDataCollection
+using System.Windows.Navigation;
 
 namespace System.Windows.Data
 {
@@ -351,7 +352,7 @@ namespace System.Windows.Data
             Uri sourceUri = this.Source;
             if (!sourceUri.IsAbsoluteUri)
             {
-                Uri baseUri = _baseUri ?? BindUriHelper.BaseUri;
+                Uri baseUri = _baseUri ?? BaseUriHelper.PackAppBaseUri;
                 sourceUri = BindUriHelper.GetResolvedUri(baseUri, sourceUri);
             }
 

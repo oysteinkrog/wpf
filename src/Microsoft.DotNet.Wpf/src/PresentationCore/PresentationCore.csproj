@@ -336,6 +336,7 @@
     <Compile Include="System\Windows\DataFormats.cs" />
     <Compile Include="System\Windows\dataobject.cs" />
     <Compile Include="System\Windows\ITypedDataObject.cs" />
+    <Compile Include="System\Windows\Navigation\AssemblyPackageInfo.cs" />
     <Compile Include="System\Windows\Nrbf\SerializationRecordExtensions.cs" />
     <Compile Include="System\Windows\DataObjectCopyingEventArgs.cs" />
     <Compile Include="System\Windows\DataObjectEventArgs.cs" />

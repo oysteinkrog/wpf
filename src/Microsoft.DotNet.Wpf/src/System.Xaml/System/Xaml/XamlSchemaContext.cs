@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable disable
@@ -800,7 +800,7 @@ namespace System.Xaml
                     }
 
                     byte[] actualToken = toAssemblyName.GetPublicKeyToken();
-                    return SafeSecurityHelper.IsSameKeyToken(expectedToken, actualToken);
+                    return ReflectionUtils.IsSamePublicKeyToken(expectedToken, actualToken);
                 }
             }
 
@@ -1310,7 +1310,7 @@ namespace System.Xaml
             if (requiredToken is not null)
             {
                 byte[] actualToken = assemblyName.GetPublicKeyToken();
-                if (!SafeSecurityHelper.IsSameKeyToken(requiredToken, actualToken))
+                if (!ReflectionUtils.IsSamePublicKeyToken(requiredToken, actualToken))
                 {
                     return false;
                 }
