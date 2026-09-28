@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
@@ -84,8 +84,7 @@ namespace System.Windows.Forms.Integration
             // would accidentally route messages to the control even when in
             // menu mode.  So we just bail out here, but for compat reasons
             // only if the app targets 4.5+ (DevDiv #650335).
-            if (CoreCompatibilityPreferences.TargetsAtLeast_Desktop_V4_5 &&
-                System.Windows.Input.InputManager.Current.IsInMenuMode)
+            if (SWI.InputManager.Current.IsInMenuMode)
             {
                 return;
             }
