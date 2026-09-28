@@ -194,13 +194,14 @@ namespace System.Windows.Markup
         /// </summary>
         internal Dictionary<string, SpecialBracketCharacters> InitBracketCharacterCacheForType(Type type)
         {
-            if (!MasterBracketCharacterCache.ContainsKey(type))
+            if (!MasterBracketCharacterCache.TryGetValue(type, out Dictionary<string, SpecialBracketCharacters> map))
             {
-                Dictionary<string, SpecialBracketCharacters> map = BuildBracketCharacterCacheForType(type);
+                map = BuildBracketCharacterCacheForType(type);
+
                 MasterBracketCharacterCache.Add(type, map);
             }
 
-            return MasterBracketCharacterCache[type];
+            return map;
         }
 
         /// <summary>
@@ -837,9 +838,9 @@ namespace System.Windows.Markup
         /// Looks up all properties via reflection on the given type, and scans through the attributes on all of them
         /// to build a cache of properties which have MarkupExtensionBracketCharactersAttribute set on them.
         /// </summary>
-        private Dictionary<string, SpecialBracketCharacters> BuildBracketCharacterCacheForType(Type extensionType)
+        private static Dictionary<string, SpecialBracketCharacters> BuildBracketCharacterCacheForType(Type extensionType)
         {
-            Dictionary<string, SpecialBracketCharacters> cache = new Dictionary<string, SpecialBracketCharacters>(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, SpecialBracketCharacters> cache = new(StringComparer.OrdinalIgnoreCase);
             PropertyInfo[] propertyInfo = extensionType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             Type constructorArgumentType = null;
             Type markupExtensionBracketCharacterType = null;
@@ -850,6 +851,7 @@ namespace System.Windows.Markup
                 string constructorArgumentName = null;
                 IList<CustomAttributeData> customAttributes = CustomAttributeData.GetCustomAttributes(property);
                 SpecialBracketCharacters bracketCharacters = null;
+
                 foreach (CustomAttributeData attributeData in customAttributes)
                 {
                     Type attributeType = attributeData.AttributeType;
@@ -868,10 +870,7 @@ namespace System.Windows.Markup
                     }
                     else if (attributeType.IsAssignableFrom(markupExtensionBracketCharacterType))
                     {
-                        if (bracketCharacters == null)
-                        {
-                            bracketCharacters = new SpecialBracketCharacters();
-                        }
+                        bracketCharacters ??= new SpecialBracketCharacters();
 
                         bracketCharacters.AddBracketCharacters((char)attributeData.ConstructorArguments[0].Value, (char)attributeData.ConstructorArguments[1].Value);
                     }
