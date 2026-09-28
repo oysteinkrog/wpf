@@ -1955,13 +1955,9 @@ namespace System.Windows.Markup
             }
             else
             {
-                if(ShouldImplyContentProperty())
+                if (ShouldImplyContentProperty())
                 {
-                    ElementContextStackData CpaStackData = new ElementContextStackData
-                    {
-                        ContextType = ElementContextType.Default
-                    };
-                    ElementContextStack.Push(CpaStackData);
+                    ElementContextStack.Push(new ElementContextStackData() { ContextType = ElementContextType.Default });
                     ParserContext.PushScope();
 
                     CompileContentProperty(ParentContext);
@@ -3951,9 +3947,9 @@ namespace System.Windows.Markup
             if (ElementContextStack.ParentContext is ElementContextStackData parentTag)
             {
                 if (parentTag.ContextType == ElementContextType.PropertyComplex ||
-                     parentTag.ContextType == ElementContextType.PropertyArray ||
-                     parentTag.ContextType == ElementContextType.PropertyIList ||
-                     parentTag.ContextType == ElementContextType.PropertyIDictionary)
+                    parentTag.ContextType == ElementContextType.PropertyArray ||
+                    parentTag.ContextType == ElementContextType.PropertyIList ||
+                    parentTag.ContextType == ElementContextType.PropertyIDictionary)
                 {
                     ThrowException(nameof(SR.ParserNestedComplexProp), complexPropName);
                 }
@@ -6669,7 +6665,7 @@ namespace System.Windows.Markup
         /// </summary>
         private ElementContextStackData CurrentContext
         {
-            get { return (ElementContextStackData)ElementContextStack.CurrentContext; }
+            get { return ElementContextStack.CurrentContext; }
         }
 
         /// <summary>
@@ -6679,7 +6675,7 @@ namespace System.Windows.Markup
         {
             get
             {
-                ElementContextStackData stackData = (ElementContextStackData)ElementContextStack.CurrentContext;
+                ElementContextStackData stackData = ElementContextStack.CurrentContext;
                 return stackData.ComplexProperties;
             }
         }
@@ -6691,7 +6687,7 @@ namespace System.Windows.Markup
         {
             get
             {
-                ElementContextStackData stackData = (ElementContextStackData)ElementContextStack.ParentContext;
+                ElementContextStackData stackData = ElementContextStack.ParentContext;
                 return stackData.ComplexProperties;
             }
         }
@@ -6701,17 +6697,16 @@ namespace System.Windows.Markup
         /// </summary>
         private ElementContextStackData ParentContext
         {
-            get { return (ElementContextStackData)ElementContextStack.ParentContext; }
+            get { return ElementContextStack.ParentContext; }
         }
 
         /// <summary>
         /// ElementContext stack
         /// </summary>
-        private ParserStack ElementContextStack
+        private ParserStack<ElementContextStackData> ElementContextStack
         {
             get { return _elementContextStack; }
         }
-
 
         /// <summary>
         /// Current Parsercontext for the node being processed
@@ -6726,7 +6721,7 @@ namespace System.Windows.Markup
         /// </summary>
         private ElementContextStackData GrandParentContext
         {
-            get { return (ElementContextStackData)ElementContextStack.GrandParentContext; }
+            get { return ElementContextStack.GrandParentContext; }
         }
 
 
@@ -6808,7 +6803,7 @@ namespace System.Windows.Markup
         private XamlParser _xamlParser;
 
         // Context stack for each Element
-        private ParserStack _elementContextStack = new ParserStack();
+        private readonly ParserStack<ElementContextStackData> _elementContextStack = new();
 
         // State of the parser
         private ParserState _parseLoopState;

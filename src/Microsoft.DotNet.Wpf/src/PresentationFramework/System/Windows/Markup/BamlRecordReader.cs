@@ -3793,12 +3793,12 @@ namespace System.Windows.Markup
             // Check each one for the resource we are searching for until we reach a DependencyObject
             // which is actually in the element tree.  Stop at this one.
 
-            ParserStack contextStack = ReaderContextStack;
+            ParserStack<ReaderContextStackData> contextStack = ReaderContextStack;
             BamlRecordReader reader = this;
 
-            while( contextStack != null )
+            while (contextStack != null)
             {
-                for (int i = contextStack.Count-1; i >= 0; i--)
+                for (int i = contextStack.Count - 1; i >= 0; i--)
                 {
                     ReaderContextStackData stackData = (ReaderContextStackData) contextStack[i];
                     IDictionary dictionary = GetDictionaryFromContext(stackData, false /*toInsert*/);
@@ -3911,17 +3911,17 @@ namespace System.Windows.Markup
         {
             ReaderContextStackData d;
 
-            lock(_stackDataFactoryCache)
+            lock (s_stackDataFactoryCache)
             {
-                if (_stackDataFactoryCache.Count == 0)
+                if (s_stackDataFactoryCache.Count == 0)
                 {
                     d = new ReaderContextStackData();
                 }
                 else
                 {
                     // Get StackData from the factory cache
-                    d = _stackDataFactoryCache[_stackDataFactoryCache.Count-1];
-                    _stackDataFactoryCache.RemoveAt(_stackDataFactoryCache.Count-1);
+                    d = s_stackDataFactoryCache[s_stackDataFactoryCache.Count - 1];
+                    s_stackDataFactoryCache.RemoveAt(s_stackDataFactoryCache.Count - 1);
                 }
             }
 
@@ -3947,7 +3947,7 @@ namespace System.Windows.Markup
         // Pos the reader context stack.
         internal void PopContext()
         {
-            ReaderContextStackData stackData = (ReaderContextStackData) ReaderContextStack.Pop();
+            ReaderContextStackData stackData = ReaderContextStack.Pop();
 
             // If we're through with an Name scoping point, take it off the stack.
             INameScope nameScope = NameScope.NameScopeFromObject(stackData.ObjectData);
@@ -3962,9 +3962,9 @@ namespace System.Windows.Markup
             // Clear the stack data and then add it to the factory cache for reuse
             stackData.ClearData();
 
-            lock(_stackDataFactoryCache)
+            lock (s_stackDataFactoryCache)
             {
-                _stackDataFactoryCache.Add(stackData);
+                s_stackDataFactoryCache.Add(stackData);
             }
         }
 
@@ -5044,12 +5044,12 @@ namespace System.Windows.Markup
 
         internal ReaderContextStackData CurrentContext
         {
-            get { return (ReaderContextStackData) ReaderContextStack.CurrentContext; }
+            get { return ReaderContextStack.CurrentContext; }
         }
 
         internal ReaderContextStackData ParentContext
         {
-            get { return (ReaderContextStackData) ReaderContextStack.ParentContext; }
+            get { return ReaderContextStack.ParentContext; }
         }
 
         internal object ParentObjectData
@@ -5063,7 +5063,7 @@ namespace System.Windows.Markup
 
         internal ReaderContextStackData GrandParentContext
         {
-            get { return (ReaderContextStackData) ReaderContextStack.GrandParentContext; }
+            get { return ReaderContextStack.GrandParentContext; }
         }
 
         internal object GrandParentObjectData
@@ -5077,10 +5077,10 @@ namespace System.Windows.Markup
 
         internal ReaderContextStackData GreatGrandParentContext
         {
-            get { return (ReaderContextStackData) ReaderContextStack.GreatGrandParentContext; }
+            get { return ReaderContextStack.GreatGrandParentContext; }
         }
 
-        internal ParserStack ReaderContextStack
+        internal ParserStack<ReaderContextStackData> ReaderContextStack
         {
             get { return _contextStack; }
         }
@@ -5153,18 +5153,19 @@ namespace System.Windows.Markup
             get { return _bamlStream.Length; }
         }
 
-#endregion Properties
+        #endregion Properties
 
-#region Data
+        #region Data
 
         // state vars
+        private readonly ParserStack<ReaderContextStackData> _contextStack = new();
+
         private IComponentConnector          _componentConnector;
         private object                       _rootElement;
         private ArrayList                    _rootList;
         private ParserContext                _parserContext;   // XamlTypeMapper, namespace state, lang/space values
         private TypeConvertContext           _typeConvertContext;
         private int                          _persistId;
-        private ParserStack                  _contextStack = new ParserStack();
         // end of state vars
 
         private Stream                       _bamlStream;
@@ -5173,7 +5174,7 @@ namespace System.Windows.Markup
         private BamlRecordManager            _bamlRecordManager;
         private bool                         _endOfDocument = false;
 
-        private static List<ReaderContextStackData> _stackDataFactoryCache = new List<ReaderContextStackData>();
+        private static readonly List<ReaderContextStackData> s_stackDataFactoryCache = new();
 
 #endregion Data
     }

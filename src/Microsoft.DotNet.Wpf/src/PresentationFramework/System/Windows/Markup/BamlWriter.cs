@@ -22,8 +22,7 @@ namespace System.Windows.Markup
         /// <summary>
         /// Create a BamlWriter on the passed stream.  The stream must be writable.
         /// </summary>
-        public BamlWriter(
-            Stream stream)
+        public BamlWriter(Stream stream)
         {
             ArgumentNullException.ThrowIfNull(stream);
             if (!stream.CanWrite)
@@ -42,10 +41,10 @@ namespace System.Windows.Markup
             _startDocumentWritten = false;
             _depth = 0;
             _closed = false;
-            _nodeTypeStack = new ParserStack();
+            _nodeTypeStack = new ParserStack<WriteStackNode>();
             _assemblies = new Hashtable(7);
-           _extensionParser = new MarkupExtensionParser((IParserHelper)this, _parserContext);
-           _markupExtensionNodes = new ArrayList();
+            _extensionParser = new MarkupExtensionParser(this, _parserContext);
+            _markupExtensionNodes = new ArrayList();
         }
 
   
@@ -1269,7 +1268,7 @@ namespace System.Windows.Markup
     // Pop an item off the node stack and return its type.
     private BamlRecordType Pop()
     {
-        WriteStackNode stackNode = _nodeTypeStack.Pop() as WriteStackNode;
+        WriteStackNode stackNode = _nodeTypeStack.Pop();
         Debug.Assert(stackNode != null);
         return stackNode.RecordType;
     }
@@ -1277,7 +1276,7 @@ namespace System.Windows.Markup
     // Return the record type on the top of the stack
     private BamlRecordType PeekRecordType()
     {
-        WriteStackNode stackNode = _nodeTypeStack.Peek() as WriteStackNode;
+        WriteStackNode stackNode = _nodeTypeStack.Peek();
         Debug.Assert(stackNode != null);
         return stackNode.RecordType;
     }
@@ -1285,7 +1284,7 @@ namespace System.Windows.Markup
     // Return the element type on the top of the stack
     private Type PeekElementType()
     {
-        WriteStackNode stackNode = _nodeTypeStack.Peek() as WriteStackNode;
+        WriteStackNode stackNode = _nodeTypeStack.Peek();
         Debug.Assert(stackNode != null);
         return stackNode.ElementType;
     }
@@ -1296,16 +1295,10 @@ namespace System.Windows.Markup
     {
         if (_nodeTypeStack.Count > 0)
         {
-            WriteStackNode parentNode = _nodeTypeStack.Peek() as WriteStackNode;
-            if (!parentNode.EndAttributesReached &&
-                parentNode.RecordType == BamlRecordType.ElementStart)
+            WriteStackNode parentNode = _nodeTypeStack.Peek();
+            if (!parentNode.EndAttributesReached && parentNode.RecordType == BamlRecordType.ElementStart)
             {
-                XamlEndAttributesNode node = new XamlEndAttributesNode(
-                                                   0,
-                                                   0,
-                                                   _depth,
-                                                   false);
-                _bamlRecordWriter.WriteEndAttributes(node);
+                _bamlRecordWriter.WriteEndAttributes(new XamlEndAttributesNode(0, 0, _depth, false));
             }
             parentNode.EndAttributesReached = true;
         }
@@ -1376,7 +1369,7 @@ namespace System.Windows.Markup
         // Stack of the type of nodes written to the baml stream.  This is 
         // used for end-tag matching and basic structure checking.  This
         // contains WriteStackNode objects.
-        private ParserStack           _nodeTypeStack;
+        private readonly ParserStack<WriteStackNode> _nodeTypeStack;
 
         // Cache of assemblies that are needed for type resolutions when
         // doingIBamlSerialize
