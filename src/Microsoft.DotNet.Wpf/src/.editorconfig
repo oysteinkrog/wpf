@@ -179,9 +179,6 @@ dotnet_diagnostic.IDE0066.severity = suggestion
 # IDE0074: Use compound assignment
 dotnet_diagnostic.IDE0074.severity = suggestion
 
-# IDE0077: Avoid legacy global suppression format
-dotnet_diagnostic.IDE0077.severity = suggestion
-
 # IDE0078: Use pattern matching
 dotnet_diagnostic.IDE0078.severity = suggestion
 
