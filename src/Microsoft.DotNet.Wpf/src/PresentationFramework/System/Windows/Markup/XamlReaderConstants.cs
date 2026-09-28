@@ -25,7 +25,12 @@ namespace MS.Internal.Markup
 namespace System.Windows.Markup
 #endif
 {
+#if PBTCOMPILER
+    internal partial class XamlReaderHelper
+#else
+    // Outside PresentationBuildTasks this part only holds constants.
     internal sealed partial class XamlReaderHelper
+#endif
     {
         // Define for the Definition NamespaceURI so not hardcoded everywhere.
         internal const string DefinitionNamespaceURI = "http://schemas.microsoft.com/winfx/2006/xaml";
