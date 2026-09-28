@@ -1,11 +1,14 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using StoryboardLayers = System.Windows.Media.Animation.Storyboard.Layers;
+
 using System.Collections.Specialized;
 
 using MS.Utility;
 using MS.Internal;
 using System.ComponentModel;            // DesignerSerializationVisibilityAttribute & DefaultValue
+using System.Threading;
 
 namespace System.Windows
 {
@@ -344,25 +347,20 @@ namespace System.Windows
         // This ranking is used when trigger needs to be sorted relative to
         //  the ordering, as when determining precedence for enter/exit
         //  animation composition.  Otherwise, it stays at default value of zero.
-        internal Int64 Layer
+        internal long Layer
         {
-            get { return _globalLayerRank; }
+            get => _globalLayerRank;
         }
 
         // Set self rank to current number, increment global static.
         internal void EstablishLayer()
         {
-            if( _globalLayerRank == 0 )
+            if (_globalLayerRank == 0)
             {
-                lock(Synchronized)
-                {
-                    _globalLayerRank = _nextGlobalLayerRank++;
-                }
+                _globalLayerRank = Interlocked.Increment(ref s_nextGlobalLayerRank);
 
-                if( _nextGlobalLayerRank == Int64.MaxValue )
-                {
+                if (s_nextGlobalLayerRank == long.MaxValue)
                     throw new InvalidOperationException(SR.PropertyTriggerLayerLimitExceeded);
-                }
             }
         }
 
@@ -387,9 +385,6 @@ namespace System.Windows
         // are done on a Dispatcher thread before the TriggerBase is sealed
         internal FrugalStructList<PropertyValue> PropertyValues = new();
 
-        // Global, cross-object synchronization
-        private static readonly object Synchronized = new object();
-
         // Conditions
         private TriggerCondition[] _triggerConditions;
 
@@ -402,10 +397,20 @@ namespace System.Windows
         private TriggerActionCollection _exitActions = null;
 
 //      On hold - is this a new public API we want to do?
-//        private bool _executeEnterActionsOnApply = false;
-//        private bool _executeExitActionsOnApply = false;
+//      private bool _executeEnterActionsOnApply = false;
+//      private bool _executeExitActionsOnApply = false;
 
-        private Int64 _globalLayerRank = 0;
-        private static Int64 _nextGlobalLayerRank = System.Windows.Media.Animation.Storyboard.Layers.PropertyTriggerStartLayer;
+        /// <summary>
+        /// Global index of this particular instance.
+        /// </summary>
+        private long _globalLayerRank = 0;
+
+        /// <summary>
+        /// Global indexer for <see cref="TriggerBase"/> and its derivates.
+        /// </summary>
+        /// <remarks>
+        /// Access must be done atomically, currently only written via <see cref="EstablishLayer"/>.
+        /// </remarks>
+        private static long s_nextGlobalLayerRank = StoryboardLayers.PropertyTriggerStartLayer; // 2
     }
 }
