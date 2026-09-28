@@ -336,7 +336,10 @@ namespace WinRT
         }
     }
 
+    // Base class of MarshalNonBlittable<T>, so it cannot be static or sealed.
+#pragma warning disable CA1052
     internal class MarshalGeneric<T>
+#pragma warning restore CA1052
     {
         protected static readonly Type HelperType = typeof(T).GetHelperType();
         protected static readonly Type AbiType = typeof(T).GetAbiType();

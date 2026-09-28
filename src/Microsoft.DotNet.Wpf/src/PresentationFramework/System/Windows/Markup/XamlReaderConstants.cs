@@ -25,7 +25,7 @@ namespace MS.Internal.Markup
 namespace System.Windows.Markup
 #endif
 {
-    internal partial class XamlReaderHelper
+    internal sealed partial class XamlReaderHelper
     {
         // Define for the Definition NamespaceURI so not hardcoded everywhere.
         internal const string DefinitionNamespaceURI = "http://schemas.microsoft.com/winfx/2006/xaml";

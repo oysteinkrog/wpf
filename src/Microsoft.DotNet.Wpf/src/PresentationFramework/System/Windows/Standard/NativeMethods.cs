@@ -581,13 +581,9 @@ namespace Standard
             [DllImport("user32.dll")]
             public static extern SafeDC GetDC(IntPtr hwnd);
 
-            [DllImport("gdi32.dll")]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool DeleteDC(IntPtr hdc);
         }
 
         private IntPtr? _hwnd;
-        private bool _created;
 
         public IntPtr Hwnd
         {
@@ -602,11 +598,6 @@ namespace Standard
 
         protected override bool ReleaseHandle()
         {
-            if (_created)
-            {
-                return NativeMethods.DeleteDC(handle);
-            }
-
             if (!_hwnd.HasValue || _hwnd.Value == IntPtr.Zero)
             {
                 return true;

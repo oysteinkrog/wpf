@@ -55,7 +55,12 @@ namespace System.Windows.Markup
     /// <summary>
     /// XamlParser class. This class is used internally
     /// </summary>
+#if PBTCOMPILER
     internal class XamlParser
+#else
+    // Outside PresentationBuildTasks only the static ThrowException helpers are compiled.
+    internal static class XamlParser
+#endif
     {
 #if PBTCOMPILER
         #region Constructors
