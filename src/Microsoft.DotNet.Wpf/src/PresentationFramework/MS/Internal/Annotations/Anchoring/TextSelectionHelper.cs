@@ -16,6 +16,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Media;
 using MS.Internal.Documents;
+using System.Runtime.InteropServices;
 
 
 namespace MS.Internal.Annotations.Anchoring
@@ -85,17 +86,12 @@ namespace MS.Internal.Annotations.Anchoring
         /// null</returns>
         /// <exception cref="ArgumentNullException">selection is null</exception>
         /// <exception cref="ArgumentException">selection is of wrong type</exception>
-        public static IList<DependencyObject> GetSelectedNodes(Object selection)
+        public static ReadOnlySpan<DependencyObject> GetSelectedNodes(object selection)
         {
             ArgumentNullException.ThrowIfNull(selection);
 
-            IList<TextSegment> segments;
-            ITextPointer start = null;
-            ITextPointer end = null;
-
-            CheckSelection(selection, out start, out end, out segments);
-
-            IList<DependencyObject> list = new List<DependencyObject>();
+            CheckSelection(selection, out ITextPointer start, out ITextPointer end, out _);
+            List<DependencyObject> list = new();
 
             // If the selection is of length 0, then we simply add the parent of the
             // text container and return.
@@ -103,7 +99,7 @@ namespace MS.Internal.Annotations.Anchoring
             {
                 list.Add(((TextPointer)start).Parent);
 
-                return list;
+                return CollectionsMarshal.AsSpan(list);
             }
 
             TextPointer current = (TextPointer)start.CreatePointer();
@@ -119,7 +115,7 @@ namespace MS.Internal.Annotations.Anchoring
                 current.MoveToNextContextPosition(LogicalDirection.Forward);
             }
 
-            return list;
+            return CollectionsMarshal.AsSpan(list);
         }
 
         /// <summary>
@@ -129,15 +125,11 @@ namespace MS.Internal.Annotations.Anchoring
         /// <returns>the parent element of the selection; can be null</returns>
         /// <exception cref="ArgumentNullException">selection is null</exception>
         /// <exception cref="ArgumentException">selection is of wrong type</exception>
-        public static UIElement GetParent(Object selection)
+        public static UIElement GetParent(object selection)
         {
             ArgumentNullException.ThrowIfNull(selection);
 
-            ITextPointer start = null;
-            ITextPointer end = null;
-            IList<TextSegment> segments;
-
-            CheckSelection(selection, out start, out end, out segments);
+            CheckSelection(selection, out ITextPointer start, out _, out _);
 
             return GetParent(start);
         }

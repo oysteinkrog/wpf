@@ -66,12 +66,12 @@ namespace MS.Internal.Annotations.Anchoring
         /// <returns>a list containing the selection</returns>
         /// <exception cref="ArgumentNullException">selection is null</exception>
         /// <exception cref="ArgumentException">selection is of wrong type</exception>
-        public override IList<DependencyObject> GetSelectedNodes(Object selection)
+        public override ReadOnlySpan<DependencyObject> GetSelectedNodes(object selection)
         {
             // Verify selection is a service provider that provides ITextView
             VerifySelection(selection);
 
-            return new DependencyObject[] { (DependencyObject)selection };
+            return new DependencyObject[1] { (DependencyObject)selection };
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace MS.Internal.Annotations.Anchoring
         /// <returns>the selection itself</returns>
         /// <exception cref="ArgumentNullException">selection is null</exception>
         /// <exception cref="ArgumentException">selection is of wrong type</exception>
-        public override UIElement GetParent(Object selection)
+        public override UIElement GetParent(object selection)
         {
             // Verify selection is a service provider that provides ITextView
             VerifySelection(selection);
@@ -142,7 +142,7 @@ namespace MS.Internal.Annotations.Anchoring
                 endOffset = -1;
             }
 
-            ContentLocatorPart part = new ContentLocatorPart(TextSelectionProcessor.CharacterRangeElementName);// DocumentPageViewLocatorPart();
+            ContentLocatorPart part = new ContentLocatorPart(TextSelectionProcessor.s_characterRangeElementName);// DocumentPageViewLocatorPart();
             part.NameValuePairs.Add(TextSelectionProcessor.CountAttribute, 1.ToString(NumberFormatInfo.InvariantInfo));
             part.NameValuePairs.Add(TextSelectionProcessor.SegmentAttribute + 0.ToString(NumberFormatInfo.InvariantInfo), startOffset.ToString(NumberFormatInfo.InvariantInfo) + TextSelectionProcessor.Separator + endOffset.ToString(NumberFormatInfo.InvariantInfo));
             part.NameValuePairs.Add(TextSelectionProcessor.IncludeOverlaps, Boolean.TrueString);
@@ -177,10 +177,7 @@ namespace MS.Internal.Annotations.Anchoring
         ///     the locator parts this processor can generate.  This processor
         ///     does not resolve these ContentLocatorParts - only generates them.
         /// </summary>
-        public override XmlQualifiedName[] GetLocatorPartTypes()
-        {
-            return (XmlQualifiedName[])LocatorPartTypeNames.Clone();
-        }
+        public override ReadOnlySpan<XmlQualifiedName> GetLocatorPartTypes() => ReadOnlySpan<XmlQualifiedName>.Empty;
 
         #endregion Public Methods
 
@@ -277,9 +274,6 @@ namespace MS.Internal.Annotations.Anchoring
         //------------------------------------------------------
 
         #region Private Fields
-
-        // ContentLocator part types understood by this processor
-        private static readonly XmlQualifiedName[] LocatorPartTypeNames = Array.Empty<XmlQualifiedName>();
 
         #endregion Private Fields
     }

@@ -166,7 +166,7 @@ namespace MS.Internal.Annotations.Anchoring
             ArgumentNullException.ThrowIfNull(locatorPart);
             ArgumentNullException.ThrowIfNull(startNode);
 
-            if (PageNumberElementName != locatorPart.PartType)
+            if (s_pageNumberElementName != locatorPart.PartType)
                 throw new ArgumentException(SR.Format(SR.IncorrectLocatorPartType, $"{locatorPart.PartType.Namespace}:{locatorPart.PartType.Name}"), nameof(locatorPart));
 
             // Initial value
@@ -243,10 +243,7 @@ namespace MS.Internal.Annotations.Anchoring
         ///     Returns a list of XmlQualifiedNames representing the
         ///     the locator parts this processor can resolve/generate.
         /// </summary>
-        public override XmlQualifiedName[] GetLocatorPartTypes()
-        {
-            return (XmlQualifiedName[])LocatorPartTypeNames.Clone();
-        }
+        public override ReadOnlySpan<XmlQualifiedName> GetLocatorPartTypes() => new(in s_pageNumberElementName);
 
         #endregion Public Methods
 
@@ -317,7 +314,7 @@ namespace MS.Internal.Annotations.Anchoring
         {
             Debug.Assert(page >= 0, "page can not be negative");
 
-            ContentLocatorPart part = new ContentLocatorPart(PageNumberElementName);
+            ContentLocatorPart part = new ContentLocatorPart(s_pageNumberElementName);
 
             part.NameValuePairs.Add(ValueAttributeName, page.ToString(NumberFormatInfo.InvariantInfo));
             return part;
@@ -337,12 +334,7 @@ namespace MS.Internal.Annotations.Anchoring
         private const String ValueAttributeName = "Value";
 
         // Name of the locator part produced by this processor.
-        private static readonly XmlQualifiedName PageNumberElementName = new XmlQualifiedName("PageNumber", AnnotationXmlConstants.Namespaces.BaseSchemaNamespace);
-
-        // ContentLocatorPart types understood by this processor
-        private static readonly XmlQualifiedName[] LocatorPartTypeNames = new XmlQualifiedName[] {
-            PageNumberElementName
-        };
+        private static readonly XmlQualifiedName s_pageNumberElementName = new("PageNumber", AnnotationXmlConstants.Namespaces.BaseSchemaNamespace);
 
         // Specifies whether the processor should use the logical tree to resolve locator parts.
         // If this is false (the default) only visible pages will be found.

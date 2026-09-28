@@ -20,6 +20,7 @@ using System.Windows.Annotations;
 using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Xml;
+using System.Runtime.InteropServices;
 
 namespace MS.Internal.Annotations.Anchoring
 {
@@ -81,11 +82,11 @@ namespace MS.Internal.Annotations.Anchoring
         /// <exception cref="ArgumentNullException">selection is null</exception>
         /// <exception cref="ArgumentException">selection is of wrong type</exception>
         /// <exception cref="ArgumentException">selection start or end point can not be resolved to a page</exception>
-        public override IList<DependencyObject> GetSelectedNodes(Object selection)
+        public override ReadOnlySpan<DependencyObject> GetSelectedNodes(object selection)
         {
             IList<TextSegment> textSegments = CheckSelection(selection);
 
-            IList<DependencyObject> pageEl = new List<DependencyObject>();
+            List<DependencyObject> pageEl = new();
 
             Point start;
             Point end;
@@ -137,7 +138,7 @@ namespace MS.Internal.Annotations.Anchoring
                 }
             }
 
-            return pageEl;
+            return CollectionsMarshal.AsSpan(pageEl);
         }
 
         /// <summary>
@@ -148,7 +149,7 @@ namespace MS.Internal.Annotations.Anchoring
         /// <returns>the parent element of the selection; can be null</returns>
         /// <exception cref="ArgumentNullException">selection is null</exception>
         /// <exception cref="ArgumentException">selection is of wrong type</exception>
-        public override UIElement GetParent(Object selection)
+        public override UIElement GetParent(object selection)
         {
             CheckAnchor(selection);
             return TextSelectionHelper.GetParent(selection);
@@ -192,7 +193,7 @@ namespace MS.Internal.Annotations.Anchoring
             if (fp == null)
                 throw new ArgumentException(SR.StartNodeMustBeFixedPageProxy, nameof(startNode));
 
-            ContentLocatorPart part = new ContentLocatorPart(FixedTextElementName);
+            ContentLocatorPart part = new ContentLocatorPart(s_fixedTextElementName);
             if (fp.Segments.Count == 0)
             {
                 part.NameValuePairs.Add(TextSelectionProcessor.CountAttribute, 1.ToString(NumberFormatInfo.InvariantInfo));
@@ -359,10 +360,7 @@ namespace MS.Internal.Annotations.Anchoring
         ///     Returns a list of XmlQualifiedNames representing the
         ///     the locator parts this processor can resolve/generate.
         /// </summary>
-        public override XmlQualifiedName[] GetLocatorPartTypes()
-        {
-            return (XmlQualifiedName[])LocatorPartTypeNames.Clone();
-        }
+        public override ReadOnlySpan<XmlQualifiedName> GetLocatorPartTypes() => new(in s_fixedTextElementName);
 
         #endregion Public Methods
 
@@ -489,7 +487,7 @@ namespace MS.Internal.Annotations.Anchoring
         {
             ArgumentNullException.ThrowIfNull(locatorPart);
 
-            if (FixedTextElementName != locatorPart.PartType)
+            if (s_fixedTextElementName != locatorPart.PartType)
                 throw new ArgumentException(SR.Format(SR.IncorrectLocatorPartType, $"{locatorPart.PartType.Namespace}:{locatorPart.PartType.Name}"), nameof(locatorPart));
 
             string segmentValue = locatorPart.NameValuePairs[TextSelectionProcessor.SegmentAttribute + segmentNumber.ToString(NumberFormatInfo.InvariantInfo)];
@@ -615,14 +613,7 @@ namespace MS.Internal.Annotations.Anchoring
         #region Private Fields
 
         // Name of locator part element
-        private static readonly XmlQualifiedName FixedTextElementName = new XmlQualifiedName("FixedTextRange", AnnotationXmlConstants.Namespaces.BaseSchemaNamespace);
-
-        // ContentLocatorPart types understood by this processor
-        private static readonly XmlQualifiedName[] LocatorPartTypeNames =
-                new XmlQualifiedName[]
-                {
-                    FixedTextElementName
-                };
+        private static readonly XmlQualifiedName s_fixedTextElementName = new("FixedTextRange", AnnotationXmlConstants.Namespaces.BaseSchemaNamespace);
 
         #endregion Private Fields
 
