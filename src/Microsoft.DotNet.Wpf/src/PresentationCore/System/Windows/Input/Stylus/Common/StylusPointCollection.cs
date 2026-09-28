@@ -368,7 +368,7 @@ namespace System.Windows.Input
             StylusPointCollection newCollection =
                 new StylusPointCollection(descriptionToUse, count);
 
-            bool isIdentity = (transform is Transform) ? ((Transform)transform).IsIdentity : false;
+            bool isIdentity = transform is Transform thisTransform && thisTransform.IsIdentity;
             for (int x = 0; x < count; x++)
             {
                 if (isIdentity)
@@ -467,7 +467,7 @@ namespace System.Windows.Input
 
             ReadOnlyCollection<StylusPointPropertyInfo> properties
                     = subsetToReformatToWithCurrentMetrics.GetStylusPointProperties();
-            bool isIdentity = (transform is Transform) ? ((Transform)transform).IsIdentity : false;
+            bool isIdentity = transform is Transform thisTransform && thisTransform.IsIdentity;
 
             for (int i = 0; i < this.Count; i++)
             {

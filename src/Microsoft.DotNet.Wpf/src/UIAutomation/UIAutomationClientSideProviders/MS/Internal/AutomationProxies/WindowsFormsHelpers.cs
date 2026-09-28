@@ -137,7 +137,7 @@ namespace MS.Internal.AutomationProxies
                 state = GetControlState(hwnd);
             }
 
-            return state == FormControlState.True ? true : false;
+            return state is FormControlState.True;
         }
 
         // The control name is the only real "Persistent" ID in Windows Forms

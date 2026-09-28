@@ -122,7 +122,7 @@ namespace MS.Internal.Tasks
                 linkAlias = subStrs[1];
                 logicalName = subStrs[2];
 
-                localizable = (filePath[0] == trueChar) ? true : false;
+                localizable = filePath[0] is trueChar;
 
                 filePath = filePath.Substring(1);
 

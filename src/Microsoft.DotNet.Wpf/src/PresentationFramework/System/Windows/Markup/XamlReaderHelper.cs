@@ -1240,7 +1240,7 @@ namespace System.Windows.Markup
                         // collapse based on preserve and if last person
                         // ended with the whitespace.
 
-                        lastTextWasPreserved = (xmlSpacePreserveSet) ? true : false;
+                        lastTextWasPreserved = xmlSpacePreserveSet;
 
                         string collapsedText = CollapseText(XmlReader.Value,
                             stripAllLeadingSpaces /* stripAllLeadingSpaces */,

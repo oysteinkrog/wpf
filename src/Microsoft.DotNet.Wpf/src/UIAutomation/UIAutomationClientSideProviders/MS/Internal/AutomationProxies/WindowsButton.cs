@@ -377,7 +377,7 @@ namespace MS.Internal.AutomationProxies
         {
             get
             {
-                return ToggleState == ToggleState.On ? true : false;
+                return ToggleState is ToggleState.On;
             }
         }
 

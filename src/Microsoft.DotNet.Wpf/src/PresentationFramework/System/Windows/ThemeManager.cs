@@ -125,7 +125,7 @@ internal static class ThemeManager
         if (Application.Current.ThemeMode != themeMode)
         {
             Application.Current.ThemeMode = themeMode;
-            return themeMode == ThemeMode.None ? false : true;
+            return themeMode != ThemeMode.None;
         }
         
         return false;

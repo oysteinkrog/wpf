@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 //
@@ -249,7 +249,7 @@ namespace System.Windows.Documents
                        preamble: () => Reinitalize(), 
                        ignoredExceptions: SuppressedExceptions[suppressCOMExceptions]);
 
-                return callSucceeded ? isSupported : false;
+                return callSucceeded && isSupported;
             }
 
             private bool IsSupportedPrivate(string languageTag, bool suppressCOMExceptons = true)
@@ -258,7 +258,7 @@ namespace System.Windows.Documents
                 bool lockedExecutionSucceeded = 
                     _factoryLock.WithWriteLock(IsSupportedImplWithRetries, languageTag, suppressCOMExceptons, out isSupported);
 
-                return lockedExecutionSucceeded ? isSupported : false;
+                return lockedExecutionSucceeded && isSupported;
             }
 
             internal static bool IsSupported(string languageTag, bool suppressCOMExceptons = true)

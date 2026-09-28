@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 //
@@ -170,7 +170,7 @@ namespace MS.Internal.PtsHost
             rectCell.dv = TextDpi.ToTextDpi(subpageSize.Height);
 
             // Suppress top space if cell is broken, but not otherwise
-            bool suppressTopSpace = (breakRecordIn != IntPtr.Zero) ? true : false;
+            bool suppressTopSpace = breakRecordIn != IntPtr.Zero;
 
             CellParagraph.FormatParaFinite(this, breakRecordIn,
                                            PTS.FromBoolean(true),

@@ -421,7 +421,7 @@ namespace MS.Internal.AutomationProxies
             if (!WindowsListView.MultiSelected(_hwnd))
             {
                 IRawElementProviderSimple container = ((ISelectionItemProvider)this).SelectionContainer;
-                bool selectionRequired = container != null ? ((ISelectionProvider)container).IsSelectionRequired : true;
+                bool selectionRequired = container is null || ((ISelectionProvider)container).IsSelectionRequired;
 
                 // For single selection containers that IsSelectionRequired == false and nothing is selected
                 // an AddToSelection is valid.
@@ -456,10 +456,10 @@ namespace MS.Internal.AutomationProxies
             }
 
             // object does not support multi-selection
-            if (!WindowsListView.MultiSelected (_hwnd))
+            if (!WindowsListView.MultiSelected(_hwnd))
             {
                 IRawElementProviderSimple container = ((ISelectionItemProvider)this).SelectionContainer;
-                bool selectionRequired = container != null ? ((ISelectionProvider)container).IsSelectionRequired : true;
+                bool selectionRequired = container is null || ((ISelectionProvider)container).IsSelectionRequired;
 
                 // For single selection containers that IsSelectionRequired == false a
                 // RemoveFromSelection is valid.

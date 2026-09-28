@@ -212,7 +212,7 @@ namespace System.Windows.Controls
         /// </summary>
         public bool CanHorizontallyScroll
         {
-            get { return (IsScrollClient) ? EnsureScrollData()._canHorizontallyScroll : false;  }
+            get { return IsScrollClient && EnsureScrollData()._canHorizontallyScroll;  }
             set
             {
                 if (IsScrollClient && (EnsureScrollData()._canHorizontallyScroll != value))
@@ -229,7 +229,7 @@ namespace System.Windows.Controls
         /// </summary>
         public bool CanVerticallyScroll
         {
-            get { return (IsScrollClient) ? EnsureScrollData()._canVerticallyScroll : false; }
+            get { return IsScrollClient && EnsureScrollData()._canVerticallyScroll; }
             set
             {
                 if (IsScrollClient && (EnsureScrollData()._canVerticallyScroll != value))
