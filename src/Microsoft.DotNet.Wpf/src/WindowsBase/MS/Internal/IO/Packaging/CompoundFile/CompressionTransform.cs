@@ -111,8 +111,8 @@ namespace MS.Internal.IO.Packaging.CompoundFile
         //  Private Data
         //
         //------------------------------------------------------
-        private TransformEnvironment _transformEnvironment;
-        private VersionedStreamOwner _versionedStreamOwner;     // our instance data stream wrapped
+        private readonly TransformEnvironment _transformEnvironment;
+        private readonly VersionedStreamOwner _versionedStreamOwner;     // our instance data stream wrapped
         private const string _featureName = "Microsoft.Metadata.CompressionTransform";
 
         private static readonly VersionPair _currentFeatureVersion = new VersionPair(1, 0);

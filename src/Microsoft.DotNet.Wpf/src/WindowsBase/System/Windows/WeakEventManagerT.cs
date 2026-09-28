@@ -117,9 +117,9 @@ namespace System.Windows
 
         #region Private Data
 
-        private Delegate _handler;
-        private string _eventName;
-        private EventInfo _eventInfo;
+        private readonly Delegate _handler;
+        private readonly string _eventName;
+        private readonly EventInfo _eventInfo;
 
         #endregion Private Data
     }
