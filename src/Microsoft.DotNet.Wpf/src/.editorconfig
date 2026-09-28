@@ -149,9 +149,6 @@ dotnet_diagnostic.IDE0005.severity = suggestion
 # IDE0034: Simplify 'default' expression
 dotnet_diagnostic.IDE0034.severity = suggestion
 
-# IDE0041: Use 'is null' check
-dotnet_diagnostic.IDE0041.severity = suggestion
-
 # IDE0044: Add readonly modifier
 dotnet_diagnostic.IDE0044.severity = suggestion
 
