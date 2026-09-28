@@ -44,10 +44,12 @@ namespace System.Windows.Media
     #region PixelFormat
 
     /// <summary>
-    /// Describes the bit mask and shift for a specific pixelformat
+    /// Describes the bit mask and shift for a specific <see cref="PixelFormat"/>.
     /// </summary>
-    public struct PixelFormatChannelMask
+    public readonly struct PixelFormatChannelMask
     {
+        private readonly byte[] _mask;
+
         internal PixelFormatChannelMask(byte[] mask)
         {
             Debug.Assert(mask != null);
@@ -56,68 +58,63 @@ namespace System.Windows.Media
 
         /// <summary>
         /// The bitmask for a color channel
-        /// It will never be greater then 0xffffffff
+        /// It will never be greater than 0xFFFFFFFF.
         /// </summary>
         public IList<byte> Mask
         {
             get
             {
-                return _mask != null ? new ReadOnlyCollection<byte>((byte[])_mask.Clone()) : null;
+                return _mask != null ? new ReadOnlyCollection<byte>(_mask) : null;
             }
         }
 
         /// <summary>
         /// op_equality - returns whether or not the two pixel format channel masks are equal
         /// </summary>
-        public static bool operator == (PixelFormatChannelMask left, PixelFormatChannelMask right)
+        /// <param name="left">The first mask to compare.</param>
+        /// <param name="right">The second mask to compare.</param>
+        /// <returns><see langword="true"/> if the masks are equal; <see langword="false"/> otherwise.</returns>
+        public static bool operator ==(PixelFormatChannelMask left, PixelFormatChannelMask right)
         {
             return Equals(left, right);
         }
 
         /// <summary>
-        /// Equals - Returns whether or not the two pixel format channel masks are equal
-        /// </summary>
-        public static bool Equals(PixelFormatChannelMask left, PixelFormatChannelMask right)
-        {
-            int leftNumChannels  =  left._mask != null ?  left._mask.Length : 0;
-            int rightNumChannels = right._mask != null ? right._mask.Length : 0;
-
-            if (leftNumChannels != rightNumChannels)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < leftNumChannels; ++i)
-            {
-                if (left._mask[i] != right._mask[i])
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        /// <summary>
         /// op_inequality - returns whether or not the two pixel format channel masks are not equal
         /// </summary>
-        public static bool operator != (PixelFormatChannelMask left, PixelFormatChannelMask right)
+        /// <param name="left">The first mask to compare.</param>
+        /// <param name="right">The second mask to compare.</param>
+        /// <returns><see langword="true"/> if the masks are not equal; <see langword="false"/> otherwise.</returns>
+        public static bool operator !=(PixelFormatChannelMask left, PixelFormatChannelMask right)
         {
             return !(left == right);
         }
 
         /// <summary>
-        /// Equals - Returns whether or not this is equal to the Object
+        /// Determines whether or not the two <see cref="PixelFormatChannelMask"/>s are equal.
         /// </summary>
-        public override bool Equals(Object obj)
+        /// <param name="left">The first mask to compare.</param>
+        /// <param name="right">The second mask to compare.</param>
+        /// <returns><see langword="true"/> if the masks are equal; <see langword="false"/> otherwise.</returns>
+        public static bool Equals(PixelFormatChannelMask left, PixelFormatChannelMask right)
         {
-            // Can't use "as" since we're looking for a value type
-            return obj is PixelFormatChannelMask && this == (PixelFormatChannelMask)obj;
+            return left._mask.AsSpan().SequenceEqual(right._mask);
         }
 
         /// <summary>
-        /// GetHashCode - Returns a hash code
+        /// Determines whether or not the <paramref name="obj"/> and this instance of <see cref="PixelFormatChannelMask"/> are equal.
         /// </summary>
+        /// <param name="obj">The <see cref="object"/> to compare with the current mask.</param>
+        /// <returns><see langword="true"/> if the <see cref="PixelFormatChannelMask"/> is equal to <paramref name="obj"/>; <see langword="false"/> otherwise.</returns>
+        public override bool Equals(object obj)
+        {
+            return obj is PixelFormatChannelMask mask && Equals(this, mask);
+        }
+
+        /// <summary>
+        /// Retrieves a hash code for the specific mask.
+        /// </summary>
+        /// <returns>The mask's hash code.</returns>
         public override int GetHashCode()
         {
             int hash = 0;
@@ -132,8 +129,6 @@ namespace System.Windows.Media
 
             return hash;
         }
-
-        private byte[] _mask;
     }
 
     /// <summary>
