@@ -52,8 +52,6 @@ namespace System.Windows.Media
         }
 
 
-
-
         #endregion Public Methods
 
         //------------------------------------------------------
@@ -61,8 +59,6 @@ namespace System.Windows.Media
         //  Public Properties
         //
         //------------------------------------------------------
-
-
 
 
         #region Public Properties
@@ -146,8 +142,6 @@ namespace System.Windows.Media
             return new PathFigure();
         }
 
-
-
         #endregion ProtectedMethods
 
         //------------------------------------------------------
@@ -157,13 +151,6 @@ namespace System.Windows.Media
         //------------------------------------------------------
 
         #region Internal Methods
-
-
-
-
-
-
-
 
 
         #endregion Internal Methods
@@ -192,8 +179,6 @@ namespace System.Windows.Media
                 return 3;
             }
         }
-
-
 
         #endregion Internal Properties
 
@@ -232,17 +217,12 @@ namespace System.Windows.Media
 
         #region Internal Fields
 
-
-
-
-
         internal static Point s_StartPoint = new Point();
         internal const bool c_IsFilled = true;
         internal static PathSegmentCollection s_Segments = PathSegmentCollection.Empty;
         internal const bool c_IsClosed = false;
 
         #endregion Internal Fields
-
 
 
         #region Constructors
@@ -301,7 +281,6 @@ namespace System.Windows.Media
                                    /* isIndependentlyAnimated  = */ false,
                                    /* coerceValueCallback */ null);
         }
-
 
 
         #endregion Constructors

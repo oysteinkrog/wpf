@@ -52,8 +52,6 @@ namespace System.Windows.Media
         }
 
 
-
-
         #endregion Public Methods
 
         //------------------------------------------------------
@@ -65,7 +63,6 @@ namespace System.Windows.Media
         private static void GlyphRunPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             GlyphRunDrawing target = ((GlyphRunDrawing) d);
-
 
             GlyphRun oldV = (GlyphRun) e.OldValue;
             GlyphRun newV = (GlyphRun) e.NewValue;
@@ -94,9 +91,6 @@ namespace System.Windows.Media
         private static void ForegroundBrushPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
 
-
-
-
             // The first change to the default value of a mutable collection property (e.g. GeometryGroup.Children) 
             // will promote the property value from a default value to a local value. This is technically a sub-property 
             // change because the collection was changed and not a new collection set (GeometryGroup.Children.
@@ -113,7 +107,6 @@ namespace System.Windows.Media
 
 
             GlyphRunDrawing target = ((GlyphRunDrawing) d);
-
 
             Brush oldV = (Brush) e.OldValue;
             Brush newV = (Brush) e.NewValue;
@@ -139,7 +132,6 @@ namespace System.Windows.Media
 
             target.PropertyChanged(ForegroundBrushProperty);
         }
-
 
         #region Public Properties
 
@@ -192,8 +184,6 @@ namespace System.Windows.Media
             return new GlyphRunDrawing();
         }
 
-
-
         #endregion ProtectedMethods
 
         //------------------------------------------------------
@@ -239,7 +229,6 @@ namespace System.Windows.Media
         }
         internal override DUCE.ResourceHandle AddRefOnChannelCore(DUCE.Channel channel)
         {
-
                 if (_duceResource.CreateOrAddRefOnChannel(this, channel, System.Windows.Media.Composition.DUCE.ResourceType.TYPE_GLYPHRUNDRAWING))
                 {
                     GlyphRun vGlyphRun = GlyphRun;
@@ -249,16 +238,13 @@ namespace System.Windows.Media
 
                     AddRefOnChannelAnimations(channel);
 
-
                     UpdateResource(channel, true /* skip "on channel" check - we already know that we're on channel */ );
                 }
 
                 return _duceResource.GetHandle(channel);
-
         }
         internal override void ReleaseOnChannelCore(DUCE.Channel channel)
         {
-
                 Debug.Assert(_duceResource.IsOnChannel(channel));
 
                 if (_duceResource.ReleaseOnChannel(channel))
@@ -269,9 +255,7 @@ namespace System.Windows.Media
                     if (vForegroundBrush != null) ((DUCE.IResource)vForegroundBrush).ReleaseOnChannel(channel);
 
                     ReleaseOnChannelAnimations(channel);
-
                 }
-
         }
         internal override DUCE.ResourceHandle GetHandleCore(DUCE.Channel channel)
         {
@@ -289,7 +273,6 @@ namespace System.Windows.Media
             return _duceResource.GetChannel(index);
         }
 
-
         #endregion Internal Methods
 
         //------------------------------------------------------
@@ -299,9 +282,6 @@ namespace System.Windows.Media
         //------------------------------------------------------
 
         #region Internal Properties
-
-
-
 
 
         #endregion Internal Properties
@@ -333,14 +313,9 @@ namespace System.Windows.Media
 
         #region Internal Fields
 
-
-
         internal System.Windows.Media.Composition.DUCE.MultiChannelResource _duceResource = new System.Windows.Media.Composition.DUCE.MultiChannelResource();
 
-
-
         #endregion Internal Fields
-
 
 
         #region Constructors
@@ -379,7 +354,6 @@ namespace System.Windows.Media
                                    /* isIndependentlyAnimated  = */ false,
                                    /* coerceValueCallback */ null);
         }
-
 
 
         #endregion Constructors

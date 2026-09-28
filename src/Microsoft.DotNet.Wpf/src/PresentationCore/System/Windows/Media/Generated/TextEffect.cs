@@ -52,8 +52,6 @@ namespace System.Windows.Media
         }
 
 
-
-
         #endregion Public Methods
 
         //------------------------------------------------------
@@ -82,7 +80,6 @@ namespace System.Windows.Media
             }
             return true;
         }
-
 
         #region Public Properties
 
@@ -185,8 +182,6 @@ namespace System.Windows.Media
             return new TextEffect();
         }
 
-
-
         #endregion ProtectedMethods
 
         //------------------------------------------------------
@@ -198,13 +193,6 @@ namespace System.Windows.Media
         #region Internal Methods
 
 
-
-
-
-
-
-
-
         #endregion Internal Methods
 
         //------------------------------------------------------
@@ -214,9 +202,6 @@ namespace System.Windows.Media
         //------------------------------------------------------
 
         #region Internal Properties
-
-
-
 
 
         #endregion Internal Properties
@@ -260,15 +245,10 @@ namespace System.Windows.Media
 
         #region Internal Fields
 
-
-
-
-
         internal const int c_PositionStart = 0;
         internal const int c_PositionCount = 0;
 
         #endregion Internal Fields
-
 
 
         #region Constructors
@@ -334,7 +314,6 @@ namespace System.Windows.Media
                                    /* isIndependentlyAnimated  = */ false,
                                    /* coerceValueCallback */ null);
         }
-
 
 
         #endregion Constructors

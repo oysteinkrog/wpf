@@ -52,8 +52,6 @@ namespace System.Windows.Media
         }
 
 
-
-
         #endregion Public Methods
 
         //------------------------------------------------------
@@ -66,10 +64,8 @@ namespace System.Windows.Media
         {
             StreamGeometry target = ((StreamGeometry) d);
 
-
             target.PropertyChanged(FillRuleProperty);
         }
-
 
         #region Public Properties
 
@@ -107,8 +103,6 @@ namespace System.Windows.Media
             return new StreamGeometry();
         }
 
-
-
         #endregion ProtectedMethods
 
         //------------------------------------------------------
@@ -120,13 +114,6 @@ namespace System.Windows.Media
         #region Internal Methods
 
 
-
-
-
-
-
-
-
         #endregion Internal Methods
 
         //------------------------------------------------------
@@ -136,9 +123,6 @@ namespace System.Windows.Media
         //------------------------------------------------------
 
         #region Internal Properties
-
-
-
 
 
         #endregion Internal Properties
@@ -166,14 +150,9 @@ namespace System.Windows.Media
 
         #region Internal Fields
 
-
-
-
-
         internal const FillRule c_FillRule = FillRule.EvenOdd;
 
         #endregion Internal Fields
-
 
 
         #region Constructors
@@ -203,7 +182,6 @@ namespace System.Windows.Media
                                    /* isIndependentlyAnimated  = */ false,
                                    /* coerceValueCallback */ null);
         }
-
 
 
         #endregion Constructors

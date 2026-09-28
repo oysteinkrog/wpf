@@ -52,8 +52,6 @@ namespace System.Windows.Media
         }
 
 
-
-
         #endregion Public Methods
 
         //------------------------------------------------------
@@ -64,9 +62,6 @@ namespace System.Windows.Media
 
         private static void BrushPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-
-
-
 
             // The first change to the default value of a mutable collection property (e.g. GeometryGroup.Children) 
             // will promote the property value from a default value to a local value. This is technically a sub-property 
@@ -84,7 +79,6 @@ namespace System.Windows.Media
 
 
             Pen target = ((Pen) d);
-
 
             Brush oldV = (Brush) e.OldValue;
             Brush newV = (Brush) e.NewValue;
@@ -114,13 +108,11 @@ namespace System.Windows.Media
         {
             Pen target = ((Pen) d);
 
-
             target.PropertyChanged(ThicknessProperty);
         }
         private static void StartLineCapPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             Pen target = ((Pen) d);
-
 
             target.PropertyChanged(StartLineCapProperty);
         }
@@ -128,13 +120,11 @@ namespace System.Windows.Media
         {
             Pen target = ((Pen) d);
 
-
             target.PropertyChanged(EndLineCapProperty);
         }
         private static void DashCapPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             Pen target = ((Pen) d);
-
 
             target.PropertyChanged(DashCapProperty);
         }
@@ -142,21 +132,16 @@ namespace System.Windows.Media
         {
             Pen target = ((Pen) d);
 
-
             target.PropertyChanged(LineJoinProperty);
         }
         private static void MiterLimitPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             Pen target = ((Pen) d);
 
-
             target.PropertyChanged(MiterLimitProperty);
         }
         private static void DashStylePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-
-
-
 
             // The first change to the default value of a mutable collection property (e.g. GeometryGroup.Children) 
             // will promote the property value from a default value to a local value. This is technically a sub-property 
@@ -174,7 +159,6 @@ namespace System.Windows.Media
 
 
             Pen target = ((Pen) d);
-
 
             DashStyle oldV = (DashStyle) e.OldValue;
             DashStyle newV = (DashStyle) e.NewValue;
@@ -200,7 +184,6 @@ namespace System.Windows.Media
 
             target.PropertyChanged(DashStyleProperty);
         }
-
 
         #region Public Properties
 
@@ -343,8 +326,6 @@ namespace System.Windows.Media
             return new Pen();
         }
 
-
-
         #endregion ProtectedMethods
 
         //------------------------------------------------------
@@ -414,7 +395,6 @@ namespace System.Windows.Media
 
                     AddRefOnChannelAnimations(channel);
 
-
                     UpdateResource(channel, true /* skip "on channel" check - we already know that we're on channel */ );
                 }
 
@@ -435,7 +415,6 @@ namespace System.Windows.Media
                     if (vDashStyle != null) ((DUCE.IResource)vDashStyle).ReleaseOnChannel(channel);
 
                     ReleaseOnChannelAnimations(channel);
-
                 }
             }
         }
@@ -460,7 +439,6 @@ namespace System.Windows.Media
             return _duceResource.GetChannel(index);
         }
 
-
         #endregion Internal Methods
 
         //------------------------------------------------------
@@ -470,9 +448,6 @@ namespace System.Windows.Media
         //------------------------------------------------------
 
         #region Internal Properties
-
-
-
 
 
         #endregion Internal Properties
@@ -528,10 +503,7 @@ namespace System.Windows.Media
 
         #region Internal Fields
 
-
-
         internal System.Windows.Media.Composition.DUCE.MultiChannelResource _duceResource = new System.Windows.Media.Composition.DUCE.MultiChannelResource();
-
         internal const double c_Thickness = 1.0;
         internal const PenLineCap c_StartLineCap = PenLineCap.Flat;
         internal const PenLineCap c_EndLineCap = PenLineCap.Flat;
@@ -541,7 +513,6 @@ namespace System.Windows.Media
         internal static DashStyle s_DashStyle = DashStyles.Solid;
 
         #endregion Internal Fields
-
 
 
         #region Constructors
@@ -636,7 +607,6 @@ namespace System.Windows.Media
                                    /* isIndependentlyAnimated  = */ false,
                                    /* coerceValueCallback */ null);
         }
-
 
 
         #endregion Constructors

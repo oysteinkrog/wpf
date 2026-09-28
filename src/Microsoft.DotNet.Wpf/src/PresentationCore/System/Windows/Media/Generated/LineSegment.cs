@@ -52,8 +52,6 @@ namespace System.Windows.Media
         }
 
 
-
-
         #endregion Public Methods
 
         //------------------------------------------------------
@@ -61,8 +59,6 @@ namespace System.Windows.Media
         //  Public Properties
         //
         //------------------------------------------------------
-
-
 
 
         #region Public Properties
@@ -101,8 +97,6 @@ namespace System.Windows.Media
             return new LineSegment();
         }
 
-
-
         #endregion ProtectedMethods
 
         //------------------------------------------------------
@@ -112,13 +106,6 @@ namespace System.Windows.Media
         //------------------------------------------------------
 
         #region Internal Methods
-
-
-
-
-
-
-
 
 
         #endregion Internal Methods
@@ -146,8 +133,6 @@ namespace System.Windows.Media
             }
         }
 
-
-
         #endregion Internal Properties
 
         //------------------------------------------------------
@@ -173,14 +158,9 @@ namespace System.Windows.Media
 
         #region Internal Fields
 
-
-
-
-
         internal static Point s_Point = new Point();
 
         #endregion Internal Fields
-
 
 
         #region Constructors
@@ -210,7 +190,6 @@ namespace System.Windows.Media
                                    /* isIndependentlyAnimated  = */ false,
                                    /* coerceValueCallback */ null);
         }
-
 
 
         #endregion Constructors

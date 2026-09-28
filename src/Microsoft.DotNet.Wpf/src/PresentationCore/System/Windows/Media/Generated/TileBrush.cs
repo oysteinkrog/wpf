@@ -52,8 +52,6 @@ namespace System.Windows.Media
         }
 
 
-
-
         #endregion Public Methods
 
         //------------------------------------------------------
@@ -66,13 +64,11 @@ namespace System.Windows.Media
         {
             TileBrush target = ((TileBrush) d);
 
-
             target.PropertyChanged(ViewportUnitsProperty);
         }
         private static void ViewboxUnitsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             TileBrush target = ((TileBrush) d);
-
 
             target.PropertyChanged(ViewboxUnitsProperty);
         }
@@ -80,13 +76,11 @@ namespace System.Windows.Media
         {
             TileBrush target = ((TileBrush) d);
 
-
             target.PropertyChanged(ViewportProperty);
         }
         private static void ViewboxPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             TileBrush target = ((TileBrush) d);
-
 
             target.PropertyChanged(ViewboxProperty);
         }
@@ -94,13 +88,11 @@ namespace System.Windows.Media
         {
             TileBrush target = ((TileBrush) d);
 
-
             target.PropertyChanged(StretchProperty);
         }
         private static void TileModePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             TileBrush target = ((TileBrush) d);
-
 
             target.PropertyChanged(TileModeProperty);
         }
@@ -108,13 +100,11 @@ namespace System.Windows.Media
         {
             TileBrush target = ((TileBrush) d);
 
-
             target.PropertyChanged(AlignmentXProperty);
         }
         private static void AlignmentYPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             TileBrush target = ((TileBrush) d);
-
 
             target.PropertyChanged(AlignmentYProperty);
         }
@@ -122,13 +112,11 @@ namespace System.Windows.Media
         {
             TileBrush target = ((TileBrush) d);
 
-
             target.PropertyChanged(RenderOptions.CachingHintProperty);
         }
         private static void CacheInvalidationThresholdMinimumPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             TileBrush target = ((TileBrush) d);
-
 
             target.PropertyChanged(RenderOptions.CacheInvalidationThresholdMinimumProperty);
         }
@@ -136,10 +124,8 @@ namespace System.Windows.Media
         {
             TileBrush target = ((TileBrush) d);
 
-
             target.PropertyChanged(RenderOptions.CacheInvalidationThresholdMaximumProperty);
         }
-
 
         #region Public Properties
 
@@ -274,9 +260,6 @@ namespace System.Windows.Media
         #region Protected Methods
 
 
-
-
-
         #endregion ProtectedMethods
 
         //------------------------------------------------------
@@ -288,13 +271,6 @@ namespace System.Windows.Media
         #region Internal Methods
 
 
-
-
-
-
-
-
-
         #endregion Internal Methods
 
         //------------------------------------------------------
@@ -304,9 +280,6 @@ namespace System.Windows.Media
         //------------------------------------------------------
 
         #region Internal Properties
-
-
-
 
 
         #endregion Internal Properties
@@ -362,10 +335,6 @@ namespace System.Windows.Media
 
         #region Internal Fields
 
-
-
-
-
         internal const BrushMappingMode c_ViewportUnits = BrushMappingMode.RelativeToBoundingBox;
         internal const BrushMappingMode c_ViewboxUnits = BrushMappingMode.RelativeToBoundingBox;
         internal static Rect s_Viewport = new Rect(0,0,1,1);
@@ -379,7 +348,6 @@ namespace System.Windows.Media
         internal const double c_CacheInvalidationThresholdMaximum = 1.414;
 
         #endregion Internal Fields
-
 
 
         #region Constructors
@@ -485,7 +453,6 @@ namespace System.Windows.Media
                                    /* isIndependentlyAnimated  = */ false,
                                    /* coerceValueCallback */ null);
         }
-
 
 
         #endregion Constructors

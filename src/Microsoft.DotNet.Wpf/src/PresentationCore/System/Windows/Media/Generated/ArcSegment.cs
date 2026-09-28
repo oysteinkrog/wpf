@@ -52,8 +52,6 @@ namespace System.Windows.Media
         }
 
 
-
-
         #endregion Public Methods
 
         //------------------------------------------------------
@@ -61,8 +59,6 @@ namespace System.Windows.Media
         //  Public Properties
         //
         //------------------------------------------------------
-
-
 
 
         #region Public Properties
@@ -161,8 +157,6 @@ namespace System.Windows.Media
             return new ArcSegment();
         }
 
-
-
         #endregion ProtectedMethods
 
         //------------------------------------------------------
@@ -174,13 +168,6 @@ namespace System.Windows.Media
         #region Internal Methods
 
 
-
-
-
-
-
-
-
         #endregion Internal Methods
 
         //------------------------------------------------------
@@ -190,9 +177,6 @@ namespace System.Windows.Media
         //------------------------------------------------------
 
         #region Internal Properties
-
-
-
 
 
         #endregion Internal Properties
@@ -236,10 +220,6 @@ namespace System.Windows.Media
 
         #region Internal Fields
 
-
-
-
-
         internal static Point s_Point = new Point();
         internal static Size s_Size = new Size();
         internal const double c_RotationAngle = 0.0;
@@ -247,7 +227,6 @@ namespace System.Windows.Media
         internal const SweepDirection c_SweepDirection = SweepDirection.Counterclockwise;
 
         #endregion Internal Fields
-
 
 
         #region Constructors
@@ -313,7 +292,6 @@ namespace System.Windows.Media
                                    /* isIndependentlyAnimated  = */ false,
                                    /* coerceValueCallback */ null);
         }
-
 
 
         #endregion Constructors

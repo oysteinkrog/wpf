@@ -52,8 +52,6 @@ namespace System.Windows.Media
         }
 
 
-
-
         #endregion Public Methods
 
         //------------------------------------------------------
@@ -66,14 +64,10 @@ namespace System.Windows.Media
         {
             CombinedGeometry target = ((CombinedGeometry) d);
 
-
             target.PropertyChanged(GeometryCombineModeProperty);
         }
         private static void Geometry1PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-
-
-
 
             // The first change to the default value of a mutable collection property (e.g. GeometryGroup.Children) 
             // will promote the property value from a default value to a local value. This is technically a sub-property 
@@ -91,7 +85,6 @@ namespace System.Windows.Media
 
 
             CombinedGeometry target = ((CombinedGeometry) d);
-
 
             Geometry oldV = (Geometry) e.OldValue;
             Geometry newV = (Geometry) e.NewValue;
@@ -120,9 +113,6 @@ namespace System.Windows.Media
         private static void Geometry2PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
 
-
-
-
             // The first change to the default value of a mutable collection property (e.g. GeometryGroup.Children) 
             // will promote the property value from a default value to a local value. This is technically a sub-property 
             // change because the collection was changed and not a new collection set (GeometryGroup.Children.
@@ -139,7 +129,6 @@ namespace System.Windows.Media
 
 
             CombinedGeometry target = ((CombinedGeometry) d);
-
 
             Geometry oldV = (Geometry) e.OldValue;
             Geometry newV = (Geometry) e.NewValue;
@@ -165,7 +154,6 @@ namespace System.Windows.Media
 
             target.PropertyChanged(Geometry2Property);
         }
-
 
         #region Public Properties
 
@@ -233,8 +221,6 @@ namespace System.Windows.Media
             return new CombinedGeometry();
         }
 
-
-
         #endregion ProtectedMethods
 
         //------------------------------------------------------
@@ -294,7 +280,6 @@ namespace System.Windows.Media
         }
         internal override DUCE.ResourceHandle AddRefOnChannelCore(DUCE.Channel channel)
         {
-
                 if (_duceResource.CreateOrAddRefOnChannel(this, channel, System.Windows.Media.Composition.DUCE.ResourceType.TYPE_COMBINEDGEOMETRY))
                 {
                     Transform vTransform = Transform;
@@ -306,16 +291,13 @@ namespace System.Windows.Media
 
                     AddRefOnChannelAnimations(channel);
 
-
                     UpdateResource(channel, true /* skip "on channel" check - we already know that we're on channel */ );
                 }
 
                 return _duceResource.GetHandle(channel);
-
         }
         internal override void ReleaseOnChannelCore(DUCE.Channel channel)
         {
-
                 Debug.Assert(_duceResource.IsOnChannel(channel));
 
                 if (_duceResource.ReleaseOnChannel(channel))
@@ -328,9 +310,7 @@ namespace System.Windows.Media
                     if (vGeometry2 != null) ((DUCE.IResource)vGeometry2).ReleaseOnChannel(channel);
 
                     ReleaseOnChannelAnimations(channel);
-
                 }
-
         }
         internal override DUCE.ResourceHandle GetHandleCore(DUCE.Channel channel)
         {
@@ -347,7 +327,6 @@ namespace System.Windows.Media
             // Note that we are in a lock here already.
             return _duceResource.GetChannel(index);
         }
-
 
         #endregion Internal Methods
 
@@ -375,8 +354,6 @@ namespace System.Windows.Media
                 return 3;
             }
         }
-
-
 
         #endregion Internal Properties
 
@@ -411,16 +388,12 @@ namespace System.Windows.Media
 
         #region Internal Fields
 
-
-
         internal System.Windows.Media.Composition.DUCE.MultiChannelResource _duceResource = new System.Windows.Media.Composition.DUCE.MultiChannelResource();
-
         internal const GeometryCombineMode c_GeometryCombineMode = GeometryCombineMode.Union;
         internal static Geometry s_Geometry1 = Geometry.Empty;
         internal static Geometry s_Geometry2 = Geometry.Empty;
 
         #endregion Internal Fields
-
 
 
         #region Constructors
@@ -474,7 +447,6 @@ namespace System.Windows.Media
                                    /* isIndependentlyAnimated  = */ false,
                                    /* coerceValueCallback */ null);
         }
-
 
 
         #endregion Constructors
