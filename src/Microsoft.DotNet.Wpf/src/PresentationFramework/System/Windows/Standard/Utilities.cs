@@ -272,14 +272,9 @@ namespace Standard
             return true;
         }
 
-        public static bool IsDoubleFiniteAndNonNegative(double d)
+        public static bool IsDoubleFiniteAndNonNegative(double value)
         {
-            if (double.IsNaN(d) || double.IsInfinity(d) || d < 0)
-            {
-                return false;
-            }
-
-            return true;
+            return double.IsFinite(value) && value >= 0;
         }
 
         #endregion
